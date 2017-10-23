@@ -99,5 +99,5 @@ DustWidget::DustWidget()
 	addInput(createInput<PJ301MPort>(Vec(33, 146), module, Dust::RATE_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 280), module, Dust::DUST_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Dust::DUST_OUTPUT));
 }
