@@ -14,4 +14,5 @@ struct DustWidget : ModuleWidget { DustWidget();};
 struct CrackleWidget : ModuleWidget { CrackleWidget();};
 
 struct ASRWidget : ModuleWidget { ASRWidget();};
+struct TwoToFourWidget : ModuleWidget { TwoToFourWidget();};
 
