@@ -6,15 +6,14 @@ Plugin *plugin;
 
 void init(rack::Plugin *p) {
 	plugin = p;
-	plugin->slug = "HetrickCV";
-	plugin->name = "HetrickCV";
-	plugin->homepageUrl = "https://github.com/VCVRack/Tutorial";
+	p->slug = "HetrickCV";
 #ifdef VERSION
 	plugin->version = TOSTRING(VERSION);
 #endif
 
-	createModel<DustWidget>(plugin, "Dust", "Dust");
-	createModel<CrackleWidget>(plugin, "Crackle", "Crackle");
+	//p->addModel(createModel<E340Widget>("ESeries", "E-Series", "E340", "E340 Cloud Generator"));
+	p->addModel(createModel<DustWidget>("HetrickCV", "HetrickCV", "Dust", "Dust"));
+	p->addModel(createModel<CrackleWidget>("HetrickCV", "HetrickCV", "Crackle", "Crackle"));
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.
