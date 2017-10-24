@@ -58,12 +58,12 @@ void Dust::step()
 		if(bipolar)
 		{
 			const float scale = (threshold > 0.0f) ? 2.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].value = clampf(noiseValue * scale - 1.0f, -1.0f, 1.0f);
+			outputs[DUST_OUTPUT].value = clampf((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f);
 		}
 		else
 		{
 			const float scale = (threshold > 0.0f) ? 1.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].value = clampf(noiseValue * scale, 0.0f, 1.0f);
+			outputs[DUST_OUTPUT].value = clampf(noiseValue * scale * 5.0f, 5.0f, 5.0f);
 		}
 	}
 	else

@@ -15,7 +15,7 @@ struct Crackle : Module
 	};
 	enum OutputIds 
 	{
-		DUST_OUTPUT,
+		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
 
@@ -56,14 +56,14 @@ void Crackle::step()
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
         y2 = y1;
         y1 = y0;
-        outputs[DUST_OUTPUT].value = clampf(y0, -5.0, 5.0);
+        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
     }
     else
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
         y2 = y1;
         y1 = y0;
-        outputs[DUST_OUTPUT].value = clampf(y0, -5.0, 5.0);
+        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
     }
 
 }
@@ -95,5 +95,5 @@ CrackleWidget::CrackleWidget()
     addInput(createInput<PJ301MPort>(Vec(33, 146), module, Crackle::RATE_INPUT));
 
     //////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Crackle::DUST_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Crackle::MAIN_OUTPUT));
 }
