@@ -10,12 +10,8 @@ extern Plugin *plugin;
 // module widgets
 ////////////////////
 
-struct DustWidget : ModuleWidget 
-{
-	DustWidget();
-};
+struct DustWidget : ModuleWidget { DustWidget();};
+struct CrackleWidget : ModuleWidget { CrackleWidget();};
 
-struct CrackleWidget : ModuleWidget 
-{
-	CrackleWidget();
-};
+struct ASRWidget : ModuleWidget { ASRWidget();};
+

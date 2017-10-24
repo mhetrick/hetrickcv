@@ -14,6 +14,7 @@ void init(rack::Plugin *p) {
 	//p->addModel(createModel<E340Widget>("ESeries", "E-Series", "E340", "E340 Cloud Generator"));
 	p->addModel(createModel<DustWidget>("HetrickCV", "HetrickCV", "Dust", "Dust"));
 	p->addModel(createModel<CrackleWidget>("HetrickCV", "HetrickCV", "Crackle", "Crackle"));
+	p->addModel(createModel<ASRWidget>("HetrickCV", "HetrickCV", "ASR", "ASR"));
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.
