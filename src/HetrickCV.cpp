@@ -20,6 +20,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<Boolean2Widget>("HetrickCV", "HetrickCV", "Boolean2", "Boolean Logic (2 In)"));
 	p->addModel(createModel<Boolean3Widget>("HetrickCV", "HetrickCV", "Boolean3", "Boolean Logic (3 In)"));
 	p->addModel(createModel<LogicInvertWidget>("HetrickCV", "HetrickCV", "Logic Invert", "NOT Logic (Gate Inverter)"));
+	p->addModel(createModel<LogicCombineWidget>("HetrickCV", "HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)"));
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.
