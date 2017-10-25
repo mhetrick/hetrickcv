@@ -28,9 +28,11 @@ struct LogicCombine : Module
     bool ins[6] = {};
     bool trigs[6] = {};
     float outs[3] = {};
+    float trigLight;
     SchmittTrigger inTrigs[6];
     bool orState = false;
     bool trigState = false;
+    const float lightLambda = 0.075;
 
 	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
 	{
@@ -68,7 +70,21 @@ void LogicCombine::step()
 
     outs[0] = orState ? 5.0f : 0.0f;
     outs[1] = 5.0f - outs[0];
+
+    if(trigState)
+    {
+        trigLight = 5.0f;
+        outs[2] = 5.0f;
+    }
+    else
+    {
+        outs[2] = 0.0f;
+    }
+
     outs[2] = trigState ? 5.0f : 0.0f;
+
+    if (trigLight > 0.01)
+        trigLight -= trigLight / lightLambda / engineGetSampleRate();
 
     outputs[OR_OUTPUT].value = outs[0];
     outputs[NOR_OUTPUT].value = outs[1];
@@ -112,5 +128,5 @@ LogicCombineWidget::LogicCombineWidget()
     //////BLINKENLIGHTS//////
     addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 158), &module->outs[0]));
     addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 203), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 248), &module->outs[2]));
+    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 248), &module->trigLight));
 }
