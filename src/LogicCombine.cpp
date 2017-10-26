@@ -1,5 +1,5 @@
 #include "HetrickCV.hpp"
-#include "dsp/digital.hpp"
+#include "Trigger.hpp"
 
 struct LogicCombine : Module 
 {
@@ -42,6 +42,8 @@ struct LogicCombine : Module
     bool trigState = false;
     const float lightLambda = 0.075;
 
+    TriggerGenerator trigger;
+
 	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
@@ -81,15 +83,11 @@ void LogicCombine::step()
 
     if(trigState)
     {
+        trigger.trigger();
         lights[TRIG_LIGHT].value = 5.0f;
-        outs[2] = 5.0f;
-    }
-    else
-    {
-        outs[2] = 0.0f;
-    }
+    } 
 
-    outs[2] = trigState ? 5.0f : 0.0f;
+    outs[2] = trigger.process() ? 5.0f : 0.0f;
 
     if (lights[TRIG_LIGHT].value > 0.01)
         lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * engineGetSampleTime();
@@ -100,7 +98,6 @@ void LogicCombine::step()
 
     lights[OR_LIGHT].value = outs[0];
     lights[NOR_LIGHT].value = outs[1];
-    //lights[TRIG_LIGHT].value = outs[2];
 }
 
 
