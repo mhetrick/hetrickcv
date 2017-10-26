@@ -20,16 +20,25 @@ struct FlipFlop : Module
         FFTNOT_OUTPUT,
         FFDNOT_OUTPUT,
 		NUM_OUTPUTS
+    };
+    
+    enum LightIds 
+    {
+        FFT_LIGHT,
+        FFD_LIGHT,
+        FFTNOT_LIGHT,
+        FFDNOT_LIGHT,
+		TOGGLE_LIGHT,
+        DATA_LIGHT,
+        NUM_LIGHTS
 	};
 
     SchmittTrigger clockTrigger;
     float outs[4] = {};
     bool toggle = false;
     bool dataIn = false;
-    float dataLight = 0.0f;
-    float toggleLight = 0.0f;
 
-	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -46,15 +55,15 @@ struct FlipFlop : Module
 void FlipFlop::step() 
 {
     dataIn = (inputs[IND_INPUT].value >= 1.0f);
-    dataLight = dataIn ? 5.0f : 0.0f;
-    toggleLight = (inputs[INT_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
+    lights[DATA_LIGHT].value = dataIn ? 5.0f : 0.0f;
+    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
 
     if (clockTrigger.process(inputs[INT_INPUT].value))
     {
         toggle = !toggle;
 
         outs[0] = toggle ? 5.0f : 0.0f;
-        outs[1] = dataLight;
+        outs[1] = lights[DATA_LIGHT].value;
 
         outs[2] = 5.0f - outs[0];
         outs[3] = 5.0f - outs[1];
@@ -64,6 +73,11 @@ void FlipFlop::step()
     outputs[FFD_OUTPUT].value = outs[1];
     outputs[FFTNOT_OUTPUT].value = outs[2];
     outputs[FFDNOT_OUTPUT].value = outs[3];
+
+    lights[FFT_LIGHT].value = outs[0];
+    lights[FFD_LIGHT].value = outs[1];
+    lights[FFTNOT_LIGHT].value = outs[2];
+    lights[FFDNOT_LIGHT].value = outs[3];
 }
 
 
@@ -98,10 +112,10 @@ FlipFlopWidget::FlipFlopWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, FlipFlop::FFDNOT_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 158), &module->outs[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 203), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 248), &module->outs[2]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 293), &module->outs[3]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(18, 87), &module->toggleLight));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(63, 87), &module->dataLight));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, FlipFlop::FFT_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, FlipFlop::FFD_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, FlipFlop::FFTNOT_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, FlipFlop::FFDNOT_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
 }

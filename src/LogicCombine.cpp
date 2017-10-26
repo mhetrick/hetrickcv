@@ -23,6 +23,14 @@ struct LogicCombine : Module
         NOR_OUTPUT,
         TRIG_OUTPUT,
 		NUM_OUTPUTS
+    };
+    
+    enum LightIds 
+    {
+        OR_LIGHT,
+        NOR_LIGHT,
+		TRIG_LIGHT,
+        NUM_LIGHTS
 	};
 
     bool ins[6] = {};
@@ -34,7 +42,7 @@ struct LogicCombine : Module
     bool trigState = false;
     const float lightLambda = 0.075;
 
-	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -73,7 +81,7 @@ void LogicCombine::step()
 
     if(trigState)
     {
-        trigLight = 5.0f;
+        lights[TRIG_LIGHT].value = 5.0f;
         outs[2] = 5.0f;
     }
     else
@@ -83,12 +91,16 @@ void LogicCombine::step()
 
     outs[2] = trigState ? 5.0f : 0.0f;
 
-    if (trigLight > 0.01)
-        trigLight -= trigLight / lightLambda / engineGetSampleRate();
+    if (lights[TRIG_LIGHT].value > 0.01)
+        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * engineGetSampleTime();
 
     outputs[OR_OUTPUT].value = outs[0];
     outputs[NOR_OUTPUT].value = outs[1];
     outputs[TRIG_OUTPUT].value = outs[2];
+
+    lights[OR_LIGHT].value = outs[0];
+    lights[NOR_LIGHT].value = outs[1];
+    //lights[TRIG_LIGHT].value = outs[2];
 }
 
 
@@ -126,7 +138,7 @@ LogicCombineWidget::LogicCombineWidget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 240), module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 158), &module->outs[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 203), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 248), &module->trigLight));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, LogicCombine::OR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, LogicCombine::NOR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, LogicCombine::TRIG_LIGHT));
 }

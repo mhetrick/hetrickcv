@@ -25,12 +25,22 @@ struct LogicInvert : Module
         OUT5_OUTPUT,
         OUT6_OUTPUT,
 		NUM_OUTPUTS
+    };
+    enum LightIds 
+	{
+        OUT1_LIGHT,
+        OUT2_LIGHT,
+        OUT3_LIGHT,
+        OUT4_LIGHT,
+        OUT5_LIGHT,
+        OUT6_LIGHT,
+		NUM_LIGHTS
 	};
 
     float ins[6] = {};
     float outs[6] = {};
 
-	LogicInvert() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	LogicInvert() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -66,6 +76,13 @@ void LogicInvert::step()
     outputs[OUT4_OUTPUT].value = outs[3];
     outputs[OUT5_OUTPUT].value = outs[4];
     outputs[OUT6_OUTPUT].value = outs[5];
+
+    lights[OUT1_LIGHT].value = outs[0];
+    lights[OUT2_LIGHT].value = outs[1];
+    lights[OUT3_LIGHT].value = outs[2];
+    lights[OUT4_LIGHT].value = outs[3];
+    lights[OUT5_LIGHT].value = outs[4];
+    lights[OUT6_LIGHT].value = outs[5];
 }
 
 
@@ -106,10 +123,10 @@ LogicInvertWidget::LogicInvertWidget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 285), module, LogicInvert::OUT6_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 68), &module->outs[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 113), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 158), &module->outs[2]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 203), &module->outs[3]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 248), &module->outs[4]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 293), &module->outs[5]));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 68), module, LogicInvert::OUT1_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 113), module, LogicInvert::OUT2_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, LogicInvert::OUT3_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, LogicInvert::OUT4_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, LogicInvert::OUT5_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 293), module, LogicInvert::OUT6_LIGHT));
 }

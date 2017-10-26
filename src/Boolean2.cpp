@@ -22,14 +22,26 @@ struct Boolean2 : Module
         NAND_OUTPUT,
         XNOR_OUTPUT,
 		NUM_OUTPUTS
+    };
+    
+    enum LightIds 
+    {
+        OR_LIGHT,
+        AND_LIGHT,
+        XOR_LIGHT,
+        NOR_LIGHT,
+        NAND_LIGHT,
+        XNOR_LIGHT,
+		INA_LIGHT,
+        INB_LIGHT,
+        NUM_LIGHTS
 	};
 
     bool inA = false;
     bool inB = false;
     float outs[6] = {};
-    float lightA = 0.0f, lightB = 0.0f;
 
-	Boolean2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	Boolean2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -48,8 +60,8 @@ void Boolean2::step()
     inA = (inputs[INA_INPUT].value >= 1.0f);
     inB = (inputs[INB_INPUT].value >= 1.0f);
 
-    lightA = inA ? 5.0f : 0.0f;
-    lightB = inB ? 5.0f : 0.0f;
+    lights[INA_LIGHT].value = inA ? 5.0f : 0.0f;
+    lights[INB_LIGHT].value = inB ? 5.0f : 0.0f;
 
     outs[0] = (inA || inB) ? 5.0f : 0.0f;
     outs[1] = (inA && inB) ? 5.0f : 0.0f;
@@ -64,6 +76,13 @@ void Boolean2::step()
     outputs[NOR_OUTPUT].value = outs[3];
     outputs[NAND_OUTPUT].value = outs[4];
     outputs[XNOR_OUTPUT].value = outs[5];
+
+    lights[OR_LIGHT].value = outs[0];
+    lights[AND_LIGHT].value = outs[1];
+    lights[XOR_LIGHT].value = outs[2];
+    lights[NOR_LIGHT].value = outs[3];
+    lights[NAND_LIGHT].value = outs[4];
+    lights[XNOR_LIGHT].value = outs[5];
 }
 
 
@@ -100,12 +119,12 @@ Boolean2Widget::Boolean2Widget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 285), module, Boolean2::XNOR_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 68), &module->outs[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 113), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 158), &module->outs[2]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 203), &module->outs[3]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 248), &module->outs[4]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(74, 293), &module->outs[5]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(18, 92), &module->lightA));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(18, 182), &module->lightB));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 68), module, Boolean2::OR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 113), module, Boolean2::AND_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, Boolean2::XOR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, Boolean2::NOR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, Boolean2::NAND_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 293), module, Boolean2::XNOR_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 92), module, Boolean2::INA_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 182), module, Boolean2::INB_LIGHT));
 }

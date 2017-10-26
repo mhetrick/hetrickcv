@@ -57,15 +57,15 @@
   </g>
   <circle cx="45" cy="58.00002" r="19.5"/>
   <g>
-    <circle cx="45" cy="58.00002" r="16.75688" style="fill: none;stroke: #fff;stroke-miterlimit: 10"/>
-    <circle cx="45" cy="58.00002" r="15.3159" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.9140069800853593px"/>
-    <circle cx="45" cy="58.00002" r="13.87493" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.8280139609944732px"/>
-    <circle cx="45" cy="58.00002" r="12.43396" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.7420209419035869px"/>
-    <circle cx="45" cy="58.00002" r="10.99298" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.6560279228127007px"/>
-    <circle cx="45" cy="58.00002" r="9.55201" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.5700349037218146px"/>
-    <circle cx="45" cy="58.00002" r="8.11103" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.48404188463092845px"/>
-    <circle cx="45" cy="58.00002" r="6.67006" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.3980488655400424px"/>
-    <circle cx="45" cy="58.00002" r="5.22908" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.31205584644915624px"/>
-    <circle cx="45" cy="58.00002" r="3.78811" style="fill: none;stroke: #fff;stroke-miterlimit: 10;stroke-width: 0.2260628265345156px"/>
+    <circle cx="45" cy="58.00002" r="16.75688" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="15.3159" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="13.87493" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="12.43396" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="10.99298" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="9.55201" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="8.11103" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="6.67006" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="5.22908" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
+    <circle cx="45" cy="58.00002" r="3.78811" style="fill: none;stroke: #f0f0f0;stroke-miterlimit: 10"/>
   </g>
 </svg>

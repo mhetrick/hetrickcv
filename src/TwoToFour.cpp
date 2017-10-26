@@ -22,9 +22,18 @@ struct TwoToFour : Module
 		NUM_OUTPUTS
 	};
 
+	enum LightIds 
+    {
+        OUT1_LIGHT,
+        OUT2_LIGHT,
+		OUT3_LIGHT,
+		OUT4_LIGHT,
+        NUM_LIGHTS
+	};
+
     float outs[4] = {};
 
-	TwoToFour() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	TwoToFour() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -51,7 +60,12 @@ void TwoToFour::step()
     outputs[OUT1_OUTPUT].value = outs[0];
     outputs[OUT2_OUTPUT].value = outs[1];
     outputs[OUT3_OUTPUT].value = outs[2];
-    outputs[OUT4_OUTPUT].value = outs[3];
+	outputs[OUT4_OUTPUT].value = outs[3];
+	
+	lights[OUT1_LIGHT].value = outs[0];
+    lights[OUT2_LIGHT].value = outs[1];
+    lights[OUT3_LIGHT].value = outs[2];
+    lights[OUT4_LIGHT].value = outs[3];
 }
 
 
@@ -86,8 +100,8 @@ TwoToFourWidget::TwoToFourWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, TwoToFour::OUT4_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 158), &module->outs[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 203), &module->outs[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 248), &module->outs[2]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 293), &module->outs[3]));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, TwoToFour::OUT1_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, TwoToFour::OUT2_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, TwoToFour::OUT3_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, TwoToFour::OUT4_LIGHT));
 }

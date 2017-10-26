@@ -20,12 +20,20 @@ struct ASR : Module
         STAGE3_OUTPUT,
         STAGE4_OUTPUT,
 		NUM_OUTPUTS
+    };
+    enum LightIds 
+    {
+        STAGE1_LIGHT,
+        STAGE2_LIGHT,
+		STAGE3_LIGHT,
+        STAGE4_LIGHT,
+        NUM_LIGHTS
 	};
 
     SchmittTrigger clockTrigger;
     float stages[4] = {};
 
-	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
 		
 	}
@@ -53,6 +61,11 @@ void ASR::step()
     outputs[STAGE2_OUTPUT].value = stages[1];
     outputs[STAGE3_OUTPUT].value = stages[2];
     outputs[STAGE4_OUTPUT].value = stages[3];
+
+    lights[STAGE1_LIGHT].value = stages[0];
+    lights[STAGE2_LIGHT].value = stages[1];
+    lights[STAGE3_LIGHT].value = stages[2];
+    lights[STAGE4_LIGHT].value = stages[3];
 }
 
 
@@ -87,8 +100,8 @@ ASRWidget::ASRWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, ASR::STAGE4_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 158), &module->stages[0]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 203), &module->stages[1]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 248), &module->stages[2]));
-    addChild(createValueLight<SmallLight<GreenRedPolarityLight>>(Vec(70, 293), &module->stages[3]));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, ASR::STAGE1_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, ASR::STAGE2_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, ASR::STAGE3_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, ASR::STAGE4_LIGHT));
 }
