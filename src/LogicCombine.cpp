@@ -96,8 +96,9 @@ void LogicCombine::step()
     outputs[NOR_OUTPUT].value = outs[1];
     outputs[TRIG_OUTPUT].value = outs[2];
 
-    lights[OR_LIGHT].value = outs[0];
-    lights[NOR_LIGHT].value = outs[1];
+    lights[OR_LIGHT].setBrightness(outs[0]);
+    lights[NOR_LIGHT].setBrightness(outs[1]);
+    lights[TRIG_LIGHT].setBrightnessSmooth(outs[2]);
 }
 
 
@@ -135,7 +136,7 @@ LogicCombineWidget::LogicCombineWidget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 240), module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, LogicCombine::OR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, LogicCombine::NOR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, LogicCombine::TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 158), module, LogicCombine::OR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 203), module, LogicCombine::NOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 248), module, LogicCombine::TRIG_LIGHT));
 }

@@ -123,10 +123,10 @@ LogicInvertWidget::LogicInvertWidget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 285), module, LogicInvert::OUT6_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 68), module, LogicInvert::OUT1_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 113), module, LogicInvert::OUT2_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, LogicInvert::OUT3_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, LogicInvert::OUT4_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, LogicInvert::OUT5_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 293), module, LogicInvert::OUT6_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 68), module, LogicInvert::OUT1_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 113), module, LogicInvert::OUT2_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 158), module, LogicInvert::OUT3_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 203), module, LogicInvert::OUT4_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 248), module, LogicInvert::OUT5_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 293), module, LogicInvert::OUT6_LIGHT));
 }

@@ -24,10 +24,10 @@ struct TwoToFour : Module
 
 	enum LightIds 
     {
-        OUT1_LIGHT,
-        OUT2_LIGHT,
-		OUT3_LIGHT,
-		OUT4_LIGHT,
+        OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
+		OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
+		OUT3_POS_LIGHT, OUT3_NEG_LIGHT,
+		OUT4_POS_LIGHT, OUT4_NEG_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -62,10 +62,17 @@ void TwoToFour::step()
     outputs[OUT3_OUTPUT].value = outs[2];
 	outputs[OUT4_OUTPUT].value = outs[3];
 	
-	lights[OUT1_LIGHT].value = outs[0];
-    lights[OUT2_LIGHT].value = outs[1];
-    lights[OUT3_LIGHT].value = outs[2];
-    lights[OUT4_LIGHT].value = outs[3];
+	lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[0] / 5.0));
+    lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[0] / 5.0));
+
+    lights[OUT2_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[1] / 5.0));
+    lights[OUT2_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[1] / 5.0));
+
+    lights[OUT3_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[2] / 5.0));
+    lights[OUT3_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[2] / 5.0));
+
+    lights[OUT4_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[3] / 5.0));
+    lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[3] / 5.0));
 }
 
 
@@ -100,8 +107,8 @@ TwoToFourWidget::TwoToFourWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, TwoToFour::OUT4_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, TwoToFour::OUT1_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, TwoToFour::OUT2_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, TwoToFour::OUT3_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, TwoToFour::OUT4_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, TwoToFour::OUT1_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, TwoToFour::OUT2_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, TwoToFour::OUT3_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, TwoToFour::OUT4_POS_LIGHT));
 }

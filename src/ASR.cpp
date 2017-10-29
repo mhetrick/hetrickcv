@@ -23,10 +23,10 @@ struct ASR : Module
     };
     enum LightIds 
     {
-        STAGE1_LIGHT,
-        STAGE2_LIGHT,
-		STAGE3_LIGHT,
-        STAGE4_LIGHT,
+        OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
+		OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
+		OUT3_POS_LIGHT, OUT3_NEG_LIGHT,
+		OUT4_POS_LIGHT, OUT4_NEG_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -62,10 +62,17 @@ void ASR::step()
     outputs[STAGE3_OUTPUT].value = stages[2];
     outputs[STAGE4_OUTPUT].value = stages[3];
 
-    lights[STAGE1_LIGHT].value = stages[0];
-    lights[STAGE2_LIGHT].value = stages[1];
-    lights[STAGE3_LIGHT].value = stages[2];
-    lights[STAGE4_LIGHT].value = stages[3];
+    lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[0] / 5.0));
+    lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[0] / 5.0));
+
+    lights[OUT2_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[1] / 5.0));
+    lights[OUT2_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[1] / 5.0));
+
+    lights[OUT3_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[2] / 5.0));
+    lights[OUT3_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[2] / 5.0));
+
+    lights[OUT4_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[3] / 5.0));
+    lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[3] / 5.0));
 }
 
 
@@ -100,8 +107,8 @@ ASRWidget::ASRWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, ASR::STAGE4_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, ASR::STAGE1_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, ASR::STAGE2_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, ASR::STAGE3_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, ASR::STAGE4_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, ASR::OUT1_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, ASR::OUT2_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, ASR::OUT3_POS_LIGHT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, ASR::OUT4_POS_LIGHT));
 }

@@ -112,10 +112,10 @@ FlipFlopWidget::FlipFlopWidget()
     addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, FlipFlop::FFDNOT_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, FlipFlop::FFT_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, FlipFlop::FFD_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, FlipFlop::FFTNOT_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, FlipFlop::FFDNOT_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(70, 158), module, FlipFlop::FFT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(70, 203), module, FlipFlop::FFD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(70, 248), module, FlipFlop::FFTNOT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(70, 293), module, FlipFlop::FFDNOT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
 }

@@ -119,12 +119,12 @@ Boolean2Widget::Boolean2Widget()
     addOutput(createOutput<PJ301MPort>(Vec(45, 285), module, Boolean2::XNOR_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 68), module, Boolean2::OR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 113), module, Boolean2::AND_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 158), module, Boolean2::XOR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 203), module, Boolean2::NOR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 248), module, Boolean2::NAND_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(74, 293), module, Boolean2::XNOR_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 92), module, Boolean2::INA_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(18, 182), module, Boolean2::INB_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 68), module, Boolean2::OR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 113), module, Boolean2::AND_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 158), module, Boolean2::XOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 203), module, Boolean2::NOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 248), module, Boolean2::NAND_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(74, 293), module, Boolean2::XNOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 92), module, Boolean2::INA_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 182), module, Boolean2::INB_LIGHT));
 }
