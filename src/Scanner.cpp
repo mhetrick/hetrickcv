@@ -4,8 +4,10 @@ struct Scanner : Module
 {
 	enum ParamIds 
 	{
-        ROTATE_PARAM,
+        SCAN_PARAM,
         STAGES_PARAM,
+        WIDTH_PARAM,
+        SLOPE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds 
@@ -19,8 +21,11 @@ struct Scanner : Module
         IN7_INPUT,
         IN8_INPUT,
 
-        ROTATE_INPUT,
+        SCAN_INPUT,
         STAGES_INPUT,
+        WIDTH_INPUT,
+        SLOPE_INPUT,
+        ALLIN_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds 
@@ -33,18 +38,19 @@ struct Scanner : Module
         OUT6_OUTPUT,
         OUT7_OUTPUT,
         OUT8_OUTPUT,
+        MIX_OUTPUT,
 		NUM_OUTPUTS
     };
     enum LightIds 
 	{
-        IN1_POS_LIGHT, IN1_NEG_LIGHT,
-        IN2_POS_LIGHT, IN2_NEG_LIGHT,
-        IN3_POS_LIGHT, IN3_NEG_LIGHT,
-        IN4_POS_LIGHT, IN4_NEG_LIGHT,
-        IN5_POS_LIGHT, IN5_NEG_LIGHT,
-        IN6_POS_LIGHT, IN6_NEG_LIGHT,
-        IN7_POS_LIGHT, IN7_NEG_LIGHT,
-        IN8_POS_LIGHT, IN8_NEG_LIGHT,
+        IN1_LIGHT,
+        IN2_LIGHT,
+        IN3_LIGHT,
+        IN4_LIGHT,
+        IN5_LIGHT,
+        IN6_LIGHT,
+        IN7_LIGHT,
+        IN8_LIGHT,
         
         OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
         OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
@@ -60,6 +66,8 @@ struct Scanner : Module
 
     float ins[8] = {};
     float outs[8] = {};
+    float inMults[8] = {};
+    float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
 	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
@@ -75,6 +83,12 @@ struct Scanner : Module
         return _in;
     }
 
+    float triShape(float _in)
+    {
+        _in = _in - round(_in);
+        return std::abs(_in + _in);
+    }
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
@@ -84,19 +98,50 @@ struct Scanner : Module
 
 void Scanner::step() 
 {
-    int rotation = round(params[ROTATE_PARAM].value + inputs[ROTATE_INPUT].value);
-    int stages = round(params[STAGES_PARAM].value + inputs[ROTATE_INPUT].value);
+    int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
+    stages = clampInt(stages, 0, 6) + 2;
+    const float invStages = 1.0f/stages;
+    const float halfStages = stages * 0.5f;
+    const float remainInvStages = 1.0f - invStages;
 
-    rotation = clampInt(rotation);
-    stages = clampInt(stages) + 1;
+    float widthControl = params[WIDTH_PARAM].value + inputs[WIDTH_INPUT].value;
+    widthControl = clampf(widthControl, 0.0f, 5.0f) * 0.2f;
+    widthControl = widthControl * widthControl * widthTable[stages];
+
+    float scanControl = params[SCAN_PARAM].value + inputs[SCAN_INPUT].value;
+    scanControl = clampf(scanControl, 0.0f, 5.0f) * 0.2f;
+
+    float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
+    slopeControl = clampf(slopeControl, 0.0f, 5.0f) * 0.2f;
+
+    float scanFactor1 = LERP(widthControl, halfStages, invStages);
+    float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
+    float scanFinal = LERP(scanControl, scanFactor2, scanFactor1);
+
+    float invWidth = 1.0f/(LERP(widthControl, float(stages), invStages+invStages));
+
+    float subStage = 0.0f;
+    for(int i = 0; i < 8; i++)
+    {
+        inMults[i] = (scanFinal + subStage) * invWidth;
+        subStage = subStage - invStages;
+    }
 
     for(int i = 0; i < 8; i++)
     {
-        const int input = (rotation + i) % stages;
-        outputs[i].value = inputs[input].value;
+        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = triShape(inMults[i]);
+        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
 
-        lights[IN1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / 5.0));
-		lights[IN1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / -5.0));
+        const float shaped = (2.0f - inMults[i]) * inMults[i];
+        inMults[i] = LERP(slopeControl, shaped, inMults[i]);
+    }
+
+    for(int i = 0; i < 8; i++)
+    {
+        outputs[i].value = inputs[i].value * inMults[i];
+
+        lights[IN1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
 
         lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
 		lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
@@ -108,7 +153,7 @@ ScannerWidget::ScannerWidget()
 {
 	auto *module = new Scanner();
 	setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
 		auto *panel = new SVGPanel();
@@ -122,17 +167,31 @@ ScannerWidget::ScannerWidget()
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
+    const int knobX = 75;
+    const int jackX = 123;
+
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Scanner::ROTATE_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Scanner::STAGES_PARAM, 0, 7.0, 7.0));
-    
-    addInput(createInput<PJ301MPort>(Vec(75, 150), module, Scanner::ROTATE_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(75, 310), module, Scanner::STAGES_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
+
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
+
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
+
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
+
+    addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
 
     const int inXPos = 10;
-    const int outXPos = 145;
     const int inLightX = 50;
-    const int outLightX = 120;
+
+    const int outXPos = 235;
+    const int outLightX = 210;
+
     for(int i = 0; i < 8; i++)
     {
         const int yPos = 50 + (40 * i);
@@ -145,7 +204,7 @@ ScannerWidget::ScannerWidget()
         addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
     }
 }

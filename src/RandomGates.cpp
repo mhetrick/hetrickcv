@@ -10,6 +10,7 @@ struct RandomGates : Module
         MIN_PARAM,
         MAX_PARAM,
         MODE_PARAM,
+        MODE_PARAM_INVIS,
 		NUM_PARAMS
 	};
 	enum InputIds 

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "HetrickUtilities.hpp"
+
 using namespace rack;
 
 

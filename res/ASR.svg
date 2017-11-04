@@ -30,7 +30,7 @@
     <path d="M81.28613,137.99951H79.94238l-1.95508-2.7583-.65918.62354v2.13477H76.18848v-8.27539h1.13965v4.85742l2.32617-2.27881H80.998l-2.23145,2.14648Z" transform="translate(0 0.00002)"/>
   </g>
   <rect x="24.42913" y="280.00002" width="41.14172" height="45.33333" rx="8" ry="8" style="stroke: #fff;stroke-miterlimit: 10"/>
-  <rect x="24.42913" y="144.66669" width="41.14172" height="180.66667" rx="8" ry="8" style="stroke: #fff;stroke-miterlimit: 10;stroke-width: 1.9963201440768534px"/>
+  <rect x="24.42913" y="144.66669" width="41.14172" height="180.66667" rx="8" ry="8"/>
   <path d="M45.87451,186H44.74707v-7.42383H43.12793v-.85156h2.74658Z" transform="translate(0 0.00002)" style="fill: #fff"/>
   <g>
     <rect x="7" y="49.50002" width="12.75" height="12.75" style="fill: none;stroke: #000;stroke-miterlimit: 10"/>
