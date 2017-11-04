@@ -1,5 +1,6 @@
 #include "rack.hpp"
 
+#pragma once
 
 using namespace rack;
 
@@ -21,3 +22,5 @@ struct Boolean2Widget : ModuleWidget { Boolean2Widget();};
 struct Boolean3Widget : ModuleWidget { Boolean3Widget();};
 struct LogicInvertWidget : ModuleWidget { LogicInvertWidget();};
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget();};
+
+struct RotatorWidget : ModuleWidget { RotatorWidget();};
