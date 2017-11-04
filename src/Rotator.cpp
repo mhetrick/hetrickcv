@@ -85,7 +85,7 @@ struct Rotator : Module
 void Rotator::step() 
 {
     int rotation = round(params[ROTATE_PARAM].value + inputs[ROTATE_INPUT].value);
-    int stages = round(params[STAGES_PARAM].value + inputs[ROTATE_INPUT].value);
+    int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
 
     rotation = clampInt(rotation);
     stages = clampInt(stages) + 1;
