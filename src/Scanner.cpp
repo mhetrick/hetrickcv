@@ -8,6 +8,7 @@ struct Scanner : Module
         STAGES_PARAM,
         WIDTH_PARAM,
         SLOPE_PARAM,
+        OFFSET_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds 
@@ -98,6 +99,16 @@ struct Scanner : Module
 
 void Scanner::step() 
 {
+    float allInValue = 0.0f;
+    if(inputs[ALLIN_INPUT].active) allInValue = inputs[ALLIN_INPUT].value;
+    else if(params[OFFSET_PARAM].value != 0.0f) allInValue = 5.0f;
+
+    for(int i = 0; i < 8; i++)
+    {
+        if(!inputs[IN1_INPUT + i].active) ins[i] = allInValue;
+        else ins[i] = inputs[IN1_INPUT + i].value;
+    }
+
     int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
     stages = clampInt(stages, 0, 6) + 2;
     const float invStages = 1.0f/stages;
@@ -139,7 +150,7 @@ void Scanner::step()
 
     for(int i = 0; i < 8; i++)
     {
-        outputs[i].value = inputs[i].value * inMults[i];
+        outputs[i].value = ins[i] * inMults[i];
 
         lights[IN1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
 
@@ -185,6 +196,8 @@ ScannerWidget::ScannerWidget()
 
     addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
     addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
+
+    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
 
     const int inXPos = 10;
     const int inLightX = 50;
