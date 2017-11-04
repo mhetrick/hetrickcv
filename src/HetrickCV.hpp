@@ -24,3 +24,5 @@ struct LogicInvertWidget : ModuleWidget { LogicInvertWidget();};
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget();};
 
 struct RotatorWidget : ModuleWidget { RotatorWidget();};
+struct ScannerWidget : ModuleWidget { ScannerWidget();};
+struct RandomGatesWidget : ModuleWidget { RandomGatesWidget();};
