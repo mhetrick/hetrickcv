@@ -177,22 +177,24 @@ RandomGatesWidget::RandomGatesWidget()
     //const int inXPos = 10;
     const int outXPos = 145;
     const int outLightX = 120;
-    const int inLightX = 15;
+    const int inLightX = 45;
 
-    //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
-    addParam(createParam<CKD6>(Vec(15, 240), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
+
+    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
+    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
+
+    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
     
-    //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(75, 150), module, RandomGates::MINI_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(75, 310), module, RandomGates::MAXI_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(15, 70), module, RandomGates::CLOCK_INPUT));
+    
+    
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 274), module, RandomGates::MODE_TRIG_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 287), module, RandomGates::MODE_HOLD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 300), module, RandomGates::MODE_GATE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
 
     for(int i = 0; i < 8; i++)
     {
