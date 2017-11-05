@@ -74,6 +74,20 @@ struct RandomGates : Module
     bool active[8] = {};
     int mode = 0;
 
+    json_t *toJson() override 
+    {
+		json_t *rootJ = json_object();
+		json_object_set_new(rootJ, "mode", json_integer(mode));
+		return rootJ;
+	}
+
+    void fromJson(json_t *rootJ) override 
+    {
+		json_t *modeJ = json_object_get(rootJ, "mode");
+		if (modeJ)
+			mode = json_integer_value(modeJ);
+	}
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
