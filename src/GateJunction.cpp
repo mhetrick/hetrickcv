@@ -190,7 +190,7 @@ GateJunctionWidget::GateJunctionWidget()
         addParam(createParam<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
         addParam(createParam<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
     
-        addChild(createLight<MuteLight<RedLight>>(Vec(52, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
-        addChild(createLight<MuteLight<BlueLight>>(Vec(87, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
+        addChild(createLight<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
+        addChild(createLight<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
     }
 }
