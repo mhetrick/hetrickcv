@@ -86,6 +86,16 @@ struct RandomGates : Module
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
 			mode = json_integer_value(modeJ);
+    }
+    
+    void reset() override 
+    {
+		mode = 0;
+    }
+    
+    void randomize() override 
+    {
+		mode = round(randomf() * 2.0f);
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
