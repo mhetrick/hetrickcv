@@ -9,6 +9,7 @@ struct Scanner : Module
         WIDTH_PARAM,
         SLOPE_PARAM,
         OFFSET_PARAM,
+        MIXSCALE_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds 
@@ -148,6 +149,8 @@ void Scanner::step()
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);
     }
 
+    outputs[MIX_OUTPUT].value = 0.0f;
+
     for(int i = 0; i < 8; i++)
     {
         outputs[i].value = ins[i] * inMults[i];
@@ -155,8 +158,11 @@ void Scanner::step()
         lights[IN1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
 
         lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
-		lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
+        lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
+        outputs[MIX_OUTPUT].value = outputs[MIX_OUTPUT].value + outputs[i].value;
     }
+
+    outputs[MIX_OUTPUT].value = outputs[MIX_OUTPUT].value * params[MIXSCALE_PARAM].value;
 }
 
 
@@ -198,6 +204,7 @@ ScannerWidget::ScannerWidget()
     addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
 
     addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
 
     const int inXPos = 10;
     const int inLightX = 50;
