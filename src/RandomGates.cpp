@@ -1,5 +1,4 @@
 #include "HetrickCV.hpp"
-#include <time.h>
 
 struct RandomGates : Module 
 {
@@ -124,12 +123,12 @@ void RandomGates::step()
 
     if (clockTrigger.process(clockHigh))
     {
-        int range = max-min;
-        int randNum;
+        uint32_t range = max-min;
+        uint32_t randNum;
         if (range == 0) randNum = max;
-        else randNum = (rand() % (range + 1)) + min;
+        else randNum = (randomu32() % (range + 1)) + min;
 
-        for(int i = 0; i < 8; i++)
+        for(uint32_t i = 0; i < 8; i++)
         {
             active[i] = randNum == i;
         }
