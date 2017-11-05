@@ -127,6 +127,8 @@ void AnalogToDigital::step()
     if(readyForProcess)
     {
         float input = inputs[MAIN_INPUT].value;
+        input *= params[SCALE_PARAM].value;
+        input += params[OFFSET_PARAM].value;
         if (rectMode == 1) input = input > 0.0f? input : 0.0f;
         else if (rectMode == 2) input = std::abs(input);
     
@@ -227,7 +229,7 @@ AnalogToDigitalWidget::AnalogToDigitalWidget()
     addInput(createInput<PJ301MPort>(Vec(7, 70), module, AnalogToDigital::MAIN_INPUT));
     addInput(createInput<PJ301MPort>(Vec(42, 152), module, AnalogToDigital::SYNC_INPUT));
 
-    addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 1.0));
+    addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
     addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -1.0, 1.0, 0.0));
 
     const int outXPos = 145;
