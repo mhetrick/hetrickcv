@@ -113,6 +113,48 @@ struct GateJunction : Module
             muteState[i] = (randomf() < 0.5);
             invState[i] = (randomf() < 0.5);
 		}
+    }
+    
+    json_t *toJson() override 
+    {
+		json_t *rootJ = json_object();
+		// states
+        json_t *muteStatesJ = json_array();
+        json_t *invStatesJ = json_array();
+        for (int i = 0; i < 8; i++) 
+        {
+			json_t *muteStateJ = json_boolean(muteState[i]);
+            json_array_append_new(muteStatesJ, muteStateJ);
+            json_t *invStateJ = json_boolean(invState[i]);
+			json_array_append_new(invStatesJ, invStateJ);
+		}
+        json_object_set_new(rootJ, "muteStates", muteStatesJ);
+        json_object_set_new(rootJ, "invStates", invStatesJ);
+		return rootJ;
+	}
+    void fromJson(json_t *rootJ) override 
+    {
+		// states
+        json_t *muteStatesJ = json_object_get(rootJ, "muteStates");
+        json_t *invStatesJ = json_object_get(rootJ, "invStates");
+        if (muteStatesJ) 
+        {
+            for (int i = 0; i < 8; i++) 
+            {
+				json_t *stateJ = json_array_get(muteStatesJ, i);
+				if (stateJ)
+					muteState[i] = json_boolean_value(stateJ);
+			}
+        }
+        if (invStatesJ) 
+        {
+            for (int i = 0; i < 8; i++) 
+            {
+				json_t *stateJ = json_array_get(invStatesJ, i);
+				if (stateJ)
+					invState[i] = json_boolean_value(stateJ);
+			}
+		}
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
