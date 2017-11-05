@@ -1,5 +1,4 @@
 #include "HetrickCV.hpp"
-#include "Trigger.hpp"
 
 struct LogicCombine : Module 
 {

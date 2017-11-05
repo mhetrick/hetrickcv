@@ -1,6 +1,4 @@
 #include "HetrickCV.hpp"
-#include "dsp/digital.hpp"
-#include "Trigger.hpp"
 #include <time.h>
 
 struct RandomGates : Module 
@@ -187,9 +185,6 @@ RandomGatesWidget::RandomGatesWidget()
     addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
 
     addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
-    
-    
-    
 
     //////BLINKENLIGHTS//////
     addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));

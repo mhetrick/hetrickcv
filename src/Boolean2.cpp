@@ -1,5 +1,4 @@
 #include "HetrickCV.hpp"
-#include "dsp/digital.hpp"
 
 struct Boolean2 : Module 
 {
