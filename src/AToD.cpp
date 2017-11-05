@@ -230,7 +230,7 @@ AnalogToDigitalWidget::AnalogToDigitalWidget()
     addInput(createInput<PJ301MPort>(Vec(42, 152), module, AnalogToDigital::SYNC_INPUT));
 
     addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
 
     const int outXPos = 145;
     const int outLightX = 120;

@@ -244,7 +244,7 @@ DigitalToAnalogWidget::DigitalToAnalogWidget()
     addInput(createInput<PJ301MPort>(Vec(112, 152), module, DigitalToAnalog::SYNC_INPUT));
 
     addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM, -1.0, 1.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0));
 
     const int inXPos = 10;
     const int inLightX = 50;
