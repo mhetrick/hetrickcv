@@ -212,7 +212,7 @@ GateJunctionWidget::GateJunctionWidget()
 
     const int inXPos = 10;
     const int outXPos = 145;
-    const int inLightX = 50;
+    //const int inLightX = 50;
     const int outLightX = 120;
     for(int i = 0; i < 8; i++)
     {

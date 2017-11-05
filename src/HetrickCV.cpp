@@ -24,6 +24,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<RotatorWidget>("HetrickCV", "HetrickCV", "Rotator", "Rotator"));
 	p->addModel(createModel<ScannerWidget>("HetrickCV", "HetrickCV", "Scanner", "Scanner"));
 	p->addModel(createModel<RandomGatesWidget>("HetrickCV", "HetrickCV", "RandomGates", "Random Gates"));
+	p->addModel(createModel<AnalogToDigitalWidget>("HetrickCV", "HetrickCV", "AnalogToDigital", "Analog to Digital"));
 
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.

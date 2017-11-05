@@ -25,6 +25,8 @@ struct Boolean3Widget : ModuleWidget { Boolean3Widget();};
 struct GateJunctionWidget : ModuleWidget { GateJunctionWidget();};
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget();};
 
+struct AnalogToDigitalWidget : ModuleWidget { AnalogToDigitalWidget();};
+
 struct RotatorWidget : ModuleWidget { RotatorWidget();};
 struct ScannerWidget : ModuleWidget { ScannerWidget();};
 struct RandomGatesWidget : ModuleWidget { RandomGatesWidget();};
