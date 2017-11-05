@@ -104,18 +104,13 @@ FlipFlopWidget::FlipFlopWidget()
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(10, 100), module, FlipFlop::INT_INPUT));
     addInput(createInput<PJ301MPort>(Vec(55, 100), module, FlipFlop::IND_INPUT));
-
-    //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(33, 150), module, FlipFlop::FFT_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 195), module, FlipFlop::FFD_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 240), module, FlipFlop::FFTNOT_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, FlipFlop::FFDNOT_OUTPUT));
-
-    //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<RedLight>>(Vec(70, 158), module, FlipFlop::FFT_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(70, 203), module, FlipFlop::FFD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(70, 248), module, FlipFlop::FFTNOT_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(70, 293), module, FlipFlop::FFDNOT_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
+
+    for(int i = 0; i < 4; i++)
+    {
+        const int yPos = i*45;
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, FlipFlop::FFT_OUTPUT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(70, 158 + yPos), module, FlipFlop::FFT_LIGHT + i));
+    }
 }

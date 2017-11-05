@@ -19,7 +19,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<FlipFlopWidget>("HetrickCV", "HetrickCV", "FlipFlop", "Flip-Flop"));
 	p->addModel(createModel<Boolean2Widget>("HetrickCV", "HetrickCV", "Boolean2", "Boolean Logic (2 In)"));
 	p->addModel(createModel<Boolean3Widget>("HetrickCV", "HetrickCV", "Boolean3", "Boolean Logic (3 In)"));
-	p->addModel(createModel<LogicInvertWidget>("HetrickCV", "HetrickCV", "Logic Invert", "NOT Logic (Gate Inverter)"));
+	p->addModel(createModel<GateJunctionWidget>("HetrickCV", "HetrickCV", "Gate Junction", "Gate Junction"));
 	p->addModel(createModel<LogicCombineWidget>("HetrickCV", "HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)"));
 	p->addModel(createModel<RotatorWidget>("HetrickCV", "HetrickCV", "Rotator", "Rotator"));
 	p->addModel(createModel<ScannerWidget>("HetrickCV", "HetrickCV", "Scanner", "Scanner"));

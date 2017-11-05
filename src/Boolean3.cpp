@@ -109,29 +109,20 @@ Boolean3Widget::Boolean3Widget()
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
-    //////PARAMS//////
-
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(10, 105), module, Boolean3::INA_INPUT));
     addInput(createInput<PJ301MPort>(Vec(10, 195), module, Boolean3::INB_INPUT));
     addInput(createInput<PJ301MPort>(Vec(10, 285), module, Boolean3::INC_INPUT));
-
-    //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(45, 60), module, Boolean3::OR_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(45, 105), module, Boolean3::AND_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(45, 150), module, Boolean3::XOR_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(45, 195), module, Boolean3::NOR_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(45, 240), module, Boolean3::NAND_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(45, 285), module, Boolean3::XNOR_OUTPUT));
-
-    //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 68), module, Boolean3::OR_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 113), module, Boolean3::AND_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 158), module, Boolean3::XOR_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 203), module, Boolean3::NOR_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 248), module, Boolean3::NAND_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(74, 293), module, Boolean3::XNOR_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
+
+    //////OUTPUTS//////
+    for(int i = 0; i < 6; i++)
+    {
+        const int yPos = i*45;
+        addOutput(createOutput<PJ301MPort>(Vec(45, 60 + yPos), module, Boolean3::OR_OUTPUT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
+    }
+
 }

@@ -100,15 +100,10 @@ TwoToFourWidget::TwoToFourWidget()
     addInput(createInput<PJ301MPort>(Vec(10, 100), module, TwoToFour::INA_INPUT));
     addInput(createInput<PJ301MPort>(Vec(55, 100), module, TwoToFour::INB_INPUT));
 
-    //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(33, 150), module, TwoToFour::OUT1_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 195), module, TwoToFour::OUT2_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 240), module, TwoToFour::OUT3_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, TwoToFour::OUT4_OUTPUT));
-
-    //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, TwoToFour::OUT1_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, TwoToFour::OUT2_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, TwoToFour::OUT3_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, TwoToFour::OUT4_POS_LIGHT));
+    for(int i = 0; i < 4; i++)
+    {
+        const int yPos = i*45;
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, TwoToFour::OUT1_OUTPUT + i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, TwoToFour::OUT1_POS_LIGHT + i*2));
+    }
 }

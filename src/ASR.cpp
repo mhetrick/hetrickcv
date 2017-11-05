@@ -100,15 +100,10 @@ ASRWidget::ASRWidget()
     addInput(createInput<PJ301MPort>(Vec(10, 100), module, ASR::MAIN_INPUT));
     addInput(createInput<PJ301MPort>(Vec(55, 100), module, ASR::CLK_INPUT));
 
-    //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(33, 150), module, ASR::STAGE1_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 195), module, ASR::STAGE2_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 240), module, ASR::STAGE3_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, ASR::STAGE4_OUTPUT));
-
-    //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158), module, ASR::OUT1_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 203), module, ASR::OUT2_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 248), module, ASR::OUT3_POS_LIGHT));
-    addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 293), module, ASR::OUT4_POS_LIGHT));
+    for(int i = 0; i < 4; i++)
+    {
+        const int yPos = i*45;
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, ASR::STAGE1_OUTPUT + i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
+    }
 }
