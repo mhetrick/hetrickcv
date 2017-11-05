@@ -22,14 +22,25 @@ struct Crackle : Module
 	float lastDensity = 1.0;
 	float densityScaled = 1.0;
     float y1 = 0.2643;
-    float y2 = 0.0;
+	float y2 = 0.0;
+	
+	float lasty1 = 0.2643f;
 
 	Crackle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
 	{
-		y1 = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		y1 = randomf();
+		y2 = 0.0f;
+		lasty1 = 0.0f;
 	}
 
 	void step() override;
+
+	void reset() override
+	{
+		y1 = randomf();
+		y2 = 0.0f;
+		lasty1 = 0.0f;
+	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
@@ -49,13 +60,14 @@ void Crackle::step()
 		lastDensity = densityInput;
     }
     
-    const bool brokenMode = (params[BROKEN_PARAM].value > 0.0);
+    const bool brokenMode = (params[BROKEN_PARAM].value == 0.0);
     
     if(brokenMode)
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
-        y2 = y1;
-        y1 = y0;
+		y2 = y1;
+		y1 = lasty1;
+		lasty1 = clampf(y0, -1.0f, 1.0f);
         outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
     }
     else
@@ -88,8 +100,8 @@ CrackleWidget::CrackleWidget()
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM, 0.0, 2.0, 0.0));
-    addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM, 0.0, 2.0, 1.7));
+    addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0));
 
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 146), module, Crackle::RATE_INPUT));
