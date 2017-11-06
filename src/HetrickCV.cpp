@@ -16,6 +16,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<ASRWidget>("HetrickCV", "HetrickCV", "ASR", "ASR"));
 	p->addModel(createModel<Boolean2Widget>("HetrickCV", "HetrickCV", "Boolean2", "Boolean Logic (2 In)"));
 	p->addModel(createModel<Boolean3Widget>("HetrickCV", "HetrickCV", "Boolean3", "Boolean Logic (3 In)"));
+	p->addModel(createModel<ContrastWidget>("HetrickCV", "HetrickCV", "Contrast", "Contrast"));
 	p->addModel(createModel<CrackleWidget>("HetrickCV", "HetrickCV", "Crackle", "Crackle"));
 	p->addModel(createModel<DigitalToAnalogWidget>("HetrickCV", "HetrickCV", "DigitalToAnalog", "Digital to Analog"));	
 	p->addModel(createModel<DustWidget>("HetrickCV", "HetrickCV", "Dust", "Dust"));	

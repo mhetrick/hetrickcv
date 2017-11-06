@@ -31,3 +31,5 @@ struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget();};
 struct RotatorWidget : ModuleWidget { RotatorWidget();};
 struct ScannerWidget : ModuleWidget { ScannerWidget();};
 struct RandomGatesWidget : ModuleWidget { RandomGatesWidget();};
+
+struct ContrastWidget : ModuleWidget { ContrastWidget();};
