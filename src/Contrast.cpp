@@ -43,7 +43,7 @@ void Contrast::step()
     if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
     else input = clampf(input, -10.0f, 10.0f) * 0.1f;
 
-    float contrast = inputs[AMOUNT_INPUT].value + params[AMOUNT_PARAM].value;
+    float contrast = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
     contrast = clampf(contrast, 0.0f, 5.0f) * 0.2f;
 
     const float factor1 = input * 1.57143;
