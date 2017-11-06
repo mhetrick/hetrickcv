@@ -22,6 +22,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<DustWidget>("HetrickCV", "HetrickCV", "Dust", "Dust"));	
 	p->addModel(createModel<ExponentWidget>("HetrickCV", "HetrickCV", "Exponent", "Exponent"));	
 	p->addModel(createModel<FlipFlopWidget>("HetrickCV", "HetrickCV", "FlipFlop", "Flip-Flop"));
+	p->addModel(createModel<FlipPanWidget>("HetrickCV", "HetrickCV", "FlipPan", "Flip Pan"));
 	p->addModel(createModel<GateJunctionWidget>("HetrickCV", "HetrickCV", "Gate Junction", "Gate Junction"));
 	p->addModel(createModel<LogicCombineWidget>("HetrickCV", "HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)"));
 	p->addModel(createModel<RandomGatesWidget>("HetrickCV", "HetrickCV", "RandomGates", "Random Gates"));
