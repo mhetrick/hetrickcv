@@ -33,3 +33,4 @@ struct ScannerWidget : ModuleWidget { ScannerWidget();};
 struct RandomGatesWidget : ModuleWidget { RandomGatesWidget();};
 
 struct ContrastWidget : ModuleWidget { ContrastWidget();};
+struct ExponentWidget : ModuleWidget { ExponentWidget();};
