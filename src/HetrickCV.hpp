@@ -35,5 +35,6 @@ struct RandomGatesWidget : ModuleWidget { RandomGatesWidget();};
 
 struct ContrastWidget : ModuleWidget { ContrastWidget();};
 struct ExponentWidget : ModuleWidget { ExponentWidget();};
+struct WaveshapeWidget : ModuleWidget { WaveshapeWidget();};
 
 struct FlipPanWidget : ModuleWidget { FlipPanWidget();};
