@@ -51,8 +51,12 @@ void Bitshift::step()
 	int intInput = round(input * 2147483647.0f);
 	int shiftedInput;
 
-	if(shift > 0) shiftedInput = intInput >> finalShift;
-	else shiftedInput = intInput << std::abs(finalShift);
+	if(finalShift > 0) shiftedInput = intInput >> finalShift;
+	else
+	{
+		finalShift *= -1;
+		shiftedInput = intInput << finalShift;
+	}
 
 	float output = shiftedInput/2147483647.0f;
 	output = clampf(output, -1.0f, 1.0f);
