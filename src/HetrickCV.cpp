@@ -11,25 +11,25 @@ void init(rack::Plugin *p) {
 	plugin->version = TOSTRING(VERSION);
 #endif
 
-	p->addModel(createModel<TwoToFourWidget>("HetrickCV", "HetrickCV", "2To4", "2 To 4 Mix Matrix"));
-	p->addModel(createModel<AnalogToDigitalWidget>("HetrickCV", "HetrickCV", "AnalogToDigital", "Analog to Digital"));	
-	p->addModel(createModel<ASRWidget>("HetrickCV", "HetrickCV", "ASR", "ASR"));
-	p->addModel(createModel<BitshiftWidget>("HetrickCV", "HetrickCV", "Bitshift", "Bitshift"));
-	p->addModel(createModel<Boolean2Widget>("HetrickCV", "HetrickCV", "Boolean2", "Boolean Logic (2 In)"));
-	p->addModel(createModel<Boolean3Widget>("HetrickCV", "HetrickCV", "Boolean3", "Boolean Logic (3 In)"));
-	p->addModel(createModel<ContrastWidget>("HetrickCV", "HetrickCV", "Contrast", "Contrast"));
-	p->addModel(createModel<CrackleWidget>("HetrickCV", "HetrickCV", "Crackle", "Crackle"));
-	p->addModel(createModel<DigitalToAnalogWidget>("HetrickCV", "HetrickCV", "DigitalToAnalog", "Digital to Analog"));	
-	p->addModel(createModel<DustWidget>("HetrickCV", "HetrickCV", "Dust", "Dust"));	
-	p->addModel(createModel<ExponentWidget>("HetrickCV", "HetrickCV", "Exponent", "Exponent"));	
-	p->addModel(createModel<FlipFlopWidget>("HetrickCV", "HetrickCV", "FlipFlop", "Flip-Flop"));
-	p->addModel(createModel<FlipPanWidget>("HetrickCV", "HetrickCV", "FlipPan", "Flip Pan"));
-	p->addModel(createModel<GateJunctionWidget>("HetrickCV", "HetrickCV", "Gate Junction", "Gate Junction"));
-	p->addModel(createModel<LogicCombineWidget>("HetrickCV", "HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)"));
-	p->addModel(createModel<RandomGatesWidget>("HetrickCV", "HetrickCV", "RandomGates", "Random Gates"));
-	p->addModel(createModel<RotatorWidget>("HetrickCV", "HetrickCV", "Rotator", "Rotator"));
-	p->addModel(createModel<ScannerWidget>("HetrickCV", "HetrickCV", "Scanner", "Scanner"));
-	p->addModel(createModel<WaveshapeWidget>("HetrickCV", "HetrickCV", "Waveshaper", "Waveshaper"));
+	p->addModel(createModel<TwoToFourWidget>("HetrickCV", "2To4", "2 To 4 Mix Matrix", MIXER_TAG));
+	p->addModel(createModel<AnalogToDigitalWidget>("HetrickCV", "AnalogToDigital", "Analog to Digital", LOGIC_TAG));	
+	p->addModel(createModel<ASRWidget>("HetrickCV", "ASR", "ASR", SEQUENCER_TAG));
+	p->addModel(createModel<BitshiftWidget>("HetrickCV", "Bitshift", "Bitshift", DISTORTION_TAG, EFFECT_TAG));
+	p->addModel(createModel<Boolean2Widget>("HetrickCV", "Boolean2", "Boolean Logic (2 In)", LOGIC_TAG));
+	p->addModel(createModel<Boolean3Widget>("HetrickCV", "Boolean3", "Boolean Logic (3 In)", LOGIC_TAG));
+	p->addModel(createModel<ContrastWidget>("HetrickCV", "Contrast", "Contrast", EFFECT_TAG));
+	p->addModel(createModel<CrackleWidget>("HetrickCV", "Crackle", "Crackle", NOISE_TAG));
+	p->addModel(createModel<DigitalToAnalogWidget>("HetrickCV", "DigitalToAnalog", "Digital to Analog", LOGIC_TAG));	
+	p->addModel(createModel<DustWidget>("HetrickCV", "Dust", "Dust", NOISE_TAG, GRANULAR_TAG));	
+	p->addModel(createModel<ExponentWidget>("HetrickCV", "Exponent", "Exponent", WAVESHAPER_TAG));	
+	p->addModel(createModel<FlipFlopWidget>("HetrickCV", "FlipFlop", "Flip-Flop", LOGIC_TAG));
+	p->addModel(createModel<FlipPanWidget>("HetrickCV", "FlipPan", "Flip Pan", PANNING_TAG));
+	p->addModel(createModel<GateJunctionWidget>("HetrickCV", "Gate Junction", "Gate Junction", SWITCH_TAG, LOGIC_TAG));
+	p->addModel(createModel<LogicCombineWidget>("HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)", LOGIC_TAG));
+	p->addModel(createModel<RandomGatesWidget>("HetrickCV", "RandomGates", "Random Gates", RANDOM_TAG));
+	p->addModel(createModel<RotatorWidget>("HetrickCV", "Rotator", "Rotator", SWITCH_TAG));
+	p->addModel(createModel<ScannerWidget>("HetrickCV", "Scanner", "Scanner", MIXER_TAG));
+	p->addModel(createModel<WaveshapeWidget>("HetrickCV", "Waveshaper", "Waveshaper", WAVESHAPER_TAG, DISTORTION_TAG, EFFECT_TAG));
 	// Any other plugin initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.
 }
