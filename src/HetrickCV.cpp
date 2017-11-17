@@ -11,6 +11,9 @@ void init(rack::Plugin *p) {
 	plugin->version = TOSTRING(VERSION);
 #endif
 
+	p->website = "https://github.com/mhetrick/hetrickcv";
+ 	p->manual = "https://github.com/mhetrick/hetrickcv/blob/master/README.md";
+
 	p->addModel(createModel<TwoToFourWidget>("HetrickCV", "2To4", "2 To 4 Mix Matrix", MIXER_TAG));
 	p->addModel(createModel<AnalogToDigitalWidget>("HetrickCV", "AnalogToDigital", "Analog to Digital", LOGIC_TAG));	
 	p->addModel(createModel<ASRWidget>("HetrickCV", "ASR", "ASR", SEQUENCER_TAG));
