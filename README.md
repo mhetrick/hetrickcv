@@ -83,17 +83,46 @@ Patch Ideas:
 This is a simple waveshaper that will raise the input voltage to a power specified by the Amount knob. Turning the knob clockwise will make the output signal more exponential, while turning the knob counter-clockwise will make the output signal more logarithmic. This will have a mild effect on audio signals, but it is extremely useful for shaping LFOs and envelopes.
 
 ### Flip Flop
+"Flip Flop" is an engineering/electronics term to describe what is typically a toggle switch with potential conditional behavior. There are two types of Flip Flops on this module: a Flip Flop T (toggle) and Flip Flop D (data).
+The Flip Flop T can be thought of as a gate controlled light switch (or, in more modular thinking, a /2 clock divider). A positive gate on the IN T input will turn the FFT output on, and the next gate will turn it off.
+The Flip Flop D can be thought of as a sample-and-hold for gates only. A positive gate on the IN T input will sample the input at IN D. If IN D is above 1V, the FFD output will turn on. If IN D is below 1V, the FFD output will turn off.
+For convenience, there are additional outputs that provide the opposite state of the FFT and FFD outputs.
 
 ### Flip Pan
+This is a useful mixing module inspired by Segue by Nonlinear Circuits and MMVCA by WMD. It can function as a mono-to-stereo panner, a stereo-to-stereo "flip" panner, a dual crossfader, a VCA, and more. Despite its flexibility, it maintains a simple control set for experimentation.
+The heart of the circuit is simple: The PAN control will pan the Left input on the outputs in the expected left-to-right fashion. However, the twist is that the Right input will pan in the opposite direction.
+
+Patch Ideas:
+- Mono-to-stereo panner: Simply route the signal that you want to pan into the Left input.
+- Stereo-to-stereo "flip" panner: Route two different signals into the inputs. Now, when manipulating the PAN control, you will hear the signals alternate positions on the outputs.
+- Crossfader: Route two different signals into the inputs. The Left output is now a crossfade output that responds to the PAN control. The Right output is also a crossfader, but it responds to the PAN control in the opposite manner.
+- VCA: Route a signal into the Left input and monitor the Right output. The PAN control and input now act as a VCA for that signal.
 
 ### Gate Junction
+This is an eight-channel gate manipulator that was designed to work quickly with the Analog to Digital, Digital to Analog, and Rotator modules. This takes in up to eight gate signals. Each gate can be muted and/or inverted. The inversion behavior does not turn a positive gate negative. Rather, a positive gate will be changed to 0V, while a 0V signal will be changed to +5V. In more technical terms, it is a logic inverter.
 
 ### OR Logic (Gate Combiner)
+This module can be used to combine many separate gate streams into one gate stream. The OR output is true if any of the inputs are above 1V, the NOR output is true if (and only if) all of the inputs are below 1V. The TRIGS output fires a 1ms trigger when any of the inputs go above 1V.
+
+Patch Ideas:
+- Route at least two outputs from the Boolean Logic module into the OR Logic inputs. The TRIGS output will now provide interesting rhythms.
 
 ### Random Gates
+This is a very useful module that routes an incoming gate to one of up to eight outputs. The output is randomly selected every time the input goes above 1V. The MIN control determines the minimum position of the output gate, while the MAX control determines the maximum position. For instance, with MAX fully clockwise, you can turn up the MIN control to ensure that only outputs 4 through 8 are selected.
+
+There are three modes:
+- Triggers: Whenever a positive gate is detected, the randomly selected output will fire a 1ms trigger.
+- Hold: Whenever a positive gate is detected, the randomly selected output will stay positive until a new input gate is received.
+- Gate: Whenever a positive gate is detected, the randomly selected output will stay positive until the input drops below 1V.
 
 ### Rotator
 
 ### Scanner
 
 ### Waveshaper
+This is a hyperbolic waveshaper, the exact same one used on Unfiltered Audio's Dent (the SHAPE control in the top-row distortion). At 12 o'clock, the input signal is unaffected. As you turn the control clockwise, the signal is turned into a square wave. As you turn the contol counter-clockwise, signals are turned into needles. This is easiest to hear by using a sine wave input (you can see it by using the Fundamental Scope module).
+
+Creatively, you could imagine that the shaper acts like a magnet. When turning the control clockwise, you could imagine that magnets are placed on the top and bottom of the waveform. Increasing the control intensifies the magnets, pulling the signal toward the boundaries and creating a square wave. When turning the control counter-clockwise, the magnet is instead placed at 0V. It pulls all but the strongest signals down to silence.
+
+Patch Ideas:
+- Use an oscillator or LFO with multiple shape outputs. Route a non-square output into the waveshaper's input. Use any other waveform to modulate the shape amount. This will "unlock" new waveforms for your oscillator. Alternatively, use a different oscillator at a different frequency to modulate the shape amount. This will create a lot of movement.
