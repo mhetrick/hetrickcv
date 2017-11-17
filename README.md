@@ -5,7 +5,7 @@ HetrickCV is a collection of [VCV Rack](https://vcvrack.com/) modules by Michael
 
 ### Releases
 
-Pre-compiled versions are not available yet. They will be ready soon.
+Pre-compiled versions are not available yet. They will be posted once VCV Rack 0.5.0 is available. Please note that this version is completely incompatible with VCV Rack 0.4.0.
 
 ## Contributing
 
