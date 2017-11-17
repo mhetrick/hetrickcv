@@ -1,7 +1,7 @@
 
 # HetrickCV for VCV Rack
 
-HetrickCV is a collection of VCV Rack modules by Michael Hetrick (https://www.unfilteredaudio.com/). Many of these are ported from Euro Reakt for Reaktor 6 (https://www.native-instruments.com/en/reaktor-community/reaktor-user-library/entry/show/9093/).
+HetrickCV is a collection of [VCV Rack](https://vcvrack.com/) modules by Michael Hetrick of [Unfiltered Audio](https://www.unfilteredaudio.com/). Many of these are ported from [Euro Reakt for Reaktor 6](https://www.native-instruments.com/en/reaktor-community/reaktor-user-library/entry/show/9093/).
 
 ### Releases
 
@@ -14,7 +14,7 @@ I welcome Issues and Pull Requests to this repository if you have suggestions fo
 # HetrickCV User Manual
 
 ### 2-to-4 Mix Matrix
-This simple module takes in two inputs (CV or Audio). It produces four outputs that are various combinations of the two inputs. It is based on Julius O. Smith's description of a mix matrix for Schroeder Reverberators (https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html). Despite its original use for spatializing audio, this can be a great module for creating CV permutations.
+This simple module takes in two inputs (CV or Audio). It produces four outputs that are various combinations of the two inputs. It is based on [Julius O. Smith's description of a mix matrix for Schroeder Reverberators](https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html). Despite its original use for spatializing audio, this can be a great module for creating CV permutations.
 
 ### ASR
 This can be thought of as a quad Sample-and-Hold. It is useful for creating melodic rounds and canons. When it receives a positive Clock input, the current voltage at the main input will be sampled and sent to the first output. On the next positive Clock input, the current voltage of the first output will be moved to the second output, and the first output will sample the main input again.
@@ -54,13 +54,13 @@ Patch Ideas:
 - The AND output can be useful to manually toggle rhythm streams. Connect the gate stream that you want to toggle to one input. Connect a MIDI note gate to the other input. Now, the AND output will be the first rhythm as long as you hold down a MIDI note.
 
 ### Contrast
-This is a type of phase distortion that I found in the CCRMA Snd wave editor (https://ccrma.stanford.edu/software/snd/snd/sndclm.html#contrast-enhancement). It will add brightness and saturation to a signal. Please note that the effect will still color the signal even if the knob is fully counter-clockwise. Like the Bitshift module, there is a range selector to set the expected range of the input signal.
+This is a type of phase distortion that I found in the [CCRMA Snd wave editor](https://ccrma.stanford.edu/software/snd/snd/sndclm.html#contrast-enhancement). It will add brightness and saturation to a signal. Please note that the effect will still color the signal even if the knob is fully counter-clockwise. Like the Bitshift module, there is a range selector to set the expected range of the input signal.
 
 Patch Ideas:
 - Aside from the obvious use as a mix enhancer, try modulating the Amount parameter with another audio signal to use this as a creative distortion.
 
 ### Crackle
-This is a chaotic system that generates a vinyl-like hiss with occasional pops. This is a direct port of a UGen from SuperCollider (https://github.com/supercollider/supercollider/blob/master/server/plugins/NoiseUGens.cpp#L452). When I originally ported this to Euro Reakt, I accidentally implemented the internal copy operations in the wrong order, leading to the fun "Broken" mode. The Broken mode produces stutters, grains, and modem noises at high Chaos values.
+This is a chaotic system that generates a vinyl-like hiss with occasional pops. This is a direct port of [a UGen from SuperCollider](https://github.com/supercollider/supercollider/blob/master/server/plugins/NoiseUGens.cpp#L452). When I originally ported this to Euro Reakt, I accidentally implemented the internal copy operations in the wrong order, leading to the fun "Broken" mode. The Broken mode produces stutters, grains, and modem noises at high Chaos values.
 
 Patch Ideas:
 - Surprising things can happen if you modulate this with an audio signal... 
@@ -73,7 +73,7 @@ Patch Ideas:
 - Connect various, rhythmic gate streams to the inputs. The output is a stepped voltage based on the state of the inputs. This will be a jumpy voltage that is related to various rhythms happening inside of the patch.
 
 ### Dust
-Like Crackle, this is a direct port of a SuperCollider Noise UGen (https://github.com/supercollider/supercollider/blob/master/server/plugins/NoiseUGens.cpp#L376). This module will produce randomly spaced impulses with random amplitudes. At low frequencies, this is useful as a random trigger generator. At high frequencies, this is a white noise source.
+Like Crackle, this is a direct port of [a SuperCollider Noise UGen](https://github.com/supercollider/supercollider/blob/master/server/plugins/NoiseUGens.cpp#L376). This module will produce randomly spaced impulses with random amplitudes. At low frequencies, this is useful as a random trigger generator. At high frequencies, this is a white noise source.
 
 Patch Ideas:
 - Connect the output of Dust to the input of a highly resonant filter. Use a slower frequency on Dust to ping the filter and create sine grains.
@@ -89,7 +89,7 @@ The Flip Flop D can be thought of as a sample-and-hold for gates only. A positiv
 For convenience, there are additional outputs that provide the opposite state of the FFT and FFD outputs.
 
 ### Flip Pan
-This is a useful mixing module inspired by Segue by Nonlinear Circuits and MMVCA by WMD. It can function as a mono-to-stereo panner, a stereo-to-stereo "flip" panner, a dual crossfader, a VCA, and more. Despite its flexibility, it maintains a simple control set for experimentation.
+This is a useful mixing module inspired by [Segue by Nonlinear Circuits](http://nonlinearcircuits.blogspot.com/2015/08/segue-vactrol-version.html) and [MMVCA by WMD](https://www.wmdevices.com/products/multimode-vca). It can function as a mono-to-stereo panner, a stereo-to-stereo "flip" panner, a dual crossfader, a VCA, and more. Despite its flexibility, it maintains a simple control set for experimentation.
 The heart of the circuit is simple: The PAN control will pan the Left input on the outputs in the expected left-to-right fashion. However, the twist is that the Right input will pan in the opposite direction.
 
 Patch Ideas:
@@ -116,11 +116,21 @@ There are three modes:
 - Gate: Whenever a positive gate is detected, the randomly selected output will stay positive until the input drops below 1V.
 
 ### Rotator
+This module was inspired by the [4ms Rotating Clock Divider](http://www.4mspedals.com/rcd.php). Unlike the RCD, this takes up to eight arbitrary inputs and rotates them around the eight outputs. The STAGES control determines how many inputs are used (and repeated), while the ROTATE control is what determines their output positions.
+
+Patch Ideas:
+- This module thrives at jumbling gate signals and creating odd rhythms. Try connecting multiple Boolean Logic outputs to the inputs, along with various other clock sources. Modulate the ROTATE parameter with an LFO. For more predictable results, use an LFO that is running at the same speed as one of the clocks.
 
 ### Scanner
+This module was inspired by the [Toppobrillo Mixiplexer](http://www.toppobrillo.com/mixiplexer.html) and [Make Noise RxMx](http://www.makenoisemusic.com/modules/rxmx). It can be thought of as a smooth, CV-controlled 8-way switch.
+The SCAN control determines which input is active. The STAGES control determines how many inputs the SCAN control can reach. The WIDTH control determines how many stages can be active at a time, while the SLOPE control determines how much smoothing occurs between scanned stages. Although it may sound complicated and esoteric, try out the following:
+
+- 8-channel crossfader/mixer: Use up to eight different inputs. Monitor the Mix Out. Use the SCAN control to smoothly crossfade between the eight inputs.
+- 8-channel distributor: Plug a modulation signal into the All In input. Manipulate the SCAN control to send that signal to up to eight destinations.
+- 8 VCAs: Use up to eight different inputs. Manipulate the SCAN control and monitor the individual outputs.
 
 ### Waveshaper
-This is a hyperbolic waveshaper, the exact same one used on Unfiltered Audio's Dent (the SHAPE control in the top-row distortion). At 12 o'clock, the input signal is unaffected. As you turn the control clockwise, the signal is turned into a square wave. As you turn the contol counter-clockwise, signals are turned into needles. This is easiest to hear by using a sine wave input (you can see it by using the Fundamental Scope module).
+This is a hyperbolic waveshaper, the exact same one used on [Unfiltered Audio's Dent](https://unfilteredaudio.com/products/dent) (the SHAPE control in the top-row distortion). At 12 o'clock, the input signal is unaffected. As you turn the control clockwise, the signal is turned into a square wave. As you turn the contol counter-clockwise, signals are turned into needles. This is easiest to hear by using a sine wave input (you can see it by using the Fundamental Scope module).
 
 Creatively, you could imagine that the shaper acts like a magnet. When turning the control clockwise, you could imagine that magnets are placed on the top and bottom of the waveform. Increasing the control intensifies the magnets, pulling the signal toward the boundaries and creating a square wave. When turning the control counter-clockwise, the magnet is instead placed at 0V. It pulls all but the strongest signals down to silence.
 
