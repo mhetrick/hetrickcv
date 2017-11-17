@@ -99,7 +99,7 @@ struct GateJunction : Module
 
     void reset() override 
     {
-        for (int i = 0; i < 10; i++) 
+        for (int i = 0; i < 8; i++) 
         {
             muteState[i] = true;
             invState[i] = false;
@@ -107,7 +107,7 @@ struct GateJunction : Module
 	}
     void randomize() override 
     {
-        for (int i = 0; i < 10; i++) 
+        for (int i = 0; i < 8; i++) 
         {
             muteState[i] = (randomf() < 0.5);
             invState[i] = (randomf() < 0.5);
