@@ -18,7 +18,6 @@ include ../../plugin.mk
 
 # Convenience target for including files in the distributable release
 DIST_NAME = HetrickCV
-VERSION = 0.5.0
 .PHONY: dist
 dist: all
 	mkdir -p dist/$(DIST_NAME)
