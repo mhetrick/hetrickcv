@@ -84,15 +84,15 @@ struct GateJunction : Module
     float ins[8] = {};
     float outs[8] = {};
 
-    bool muteState[8];
+    bool muteState[8] = {};
     SchmittTrigger muteTrigger[8];
     
-    bool invState[8];
+    bool invState[8] = {};
 	SchmittTrigger invTrigger[8];
 
 	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
-		
+		reset();
 	}
 
     void step() override;
