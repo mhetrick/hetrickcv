@@ -36,6 +36,7 @@ struct Boolean2 : Module
         NUM_LIGHTS
 	};
 
+    HysteresisGate ins[2];
     bool inA = false;
     bool inB = false;
     float outs[6] = {};
@@ -56,8 +57,8 @@ struct Boolean2 : Module
 
 void Boolean2::step() 
 {
-    inA = (inputs[INA_INPUT].value >= 1.0f);
-    inB = (inputs[INB_INPUT].value >= 1.0f);
+    inA = ins[0].process(inputs[INA_INPUT].value);
+    inB = ins[1].process(inputs[INB_INPUT].value);
 
     lights[INA_LIGHT].value = inA ? 5.0f : 0.0f;
     lights[INB_LIGHT].value = inB ? 5.0f : 0.0f;

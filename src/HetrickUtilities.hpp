@@ -23,3 +23,18 @@ struct TriggerGenerator
 		}
 	}
 };
+
+struct HysteresisGate
+{
+	bool state = false;
+	float trueBound = 1.0f;
+	float falseBound = 0.98f;
+
+	bool process(float input)
+	{
+		if(input > trueBound) state = true;
+		else if(input < falseBound) state = false;
+		return state;
+	}
+	bool getState() {return state;}
+};

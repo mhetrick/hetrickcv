@@ -39,10 +39,19 @@ struct FlipFlop : Module
 
 	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
 	{
-		
+		reset();
 	}
 
 	void step() override;
+
+    void reset() override
+    {
+        lights[DATA_LIGHT].value = 0.0f;
+        outs[0] = 0.0f;
+        outs[1] = lights[DATA_LIGHT].value;
+        outs[2] = 5.0f;
+        outs[3] = 5.0f;
+    }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - toJson, fromJson: serialization of internal data
