@@ -38,3 +38,16 @@ struct ExponentWidget : ModuleWidget { ExponentWidget();};
 struct WaveshapeWidget : ModuleWidget { WaveshapeWidget();};
 
 struct FlipPanWidget : ModuleWidget { FlipPanWidget();};
+
+
+struct BlankPanelWidget : ModuleWidget 
+{ 
+    SVGPanel *panel1;
+	SVGPanel *panel2;
+    SVGPanel *panel3;
+	SVGPanel *panel4;
+    SVGPanel *panel5;
+    BlankPanelWidget();
+    void step() override;
+	Menu *createContextMenu() override;
+};

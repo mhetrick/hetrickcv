@@ -42,6 +42,9 @@ Patch ideas:
 ### Bitshift
 This is a harsh waveshaping effect. It is particularly useful for taking a slow, smooth CV value and creating a lot of rapid discontinuities. The effect is produced by taking the internal floating-point representation of the signal and turning it into a 32-bit integer. The integer's bits are then shifted left (<<, which produces aggressive alterations to the signal) or right (>>, which is mostly just attenuation). Because the algorithm for this module has expected boundaries, you will need to select a range for the input signal. +/- 5V is the standard range for most audio generators in Rack. Some function generators will produce +/- 10V, though. Regardless, since this is a fairly harsh and experimental module, there's no need to select the "correct" range...
 
+### Blank Panel
+This highly fashionable module allows you to display your love for HetrickCV. You can right-click on this to select alternative panels.
+
 ### Boolean Logic (2-or-3 Input)
 These modules take in 2 or 3 gate inputs and produce 6 gates that represent the true-or-false states of the inputs. The input is considered true if it is currently above 1V (gates do not need to be used, but they provide the most predictable behavior... still, try throwing in all sorts of signals). The various outputs are as follows:
 - OR: This output is true if any input is true.
@@ -101,7 +104,7 @@ Patch Ideas:
 - VCA: Route a signal into the Left input and monitor the Right output. The PAN control and input now act as a VCA for that signal.
 
 ### Gate Junction
-This is an eight-channel gate manipulator that was designed to work quickly with the Analog to Digital, Digital to Analog, and Rotator modules. This takes in up to eight gate signals. Each gate can be muted and/or inverted. The inversion behavior does not turn a positive gate negative. Rather, a positive gate will be changed to 0V, while a 0V signal will be changed to +5V. In more technical terms, it is a logic inverter.
+This is an eight-channel gate manipulator that was designed to work quickly with the Analog to Digital, Digital to Analog, and Rotator modules. This takes in up to eight gate signals. Each gate can be muted and/or inverted. The inversion behavior does not turn a positive gate negative. Rather, a positive gate will be changed to 0V, while a 0V signal will be changed to +5V. In more technical terms, it is a logic inverter. As an added convenience, the inputs are normalled together. If a cable is not plugged into an input, it will receive the value of the input above it.
 
 ### OR Logic (Gate Combiner)
 This module can be used to combine many separate gate streams into one gate stream. The OR output is true if any of the inputs are above 1V, the NOR output is true if (and only if) all of the inputs are below 1V. The TRIGS output fires a 1ms trigger when any of the inputs go above 1V.
