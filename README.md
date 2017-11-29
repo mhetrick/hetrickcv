@@ -58,6 +58,15 @@ Patch Ideas:
 - These are some of the best modules for creating unusual, generative rhythms. Try connecting various outputs of a clock divider into these inputs. Alternatively, connect two clocks or square wave LFOs with different frequencies (for more fun, modulate the pulse widths of the clocks if possible).
 - The AND output can be useful to manually toggle rhythm streams. Connect the gate stream that you want to toggle to one input. Connect a MIDI note gate to the other input. Now, the AND output will be the first rhythm as long as you hold down a MIDI note.
 
+### Comparator
+This is a tool for comparing one signal against a specific voltage. It can be used for many purposes, including clock extraction or distortion. The Threshold knob sets the voltage that is used for comparison against the main Input. If the Input is greater than the Threshold voltage, the `>` outputs will fire. If the Input is less than the Threshold voltage, then the `<` outputs will fire.
+
+The G outputs are gates and will stay high for as long as the voltage comparison is true. The T outputs are triggers and will stay high for 1 ms. The output between the comparison symbols is a Crossing Trigger, and will fire whenever the signal crosses the threshold. It is essentially the sum of the other two trigger outputs.
+
+Patch Ideas:
+- Do you have an LFO that lacks a dedicated square output? Set the Threshold to 0.0 (12 o'clock) and use the LFO as the main Input (not as a modulator for the Threshold value). The `>` Gate will provide a square wave that is synced with the LFO.
+- You can use this to turn an audio signal into a 1-bit representation. For extra fun, modulate the Threshold with another audio signal for a lot of destruction.
+
 ### Contrast
 This is a type of phase distortion that I found in the [CCRMA Snd wave editor](https://ccrma.stanford.edu/software/snd/snd/sndclm.html#contrast-enhancement). It will add brightness and saturation to a signal. Please note that the effect will still color the signal even if the knob is fully counter-clockwise. Like the Bitshift module, there is a range selector to set the expected range of the input signal.
 

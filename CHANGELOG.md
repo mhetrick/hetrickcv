@@ -2,6 +2,7 @@
 
 ## 0.5.3
 - BREAKING CHANGE: Removed Boolean Logic (2-input). The 3-input version will behave identically now if nothing is connected to the third input.
+- Added Comparator module.
 - Added internal hysteresis to Boolean Logic. This will reduce gate jitter when using non-gate inputs.
 
 ## 0.5.2 (November 28, 2017)

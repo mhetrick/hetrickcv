@@ -23,6 +23,7 @@ struct FlipFlopWidget : ModuleWidget { FlipFlopWidget();};
 struct Boolean3Widget : ModuleWidget { Boolean3Widget();};
 struct GateJunctionWidget : ModuleWidget { GateJunctionWidget();};
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget();};
+struct ComparatorWidget : ModuleWidget { ComparatorWidget();};
 
 struct AnalogToDigitalWidget : ModuleWidget { AnalogToDigitalWidget();};
 struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget();};

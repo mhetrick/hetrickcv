@@ -24,6 +24,18 @@ struct TriggerGenerator
 	}
 };
 
+struct TriggerGenWithSchmitt
+{
+	TriggerGenerator trigGen;
+	rack::SchmittTrigger schmitt;
+
+	bool process(bool _trigger)
+	{
+		if(schmitt.process(_trigger)) trigGen.trigger();
+		return trigGen.process();
+	}
+};
+
 struct HysteresisGate
 {
 	bool state = false;

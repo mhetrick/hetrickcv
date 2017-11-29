@@ -20,6 +20,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<BitshiftWidget>("HetrickCV", "Bitshift", "Bitshift", DISTORTION_TAG, EFFECT_TAG));
 	p->addModel(createModel<BlankPanelWidget>("HetrickCV", "BlankPanel", "Blank Panel"));
 	p->addModel(createModel<Boolean3Widget>("HetrickCV", "Boolean3", "Boolean Logic", LOGIC_TAG));
+	p->addModel(createModel<ComparatorWidget>("HetrickCV", "Comparator", "Comparator", LOGIC_TAG));
 	p->addModel(createModel<ContrastWidget>("HetrickCV", "Contrast", "Contrast", EFFECT_TAG));
 	p->addModel(createModel<CrackleWidget>("HetrickCV", "Crackle", "Crackle", NOISE_TAG));
 	p->addModel(createModel<DigitalToAnalogWidget>("HetrickCV", "DigitalToAnalog", "Digital to Analog", LOGIC_TAG));	
