@@ -165,13 +165,26 @@ struct GateJunction : Module
 
 void GateJunction::step() 
 {
+    ins[0] = (inputs[IN1_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
+
+    for(int i = 1; i < 8; i++)
+    {
+        const int thisInput = IN1_INPUT + i;
+        if(inputs[thisInput].active)
+        {
+            ins[i] = (inputs[thisInput].value >= 1.0f) ? 5.0f : 0.0f;
+        }
+        else
+        {
+            ins[i] = ins[thisInput - 1];
+        }
+    }
 
     for(int i = 0; i < 8; i++)
     {
         if (muteTrigger[i].process(params[MUTE1_PARAM + i].value)) muteState[i] ^= true;
         if (invTrigger[i].process(params[INV1_PARAM + i].value)) invState[i] ^= true;
-
-        ins[i] = (inputs[IN1_INPUT + i].value >= 1.0f) ? 5.0f : 0.0f;
+        
         if(invState[i]) ins[i] = 5.0f - ins[i];
         if(muteState[i]) ins[i] = 0.0f;
         
