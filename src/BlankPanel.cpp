@@ -24,10 +24,7 @@ struct BlankPanel : Module
 
     int panel = 0;
 
-	BlankPanel() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
-	{
-		
-	}
+	BlankPanel() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 	void step() override {}
 
