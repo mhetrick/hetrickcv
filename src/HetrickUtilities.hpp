@@ -31,7 +31,7 @@ struct TriggerGenWithSchmitt
 
 	bool process(bool _trigger)
 	{
-		if(schmitt.process(_trigger)) trigGen.trigger();
+		if(schmitt.process(_trigger ? 2.0f : 0.0f)) trigGen.trigger();
 		return trigGen.process();
 	}
 };

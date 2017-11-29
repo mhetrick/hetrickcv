@@ -56,11 +56,12 @@ void Comparator::step()
 	compare = clampf(compare, -5.0f, 5.0f);
 
 	const bool greaterThan = (input > compare);
+	const bool lessThan = (input < compare);
 	
 	outputs[GT_TRIG_OUTPUT].value = gtTrig.process(greaterThan) ? 5.0f : 0.0f;
-	outputs[LT_TRIG_OUTPUT].value = ltTrig.process(!greaterThan) ? 5.0f : 0.0f;
+	outputs[LT_TRIG_OUTPUT].value = ltTrig.process(lessThan) ? 5.0f : 0.0f;
 	outputs[GT_GATE_OUTPUT].value = greaterThan ? 5.0f : 0.0f;
-	outputs[LT_GATE_OUTPUT].value = !greaterThan ? 5.0f : 0.0f;
+	outputs[LT_GATE_OUTPUT].value = lessThan ? 5.0f : 0.0f;
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
 	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
@@ -100,14 +101,14 @@ ComparatorWidget::ComparatorWidget()
     addInput(createInput<PJ301MPort>(Vec(33, 145), module, Comparator::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(10, 285), module, Comparator::LT_GATE_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(55, 285), module, Comparator::GT_GATE_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(10, 315), module, Comparator::LT_TRIG_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(55, 315), module, Comparator::GT_TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 285), module, Comparator::LT_GATE_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 285), module, Comparator::GT_GATE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 315), module, Comparator::LT_TRIG_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 315), module, Comparator::GT_TRIG_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(32.5, 245), module, Comparator::ZEROX_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(createLight<SmallLight<RedLight>>(Vec(19, 275), module, Comparator::LT_LIGHT));
-    addChild(createLight<SmallLight<GreenLight>>(Vec(64, 275), module, Comparator::GT_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(41.5, 275), module, Comparator::ZEROX_LIGHT));
+	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
 }

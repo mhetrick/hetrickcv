@@ -23,6 +23,7 @@ void init(rack::Plugin *p) {
 	p->addModel(createModel<ComparatorWidget>("HetrickCV", "Comparator", "Comparator", LOGIC_TAG));
 	p->addModel(createModel<ContrastWidget>("HetrickCV", "Contrast", "Contrast", EFFECT_TAG));
 	p->addModel(createModel<CrackleWidget>("HetrickCV", "Crackle", "Crackle", NOISE_TAG));
+	p->addModel(createModel<DeltaWidget>("HetrickCV", "Delta", "Delta", LOGIC_TAG));
 	p->addModel(createModel<DigitalToAnalogWidget>("HetrickCV", "DigitalToAnalog", "Digital to Analog", LOGIC_TAG));	
 	p->addModel(createModel<DustWidget>("HetrickCV", "Dust", "Dust", NOISE_TAG, GRANULAR_TAG));	
 	p->addModel(createModel<ExponentWidget>("HetrickCV", "Exponent", "Exponent", WAVESHAPER_TAG));	
