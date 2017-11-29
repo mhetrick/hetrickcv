@@ -68,12 +68,25 @@ void Boolean3::step()
     lights[INB_LIGHT].value = inB ? 5.0f : 0.0f;
     lights[INC_LIGHT].value = inC ? 5.0f : 0.0f;
 
-    outs[0] = ((inA || inB) || inC) ? 5.0f : 0.0f;
-    outs[1] = ((inA && inB) && inC) ? 5.0f : 0.0f;
-    outs[2] = (!inA && (inB ^ inC)) || (inA && !(inB || inC)) ? 5.0f : 0.0f;
-    outs[3] = 5.0f - outs[0];
-    outs[4] = 5.0f - outs[1];
-    outs[5] = 5.0f - outs[2];
+    if(inputs[INC_INPUT].active)
+    {
+        outs[0] = ((inA || inB) || inC) ? 5.0f : 0.0f;
+        outs[1] = ((inA && inB) && inC) ? 5.0f : 0.0f;
+        outs[2] = (!inA && (inB ^ inC)) || (inA && !(inB || inC)) ? 5.0f : 0.0f;
+        outs[3] = 5.0f - outs[0];
+        outs[4] = 5.0f - outs[1];
+        outs[5] = 5.0f - outs[2];
+    }
+    else
+    {
+        outs[0] = (inA || inB) ? 5.0f : 0.0f;
+        outs[1] = (inA && inB) ? 5.0f : 0.0f;
+        outs[2] = (inA != inB) ? 5.0f : 0.0f;
+        outs[3] = 5.0f - outs[0];
+        outs[4] = 5.0f - outs[1];
+        outs[5] = 5.0f - outs[2];
+    }
+    
 
     outputs[OR_OUTPUT].value = outs[0];
     outputs[AND_OUTPUT].value = outs[1];

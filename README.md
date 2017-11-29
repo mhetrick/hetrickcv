@@ -45,7 +45,7 @@ This is a harsh waveshaping effect. It is particularly useful for taking a slow,
 ### Blank Panel
 This highly fashionable module allows you to display your love for HetrickCV. You can right-click on this to select alternative panels.
 
-### Boolean Logic (2-or-3 Input)
+### Boolean Logic
 These modules take in 2 or 3 gate inputs and produce 6 gates that represent the true-or-false states of the inputs. The input is considered true if it is currently above 1V (gates do not need to be used, but they provide the most predictable behavior... still, try throwing in all sorts of signals). The various outputs are as follows:
 - OR: This output is true if any input is true.
 - AND: This output is true if every input is true.
