@@ -1,3 +1,5 @@
+SLUG = HetrickCV
+VERSION = 0.5.4
 
 # FLAGS will be passed to both C and C++ compiler
 FLAGS +=
@@ -17,11 +19,10 @@ include ../../plugin.mk
 
 
 # Convenience target for including files in the distributable release
-DIST_NAME = HetrickCV
 .PHONY: dist
 dist: all
-	mkdir -p dist/$(DIST_NAME)
-	cp LICENSE* dist/$(DIST_NAME)/
-	cp plugin.* dist/$(DIST_NAME)/
-	cp -R res dist/$(DIST_NAME)/
-	cd dist && zip -5 -r $(DIST_NAME)-$(VERSION)-$(ARCH).zip $(DIST_NAME)
+	mkdir -p dist/$(SLUG)
+	cp LICENSE* dist/$(SLUG)/
+	cp plugin.* dist/$(SLUG)/
+	cp -R res dist/$(SLUG)/
+	cd dist && zip -5 -r $(SLUG)-$(VERSION)-$(ARCH).zip $(SLUG)
