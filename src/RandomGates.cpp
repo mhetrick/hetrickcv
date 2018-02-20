@@ -1,8 +1,8 @@
 #include "HetrickCV.hpp"
 
-struct RandomGates : Module 
+struct RandomGates : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
         MIN_PARAM,
         MAX_PARAM,
@@ -10,7 +10,7 @@ struct RandomGates : Module
         MODE_PARAM_INVIS,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         CLOCK_INPUT,
 
@@ -18,7 +18,7 @@ struct RandomGates : Module
         MAXI_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -30,14 +30,14 @@ struct RandomGates : Module
         OUT8_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
 	{
         CLOCK_LIGHT,
 
         MODE_TRIG_LIGHT,
         MODE_GATE_LIGHT,
         MODE_HOLD_LIGHT,
-        
+
         OUT1_LIGHT,
         OUT2_LIGHT,
         OUT3_LIGHT,
@@ -50,13 +50,13 @@ struct RandomGates : Module
 		NUM_LIGHTS
 	};
 
-	RandomGates() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	RandomGates() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
     void step() override;
-    
+
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
         if (_in > max) return max;
@@ -73,26 +73,26 @@ struct RandomGates : Module
     bool active[8] = {};
     int mode = 0;
 
-    json_t *toJson() override 
+    json_t *toJson() override
     {
 		json_t *rootJ = json_object();
 		json_object_set_new(rootJ, "mode", json_integer(mode));
 		return rootJ;
 	}
 
-    void fromJson(json_t *rootJ) override 
+    void fromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
 			mode = json_integer_value(modeJ);
     }
-    
-    void reset() override 
+
+    void reset() override
     {
 		mode = 0;
     }
-    
-    void randomize() override 
+
+    void randomize() override
     {
 		mode = round(randomf() * 2.0f);
 	}
@@ -104,7 +104,7 @@ struct RandomGates : Module
 };
 
 
-void RandomGates::step() 
+void RandomGates::step()
 {
     int max = round(params[MAX_PARAM].value + inputs[MAXI_INPUT].value);
     int min = round(params[MIN_PARAM].value + inputs[MINI_INPUT].value);
@@ -116,7 +116,7 @@ void RandomGates::step()
 
     const bool clockHigh = inputs[CLOCK_INPUT].value > 1.0f;
 
-    if (modeTrigger.process(params[MODE_PARAM].value)) 
+    if (modeTrigger.process(params[MODE_PARAM].value))
     {
 		mode = (mode + 1) % 3;
     }
@@ -133,7 +133,7 @@ void RandomGates::step()
             active[i] = randNum == i;
         }
     }
-    
+
     lights[MODE_TRIG_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
     lights[MODE_HOLD_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
     lights[MODE_GATE_LIGHT].setBrightness(mode == 2 ? 1.0f : 0.0f);
@@ -177,10 +177,10 @@ void RandomGates::step()
 }
 
 
-RandomGatesWidget::RandomGatesWidget() 
+struct RandomGatesWidget : ModuleWidget { RandomGatesWidget(RandomGates *module); };
+
+RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
 {
-	auto *module = new RandomGates();
-	setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -190,10 +190,10 @@ RandomGatesWidget::RandomGatesWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //const int inXPos = 10;
     const int outXPos = 145;
@@ -201,18 +201,18 @@ RandomGatesWidget::RandomGatesWidget()
     const int inLightX = 45;
 
 
-    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
-    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(58, 90), Port::INPUT, module, RandomGates::CLOCK_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
+    addInput(Port::create<PJ301MPort>(Vec(58, 150), Port::INPUT, module, RandomGates::MINI_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(58, 210), Port::INPUT, module, RandomGates::MAXI_INPUT));
 
-    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
 
     for(int i = 0; i < 8; i++)
     {
@@ -220,9 +220,11 @@ RandomGatesWidget::RandomGatesWidget()
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
+        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
     }
 }
+
+Model *modelRandomGates = Model::create<RandomGates, RandomGatesWidget>("HetrickCV", "RandomGates", "Random Gates", RANDOM_TAG);

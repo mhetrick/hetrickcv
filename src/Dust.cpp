@@ -1,19 +1,19 @@
 #include "HetrickCV.hpp"
 
-struct Dust : Module 
+struct Dust : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		RATE_PARAM,
 		BIPOLAR_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
 		RATE_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
 		DUST_OUTPUT,
 		NUM_OUTPUTS
@@ -23,9 +23,9 @@ struct Dust : Module
 	float densityScaled = 0.0;
 	float threshold = 0.0;
 
-	Dust() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	Dust() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -37,10 +37,10 @@ struct Dust : Module
 };
 
 
-void Dust::step() 
+void Dust::step()
 {
 	float densityInput = params[RATE_PARAM].value + inputs[RATE_INPUT].value;
-	
+
 	if(lastDensity != densityInput)
 	{
 		densityScaled = clampf(densityInput, 0.0f, 4.0f) / 4.0f;
@@ -72,11 +72,10 @@ void Dust::step()
 	}
 }
 
+struct DustWidget : ModuleWidget { DustWidget(Dust *module); };
 
-DustWidget::DustWidget() 
+DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 {
-	auto *module = new Dust();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -86,18 +85,20 @@ DustWidget::DustWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM, 0, 4.0, 0.0));
-	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM, 0, 4.0, 0.0));
+	addParam(ParamWidget::create<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-	addInput(createInput<PJ301MPort>(Vec(33, 146), module, Dust::RATE_INPUT));
+	addInput(Port::create<PJ301MPort>(Vec(33, 146), Port::INPUT, module, Dust::RATE_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Dust::DUST_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Dust::DUST_OUTPUT));
 }
+
+Model *modelDust = Model::create<Dust, DustWidget>("HetrickCV", "Dust", "Dust", NOISE_TAG, GRANULAR_TAG);

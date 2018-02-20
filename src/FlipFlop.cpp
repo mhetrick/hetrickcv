@@ -1,18 +1,18 @@
 #include "HetrickCV.hpp"
 
-struct FlipFlop : Module 
+struct FlipFlop : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         INT_INPUT,
         IND_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         FFT_OUTPUT,
         FFD_OUTPUT,
@@ -20,8 +20,8 @@ struct FlipFlop : Module
         FFDNOT_OUTPUT,
 		NUM_OUTPUTS
     };
-    
-    enum LightIds 
+
+    enum LightIds
     {
         FFT_LIGHT,
         FFD_LIGHT,
@@ -37,7 +37,7 @@ struct FlipFlop : Module
     bool toggle = false;
     bool dataIn = false;
 
-	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
 		reset();
 	}
@@ -60,7 +60,7 @@ struct FlipFlop : Module
 };
 
 
-void FlipFlop::step() 
+void FlipFlop::step()
 {
     dataIn = (inputs[IND_INPUT].value >= 1.0f);
     lights[DATA_LIGHT].value = dataIn ? 5.0f : 0.0f;
@@ -88,11 +88,10 @@ void FlipFlop::step()
     lights[FFDNOT_LIGHT].value = outs[3];
 }
 
+struct FlipFlopWidget : ModuleWidget { FlipFlopWidget(FlipFlop *module); };
 
-FlipFlopWidget::FlipFlopWidget() 
+FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
 {
-	auto *module = new FlipFlop();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -102,23 +101,25 @@ FlipFlopWidget::FlipFlopWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(10, 100), module, FlipFlop::INT_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(55, 100), module, FlipFlop::IND_INPUT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 100), Port::INPUT, module, FlipFlop::INT_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(55, 100), Port::INPUT, module, FlipFlop::IND_INPUT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, FlipFlop::FFT_OUTPUT + i));
-        addChild(createLight<SmallLight<RedLight>>(Vec(70, 158 + yPos), module, FlipFlop::FFT_LIGHT + i));
+        addOutput(Port::create<PJ301MPort>(Vec(33, 150 + yPos), Port::OUTPUT, module, FlipFlop::FFT_OUTPUT + i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(70, 158 + yPos), module, FlipFlop::FFT_LIGHT + i));
     }
 }
+
+Model *modelFlipFlop = Model::create<FlipFlop, FlipFlopWidget>("HetrickCV", "FlipFlop", "Flip-Flop", LOGIC_TAG);

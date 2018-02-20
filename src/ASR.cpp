@@ -1,18 +1,18 @@
 #include "HetrickCV.hpp"
 
-struct ASR : Module 
+struct ASR : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         MAIN_INPUT,
         CLK_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         STAGE1_OUTPUT,
         STAGE2_OUTPUT,
@@ -20,7 +20,7 @@ struct ASR : Module
         STAGE4_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
     {
         OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
 		OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
@@ -32,9 +32,9 @@ struct ASR : Module
     SchmittTrigger clockTrigger;
     float stages[4] = {};
 
-	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -46,7 +46,7 @@ struct ASR : Module
 };
 
 
-void ASR::step() 
+void ASR::step()
 {
     if (clockTrigger.process(inputs[CLK_INPUT].value))
     {
@@ -74,11 +74,10 @@ void ASR::step()
     lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[3] / 5.0));
 }
 
+struct ASRWidget : ModuleWidget { ASRWidget(ASR *module); };
 
-ASRWidget::ASRWidget() 
+ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
 {
-	auto *module = new ASR();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -88,21 +87,23 @@ ASRWidget::ASRWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(10, 100), module, ASR::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(55, 100), module, ASR::CLK_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 100), Port::INPUT, module, ASR::MAIN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(55, 100), Port::INPUT, module, ASR::CLK_INPUT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, ASR::STAGE1_OUTPUT + i));
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
+        addOutput(Port::create<PJ301MPort>(Vec(33, 150 + yPos), Port::OUTPUT, module, ASR::STAGE1_OUTPUT + i));
+        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
     }
 }
+
+Model *modelASR = Model::create<ASR, ASRWidget>("HetrickCV", "ASR", "ASR", SEQUENCER_TAG);

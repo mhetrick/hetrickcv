@@ -1,8 +1,8 @@
 #include "HetrickCV.hpp"
 
-struct AnalogToDigital : Module 
+struct AnalogToDigital : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
         SCALE_PARAM,
         OFFSET_PARAM,
@@ -11,14 +11,14 @@ struct AnalogToDigital : Module
 
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         MAIN_INPUT,
         SYNC_INPUT,
 
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -30,7 +30,7 @@ struct AnalogToDigital : Module
         OUT8_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
 	{
         OUT1_LIGHT,
         OUT2_LIGHT,
@@ -51,19 +51,19 @@ struct AnalogToDigital : Module
 
 		NUM_LIGHTS
     };
-    
+
     SchmittTrigger clockTrigger;
     SchmittTrigger modeTrigger;
     SchmittTrigger rectTrigger;
-    
+
     int mode = 0;
     int rectMode = 0;
 
     float outs[8] = {};
 
-	AnalogToDigital() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	AnalogToDigital() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
     void step() override;
@@ -72,30 +72,30 @@ struct AnalogToDigital : Module
     void processBiOff(float _input);
     void processBiSig(float _input);
 
-    void reset() override 
+    void reset() override
     {
         mode = 0;
         rectMode = 0;
 	}
-    void randomize() override 
+    void randomize() override
     {
         mode = round(randomf() * 2.0f);
         rectMode = round(randomf() * 2.0f);
     }
-    
-    json_t *toJson() override 
+
+    json_t *toJson() override
     {
 		json_t *rootJ = json_object();
         json_object_set_new(rootJ, "mode", json_integer(mode));
         json_object_set_new(rootJ, "rectMode", json_integer(rectMode));
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override 
+    void fromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
             mode = json_integer_value(modeJ);
-            
+
         json_t *rectModeJ = json_object_get(rootJ, "rectMode");
         if (rectModeJ)
             rectMode = json_integer_value(rectModeJ);
@@ -108,7 +108,7 @@ struct AnalogToDigital : Module
 };
 
 
-void AnalogToDigital::step() 
+void AnalogToDigital::step()
 {
     if (modeTrigger.process(params[MODE_PARAM].value)) mode = (mode + 1) % 3;
     if (rectTrigger.process(params[RECTIFY_PARAM].value)) rectMode = (rectMode + 1) % 3;
@@ -131,14 +131,14 @@ void AnalogToDigital::step()
         input += params[OFFSET_PARAM].value;
         if (rectMode == 1) input = input > 0.0f? input : 0.0f;
         else if (rectMode == 2) input = std::abs(input);
-    
+
         if(mode == 0) processUni8(input);
         else if (mode == 1) processBiOff(input);
         else if (mode == 2) processBiSig(input);
     }
 
     for(int i = 0; i < 8; i++)
-    {   
+    {
         outputs[OUT1_OUTPUT + i].value = outs[i];
         lights[OUT1_LIGHT + i].value = outs[i];
     }
@@ -192,10 +192,11 @@ void AnalogToDigital::processBiSig(float _input)
     outs[6] = (bits & 0b01000000) > 0.0f ? 5.0f : 0.0f;
 }
 
-AnalogToDigitalWidget::AnalogToDigitalWidget() 
+
+struct AnalogToDigitalWidget : ModuleWidget { AnalogToDigitalWidget(AnalogToDigital *module); };
+
+AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWidget(module)
 {
-	auto *module = new AnalogToDigital();
-	setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -205,32 +206,32 @@ AnalogToDigitalWidget::AnalogToDigitalWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(createParam<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<CKD6>(Vec(65, 270), module, AnalogToDigital::RECTIFY_PARAM, 0.0, 1.0, 0.0));
-    
+    addParam(ParamWidget::create<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<CKD6>(Vec(65, 270), module, AnalogToDigital::RECTIFY_PARAM, 0.0, 1.0, 0.0));
+
     //////BLINKENLIGHTS//////
     int modeLightX = 12;
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, AnalogToDigital::MODE_UNI8_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, AnalogToDigital::MODE_BOFF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, AnalogToDigital::MODE_BSIG_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 306), module, AnalogToDigital::MODE_UNI8_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 319), module, AnalogToDigital::MODE_BOFF_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 332), module, AnalogToDigital::MODE_BSIG_LIGHT));
 
     int rectLightX = 64;
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, AnalogToDigital::RECT_NONE_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, AnalogToDigital::RECT_HALF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 306), module, AnalogToDigital::RECT_NONE_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 319), module, AnalogToDigital::RECT_HALF_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(7, 70), module, AnalogToDigital::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(42, 152), module, AnalogToDigital::SYNC_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(7, 70), Port::INPUT, module, AnalogToDigital::MAIN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(42, 152), Port::INPUT, module, AnalogToDigital::SYNC_INPUT));
 
-    addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
+    addParam(ParamWidget::create<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
 
     const int outXPos = 145;
     const int outLightX = 120;
@@ -240,9 +241,11 @@ AnalogToDigitalWidget::AnalogToDigitalWidget()
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, AnalogToDigital::OUT1_OUTPUT + i));
+        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, AnalogToDigital::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));
     }
 }
+
+Model *modelAnalogToDigital = Model::create<AnalogToDigital, AnalogToDigitalWidget>("HetrickCV", "AnalogToDigital", "Analog to Digital", LOGIC_TAG);

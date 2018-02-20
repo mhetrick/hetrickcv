@@ -1,19 +1,19 @@
 #include "HetrickCV.hpp"
 #include "dsp/digital.hpp"
 
-struct TwoToFour : Module 
+struct TwoToFour : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         INA_INPUT,
         INB_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -22,7 +22,7 @@ struct TwoToFour : Module
 		NUM_OUTPUTS
 	};
 
-	enum LightIds 
+	enum LightIds
     {
         OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
 		OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
@@ -33,9 +33,9 @@ struct TwoToFour : Module
 
     float outs[4] = {};
 
-	TwoToFour() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	TwoToFour() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -47,7 +47,7 @@ struct TwoToFour : Module
 };
 
 
-void TwoToFour::step() 
+void TwoToFour::step()
 {
     const float inA = inputs[INA_INPUT].value;
     const float inB = inputs[INB_INPUT].value;
@@ -61,7 +61,7 @@ void TwoToFour::step()
     outputs[OUT2_OUTPUT].value = outs[1];
     outputs[OUT3_OUTPUT].value = outs[2];
 	outputs[OUT4_OUTPUT].value = outs[3];
-	
+
 	lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[0] / 5.0));
     lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[0] / 5.0));
 
@@ -75,11 +75,10 @@ void TwoToFour::step()
     lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[3] / 5.0));
 }
 
+struct TwoToFourWidget : ModuleWidget { TwoToFourWidget(TwoToFour *module); };
 
-TwoToFourWidget::TwoToFourWidget() 
+TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
 {
-	auto *module = new TwoToFour();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -89,21 +88,24 @@ TwoToFourWidget::TwoToFourWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(10, 100), module, TwoToFour::INA_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(55, 100), module, TwoToFour::INB_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 100), Port::INPUT, module, TwoToFour::INA_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(55, 100), Port::INPUT, module, TwoToFour::INB_INPUT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, TwoToFour::OUT1_OUTPUT + i));
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, TwoToFour::OUT1_POS_LIGHT + i*2));
+        addOutput(Port::create<PJ301MPort>(Vec(33, 150 + yPos), Port::OUTPUT, module, TwoToFour::OUT1_OUTPUT + i));
+        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, TwoToFour::OUT1_POS_LIGHT + i*2));
     }
 }
+
+Model *modelTwoToFour = Model::create<TwoToFour, TwoToFourWidget>("HetrickCV", "2To4", "2 To 4 Mix Matrix", MIXER_TAG);
+

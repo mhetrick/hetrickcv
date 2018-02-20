@@ -1,8 +1,8 @@
 #include "HetrickCV.hpp"
 
-struct GateJunction : Module 
+struct GateJunction : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
         MUTE1_PARAM,
         MUTE2_PARAM,
@@ -24,7 +24,7 @@ struct GateJunction : Module
 
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         IN1_INPUT,
         IN2_INPUT,
@@ -37,7 +37,7 @@ struct GateJunction : Module
 
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -49,7 +49,7 @@ struct GateJunction : Module
         OUT8_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
 	{
         MUTE1_LIGHT,
         MUTE2_LIGHT,
@@ -86,41 +86,41 @@ struct GateJunction : Module
 
     bool muteState[8] = {};
     SchmittTrigger muteTrigger[8];
-    
+
     bool invState[8] = {};
 	SchmittTrigger invTrigger[8];
 
-	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
 		reset();
 	}
 
     void step() override;
 
-    void reset() override 
+    void reset() override
     {
-        for (int i = 0; i < 8; i++) 
+        for (int i = 0; i < 8; i++)
         {
             muteState[i] = false;
             invState[i] = false;
 		}
 	}
-    void randomize() override 
+    void randomize() override
     {
-        for (int i = 0; i < 8; i++) 
+        for (int i = 0; i < 8; i++)
         {
             muteState[i] = (randomf() < 0.5);
             invState[i] = (randomf() < 0.5);
 		}
     }
-    
-    json_t *toJson() override 
+
+    json_t *toJson() override
     {
 		json_t *rootJ = json_object();
 		// states
         json_t *muteStatesJ = json_array();
         json_t *invStatesJ = json_array();
-        for (int i = 0; i < 8; i++) 
+        for (int i = 0; i < 8; i++)
         {
 			json_t *muteStateJ = json_boolean(muteState[i]);
             json_array_append_new(muteStatesJ, muteStateJ);
@@ -131,23 +131,23 @@ struct GateJunction : Module
         json_object_set_new(rootJ, "invStates", invStatesJ);
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override 
+    void fromJson(json_t *rootJ) override
     {
 		// states
         json_t *muteStatesJ = json_object_get(rootJ, "muteStates");
         json_t *invStatesJ = json_object_get(rootJ, "invStates");
-        if (muteStatesJ) 
+        if (muteStatesJ)
         {
-            for (int i = 0; i < 8; i++) 
+            for (int i = 0; i < 8; i++)
             {
 				json_t *stateJ = json_array_get(muteStatesJ, i);
 				if (stateJ)
 					muteState[i] = json_boolean_value(stateJ);
 			}
         }
-        if (invStatesJ) 
+        if (invStatesJ)
         {
-            for (int i = 0; i < 8; i++) 
+            for (int i = 0; i < 8; i++)
             {
 				json_t *stateJ = json_array_get(invStatesJ, i);
 				if (stateJ)
@@ -163,7 +163,7 @@ struct GateJunction : Module
 };
 
 
-void GateJunction::step() 
+void GateJunction::step()
 {
     ins[0] = (inputs[IN1_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
 
@@ -184,10 +184,10 @@ void GateJunction::step()
     {
         if (muteTrigger[i].process(params[MUTE1_PARAM + i].value)) muteState[i] ^= true;
         if (invTrigger[i].process(params[INV1_PARAM + i].value)) invState[i] ^= true;
-        
+
         if(invState[i]) ins[i] = 5.0f - ins[i];
         if(muteState[i]) ins[i] = 0.0f;
-        
+
         outputs[OUT1_OUTPUT + i].value = ins[i];
         lights[OUT1_LIGHT + i].value = ins[i];
 
@@ -203,10 +203,10 @@ struct MuteLight : BASE {
 	}
 };
 
-GateJunctionWidget::GateJunctionWidget() 
+struct GateJunctionWidget : ModuleWidget { GateJunctionWidget(GateJunction *module); };
+
+GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(module)
 {
-	auto *module = new GateJunction();
-	setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -216,10 +216,10 @@ GateJunctionWidget::GateJunctionWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
@@ -233,18 +233,20 @@ GateJunctionWidget::GateJunctionWidget()
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, GateJunction::IN1_INPUT + i));
+        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, GateJunction::IN1_INPUT + i));
 
         //////OUTPUTS//////
-        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, GateJunction::OUT1_OUTPUT + i));
+        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, GateJunction::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));
 
-        addParam(createParam<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
-        addParam(createParam<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
-    
-        addChild(createLight<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
-        addChild(createLight<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
+        addParam(ParamWidget::create<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
+        addParam(ParamWidget::create<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
+
+        addChild(ModuleLightWidget::create<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
+        addChild(ModuleLightWidget::create<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
     }
 }
+
+Model *modelGateJunction = Model::create<GateJunction, GateJunctionWidget>("HetrickCV", "Gate Junction", "Gate Junction", SWITCH_TAG, LOGIC_TAG);

@@ -1,8 +1,8 @@
 #include "HetrickCV.hpp"
 
-struct Scanner : Module 
+struct Scanner : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
         SCAN_PARAM,
         STAGES_PARAM,
@@ -12,7 +12,7 @@ struct Scanner : Module
         MIXSCALE_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         IN1_INPUT,
         IN2_INPUT,
@@ -30,7 +30,7 @@ struct Scanner : Module
         ALLIN_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -43,7 +43,7 @@ struct Scanner : Module
         MIX_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
 	{
         IN1_LIGHT,
         IN2_LIGHT,
@@ -53,7 +53,7 @@ struct Scanner : Module
         IN6_LIGHT,
         IN7_LIGHT,
         IN8_LIGHT,
-        
+
         OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
         OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
         OUT3_POS_LIGHT, OUT3_NEG_LIGHT,
@@ -71,13 +71,13 @@ struct Scanner : Module
     float inMults[8] = {};
     float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
-	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
     void step() override;
-    
+
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
         if (_in > max) return max;
@@ -98,7 +98,7 @@ struct Scanner : Module
 };
 
 
-void Scanner::step() 
+void Scanner::step()
 {
     float allInValue = 0.0f;
     if(inputs[ALLIN_INPUT].active) allInValue = inputs[ALLIN_INPUT].value;
@@ -166,10 +166,10 @@ void Scanner::step()
 }
 
 
-ScannerWidget::ScannerWidget() 
+struct ScannerWidget : ModuleWidget { ScannerWidget(Scanner *module); };
+
+ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
 {
-	auto *module = new Scanner();
-	setModule(module);
 	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -179,32 +179,32 @@ ScannerWidget::ScannerWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     const int knobX = 75;
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(jackX, 70), Port::INPUT, module, Scanner::SCAN_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
+    addInput(Port::create<PJ301MPort>(Vec(jackX, 130), Port::INPUT, module, Scanner::STAGES_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(jackX, 190), Port::INPUT, module, Scanner::WIDTH_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(jackX, 250), Port::INPUT, module, Scanner::SLOPE_INPUT));
 
-    addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
+    addInput(Port::create<PJ301MPort>(Vec(96, 310), Port::INPUT, module, Scanner::ALLIN_INPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(141, 310), Port::OUTPUT, module, Scanner::MIX_OUTPUT));
 
-    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
+    addParam(ParamWidget::create<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
 
     const int inXPos = 10;
     const int inLightX = 50;
@@ -218,13 +218,15 @@ ScannerWidget::ScannerWidget()
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, i));
+        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
 
         //////OUTPUTS//////
-        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
+        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
+        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
     }
 }
+
+Model *modelScanner = Model::create<Scanner, ScannerWidget>("HetrickCV", "Scanner", "Scanner", MIXER_TAG);

@@ -1,20 +1,20 @@
 #include "HetrickCV.hpp"
 
-struct Comparator : Module 
+struct Comparator : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		AMOUNT_PARAM,
         SCALE_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         MAIN_INPUT,
         AMOUNT_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
 		GT_GATE_OUTPUT,
 		GT_TRIG_OUTPUT,
@@ -24,7 +24,7 @@ struct Comparator : Module
 		NUM_OUTPUTS
 	};
 
-	 enum LightIds 
+	 enum LightIds
     {
         GT_LIGHT,
         LT_LIGHT,
@@ -32,9 +32,9 @@ struct Comparator : Module
         NUM_LIGHTS
 	};
 
-	Comparator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	Comparator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
@@ -48,7 +48,7 @@ struct Comparator : Module
 };
 
 
-void Comparator::step() 
+void Comparator::step()
 {
 	float input = inputs[MAIN_INPUT].value;
 
@@ -57,7 +57,7 @@ void Comparator::step()
 
 	const bool greaterThan = (input > compare);
 	const bool lessThan = (input < compare);
-	
+
 	outputs[GT_TRIG_OUTPUT].value = gtTrig.process(greaterThan) ? 5.0f : 0.0f;
 	outputs[LT_TRIG_OUTPUT].value = ltTrig.process(lessThan) ? 5.0f : 0.0f;
 	outputs[GT_GATE_OUTPUT].value = greaterThan ? 5.0f : 0.0f;
@@ -67,17 +67,17 @@ void Comparator::step()
 	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
 
 	outputs[ZEROX_OUTPUT].value = allTrigs;
-	
+
 	lights[GT_LIGHT].setBrightnessSmooth(outputs[GT_GATE_OUTPUT].value);
 	lights[LT_LIGHT].setBrightnessSmooth(outputs[LT_GATE_OUTPUT].value);
 	lights[ZEROX_LIGHT].setBrightnessSmooth(allTrigs);
 }
 
 
-ComparatorWidget::ComparatorWidget() 
+struct ComparatorWidget : ModuleWidget { ComparatorWidget(Comparator *module); };
+
+ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
 {
-	auto *module = new Comparator();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -87,28 +87,30 @@ ComparatorWidget::ComparatorWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM, -1.0, 1.0, 1.0));
+	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM, -1.0, 1.0, 1.0));
 
 	//////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(33, 195), module, Comparator::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Comparator::AMOUNT_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 195), Port::INPUT, module, Comparator::MAIN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Comparator::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(12, 285), module, Comparator::LT_GATE_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(53, 285), module, Comparator::GT_GATE_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(12, 315), module, Comparator::LT_TRIG_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(53, 315), module, Comparator::GT_TRIG_OUTPUT));
-	addOutput(createOutput<PJ301MPort>(Vec(32.5, 245), module, Comparator::ZEROX_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(12, 285), Port::OUTPUT, module, Comparator::LT_GATE_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(53, 285), Port::OUTPUT, module, Comparator::GT_GATE_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(12, 315), Port::OUTPUT, module, Comparator::LT_TRIG_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(53, 315), Port::OUTPUT, module, Comparator::GT_TRIG_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(32.5, 245), Port::OUTPUT, module, Comparator::ZEROX_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
-    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
+	addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
 }
+
+Model *modelComparator = Model::create<Comparator, ComparatorWidget>("HetrickCV", "Comparator", "Comparator", LOGIC_TAG);
