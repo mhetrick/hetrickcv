@@ -1,19 +1,19 @@
 #include "HetrickCV.hpp"
 
-struct Boolean3 : Module 
+struct Boolean3 : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         INA_INPUT,
         INB_INPUT,
         INC_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OR_OUTPUT,
         AND_OUTPUT,
@@ -23,8 +23,8 @@ struct Boolean3 : Module
         XNOR_OUTPUT,
 		NUM_OUTPUTS
     };
-    
-    enum LightIds 
+
+    enum LightIds
     {
         OR_LIGHT,
         AND_LIGHT,
@@ -44,9 +44,9 @@ struct Boolean3 : Module
     bool inC = false;
     float outs[6] = {};
 
-	Boolean3() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	Boolean3() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -58,7 +58,7 @@ struct Boolean3 : Module
 };
 
 
-void Boolean3::step() 
+void Boolean3::step()
 {
     inA = ins[0].process(inputs[INA_INPUT].value);
     inB = ins[1].process(inputs[INB_INPUT].value);
@@ -86,7 +86,7 @@ void Boolean3::step()
         outs[4] = 5.0f - outs[1];
         outs[5] = 5.0f - outs[2];
     }
-    
+
 
     outputs[OR_OUTPUT].value = outs[0];
     outputs[AND_OUTPUT].value = outs[1];
@@ -103,11 +103,10 @@ void Boolean3::step()
     lights[XNOR_LIGHT].value = outs[5];
 }
 
+struct Boolean3Widget : ModuleWidget { Boolean3Widget(Boolean3 *module); };
 
-Boolean3Widget::Boolean3Widget() 
+Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
 {
-	auto *module = new Boolean3();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -117,25 +116,27 @@ Boolean3Widget::Boolean3Widget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(10, 105), module, Boolean3::INA_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(10, 195), module, Boolean3::INB_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(10, 285), module, Boolean3::INC_INPUT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 105), Port::INPUT, module, Boolean3::INA_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 195), Port::INPUT, module, Boolean3::INB_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(10, 285), Port::INPUT, module, Boolean3::INC_INPUT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
 
     //////OUTPUTS//////
     for(int i = 0; i < 6; i++)
     {
         const int yPos = i*45;
-        addOutput(createOutput<PJ301MPort>(Vec(45, 60 + yPos), module, Boolean3::OR_OUTPUT + i));
-        addChild(createLight<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
+        addOutput(Port::create<PJ301MPort>(Vec(45, 60 + yPos), Port::OUTPUT, module, Boolean3::OR_OUTPUT + i));
+        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
     }
 
 }
+
+Model *modelBoolean3 = Model::create<Boolean3, Boolean3Widget>("HetrickCV", "Boolean3", "Boolean Logic", LOGIC_TAG);

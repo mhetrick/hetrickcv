@@ -1,29 +1,29 @@
 #include "HetrickCV.hpp"
 
-struct Exponent : Module 
+struct Exponent : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		AMOUNT_PARAM,
         SCALE_PARAM,
         RANGE_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         MAIN_INPUT,
         AMOUNT_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
 
-	Exponent() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	Exponent() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -35,7 +35,7 @@ struct Exponent : Module
 };
 
 
-void Exponent::step() 
+void Exponent::step()
 {
 	float input = inputs[MAIN_INPUT].value;
 	const bool negativeInput = input < 0.0f;
@@ -59,7 +59,7 @@ void Exponent::step()
 	if (negativeInput) output *= -1.0f;
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
-    
+
     outputs[MAIN_OUTPUT].value = output;
 }
 
@@ -72,10 +72,11 @@ struct CKSSRot : SVGSwitch, ToggleSwitch {
 	}
 };
 
-ExponentWidget::ExponentWidget() 
+
+struct ExponentWidget : ModuleWidget { ExponentWidget(Exponent *module); };
+
+ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
 {
-	auto *module = new Exponent();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -85,20 +86,22 @@ ExponentWidget::ExponentWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Exponent::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Exponent::AMOUNT_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 235), Port::INPUT, module, Exponent::MAIN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Exponent::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Exponent::MAIN_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Exponent::MAIN_OUTPUT));
 }
+
+Model *modelExponent = Model::create<Exponent, ExponentWidget>("HetrickCV", "Exponent", "Exponent", WAVESHAPER_TAG);

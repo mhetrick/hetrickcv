@@ -1,29 +1,29 @@
 #include "HetrickCV.hpp"
 
-struct Bitshift : Module 
+struct Bitshift : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		AMOUNT_PARAM,
         SCALE_PARAM,
         RANGE_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         MAIN_INPUT,
         AMOUNT_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
 
-	Bitshift() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) 
+	Bitshift() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -35,7 +35,7 @@ struct Bitshift : Module
 };
 
 
-void Bitshift::step() 
+void Bitshift::step()
 {
 	float input = inputs[MAIN_INPUT].value;
 
@@ -63,7 +63,7 @@ void Bitshift::step()
 
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
-    
+
     outputs[MAIN_OUTPUT].value = output;
 }
 
@@ -76,10 +76,11 @@ struct CKSSRot : SVGSwitch, ToggleSwitch {
 	}
 };
 
-BitshiftWidget::BitshiftWidget() 
+
+struct BitshiftWidget : ModuleWidget { BitshiftWidget(Bitshift *module); };
+
+BitshiftWidget::BitshiftWidget(Bitshift *module) : ModuleWidget(module)
 {
-	auto *module = new Bitshift();
-	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -89,20 +90,22 @@ BitshiftWidget::BitshiftWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0));
+    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0));
+    addParam(ParamWidget::create<CKSSRot>(Vec(35, 200), module, Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Bitshift::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Bitshift::AMOUNT_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 235), Port::INPUT, module, Bitshift::MAIN_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Bitshift::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Bitshift::MAIN_OUTPUT));
+	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Bitshift::MAIN_OUTPUT));
 }
+
+Model *modelBitshift = Model::create<Bitshift, BitshiftWidget>("HetrickCV", "Bitshift", "Bitshift", DISTORTION_TAG, EFFECT_TAG);

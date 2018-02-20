@@ -2,22 +2,22 @@
 
 #define NUM_PANELS 5
 
-struct BlankPanel : Module 
+struct BlankPanel : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
 		NUM_OUTPUTS
     };
-    
-    enum LightIds 
+
+    enum LightIds
     {
         NUM_LIGHTS
 	};
@@ -28,22 +28,22 @@ struct BlankPanel : Module
 
 	void step() override {}
 
-	void reset() override 
+	void reset() override
     {
         panel = 0;
 	}
-    void randomize() override 
+    void randomize() override
     {
         panel = round(randomf() * (NUM_PANELS - 1.0f));
     }
-    
-    json_t *toJson() override 
+
+    json_t *toJson() override
     {
 		json_t *rootJ = json_object();
         json_object_set_new(rootJ, "panel", json_integer(panel));
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override 
+    void fromJson(json_t *rootJ) override
     {
 		json_t *panelJ = json_object_get(rootJ, "panel");
 		if (panelJ)
@@ -51,10 +51,21 @@ struct BlankPanel : Module
 	}
 };
 
-BlankPanelWidget::BlankPanelWidget() 
+
+struct BlankPanelWidget : ModuleWidget
 {
-	auto *module = new BlankPanel();
-	setModule(module);
+    SVGPanel *panel1;
+	SVGPanel *panel2;
+    SVGPanel *panel3;
+	SVGPanel *panel4;
+    SVGPanel *panel5;
+    BlankPanelWidget(BlankPanel *module);
+    void step() override;
+	Menu *createContextMenu() override;
+};
+
+BlankPanelWidget::BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
+{
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
     panel1 = new SVGPanel();
@@ -82,13 +93,13 @@ BlankPanelWidget::BlankPanelWidget()
     panel5->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel1.svg")));
     addChild(panel5);
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 }
 
-void BlankPanelWidget::step() 
+void BlankPanelWidget::step()
 {
 	BlankPanel *blank = dynamic_cast<BlankPanel*>(module);
 	assert(blank);
@@ -102,7 +113,7 @@ void BlankPanelWidget::step()
 	ModuleWidget::step();
 }
 
-struct Panel1Item : MenuItem 
+struct Panel1Item : MenuItem
 {
 	BlankPanel *blank;
 	void onAction(EventAction &e) override { blank->panel = 0; }
@@ -112,7 +123,7 @@ struct Panel1Item : MenuItem
 	}
 };
 
-struct Panel2Item : MenuItem 
+struct Panel2Item : MenuItem
 {
 	BlankPanel *blank;
 	void onAction(EventAction &e) override { blank->panel = 1; }
@@ -122,7 +133,7 @@ struct Panel2Item : MenuItem
 	}
 };
 
-struct Panel3Item : MenuItem 
+struct Panel3Item : MenuItem
 {
 	BlankPanel *blank;
 	void onAction(EventAction &e) override { blank->panel = 2; }
@@ -132,7 +143,7 @@ struct Panel3Item : MenuItem
 	}
 };
 
-struct Panel4Item : MenuItem 
+struct Panel4Item : MenuItem
 {
 	BlankPanel *blank;
 	void onAction(EventAction &e) override { blank->panel = 3; }
@@ -142,7 +153,7 @@ struct Panel4Item : MenuItem
 	}
 };
 
-struct Panel5Item : MenuItem 
+struct Panel5Item : MenuItem
 {
 	BlankPanel *blank;
 	void onAction(EventAction &e) override { blank->panel = 4; }
@@ -152,7 +163,7 @@ struct Panel5Item : MenuItem
 	}
 };
 
-Menu *BlankPanelWidget::createContextMenu() 
+Menu *BlankPanelWidget::createContextMenu()
 {
 	Menu *menu = ModuleWidget::createContextMenu();
 
@@ -169,3 +180,5 @@ Menu *BlankPanelWidget::createContextMenu()
 
 	return menu;
 }
+
+Model *modelBlankPanel = Model::create<BlankPanel, BlankPanelWidget>("HetrickCV", "BlankPanel", "Blank Panel");

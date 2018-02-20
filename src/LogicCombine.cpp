@@ -1,12 +1,12 @@
 #include "HetrickCV.hpp"
 
-struct LogicCombine : Module 
+struct LogicCombine : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         IN1_INPUT,
         IN2_INPUT,
@@ -18,15 +18,15 @@ struct LogicCombine : Module
         IN8_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OR_OUTPUT,
         NOR_OUTPUT,
         TRIG_OUTPUT,
 		NUM_OUTPUTS
     };
-    
-    enum LightIds 
+
+    enum LightIds
     {
         OR_LIGHT,
         NOR_LIGHT,
@@ -45,9 +45,9 @@ struct LogicCombine : Module
 
     TriggerGenerator trigger;
 
-	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
 	void step() override;
@@ -59,7 +59,7 @@ struct LogicCombine : Module
 };
 
 
-void LogicCombine::step() 
+void LogicCombine::step()
 {
     orState = false;
     trigState = false;
@@ -80,7 +80,7 @@ void LogicCombine::step()
     {
         trigger.trigger();
         lights[TRIG_LIGHT].value = 5.0f;
-    } 
+    }
 
     outs[2] = trigger.process() ? 5.0f : 0.0f;
 
@@ -96,11 +96,10 @@ void LogicCombine::step()
     lights[TRIG_LIGHT].setBrightnessSmooth(outs[2]);
 }
 
+struct LogicCombineWidget : ModuleWidget { LogicCombineWidget(LogicCombine *module); };
 
-LogicCombineWidget::LogicCombineWidget() 
+LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(module)
 {
-	auto *module = new LogicCombine();
-	setModule(module);
 	box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -110,10 +109,10 @@ LogicCombineWidget::LogicCombineWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
@@ -124,16 +123,18 @@ LogicCombineWidget::LogicCombineWidget()
 
     for(int i = 0; i < LogicCombine::NUM_INPUTS; i++)
     {
-        addInput(createInput<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), module, LogicCombine::IN1_INPUT + i));
+        addInput(Port::create<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), Port::INPUT, module, LogicCombine::IN1_INPUT + i));
     }
 
     //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(outPos, 150), module, LogicCombine::OR_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(outPos, 195), module, LogicCombine::NOR_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(outPos, 240), module, LogicCombine::TRIG_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(outPos, 150), Port::OUTPUT, module, LogicCombine::OR_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(outPos, 195), Port::OUTPUT, module, LogicCombine::NOR_OUTPUT));
+    addOutput(Port::create<PJ301MPort>(Vec(outPos, 240), Port::OUTPUT, module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
+    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
 }
+
+Model *modelLogicCombine = Model::create<LogicCombine, LogicCombineWidget>("HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)", LOGIC_TAG);

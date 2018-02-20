@@ -1,14 +1,14 @@
 #include "HetrickCV.hpp"
 
-struct Rotator : Module 
+struct Rotator : Module
 {
-	enum ParamIds 
+	enum ParamIds
 	{
         ROTATE_PARAM,
         STAGES_PARAM,
 		NUM_PARAMS
 	};
-	enum InputIds 
+	enum InputIds
 	{
         IN1_INPUT,
         IN2_INPUT,
@@ -23,7 +23,7 @@ struct Rotator : Module
         STAGES_INPUT,
 		NUM_INPUTS
 	};
-	enum OutputIds 
+	enum OutputIds
 	{
         OUT1_OUTPUT,
         OUT2_OUTPUT,
@@ -35,7 +35,7 @@ struct Rotator : Module
         OUT8_OUTPUT,
 		NUM_OUTPUTS
     };
-    enum LightIds 
+    enum LightIds
 	{
         IN1_POS_LIGHT, IN1_NEG_LIGHT,
         IN2_POS_LIGHT, IN2_NEG_LIGHT,
@@ -45,7 +45,7 @@ struct Rotator : Module
         IN6_POS_LIGHT, IN6_NEG_LIGHT,
         IN7_POS_LIGHT, IN7_NEG_LIGHT,
         IN8_POS_LIGHT, IN8_NEG_LIGHT,
-        
+
         OUT1_POS_LIGHT, OUT1_NEG_LIGHT,
         OUT2_POS_LIGHT, OUT2_NEG_LIGHT,
         OUT3_POS_LIGHT, OUT3_NEG_LIGHT,
@@ -61,13 +61,13 @@ struct Rotator : Module
     float ins[8] = {};
     float outs[8] = {};
 
-	Rotator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) 
+	Rotator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		
+
 	}
 
     void step() override;
-    
+
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
         if (_in > max) return max;
@@ -82,7 +82,7 @@ struct Rotator : Module
 };
 
 
-void Rotator::step() 
+void Rotator::step()
 {
     int rotation = round(params[ROTATE_PARAM].value + inputs[ROTATE_INPUT].value);
     int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
@@ -104,10 +104,10 @@ void Rotator::step()
 }
 
 
-RotatorWidget::RotatorWidget() 
+struct RotatorWidget : ModuleWidget { RotatorWidget(Rotator *module); };
+
+RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
 {
-	auto *module = new Rotator();
-	setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -117,17 +117,17 @@ RotatorWidget::RotatorWidget()
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
-    
-    addInput(createInput<PJ301MPort>(Vec(75, 150), module, Rotator::ROTATE_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(75, 310), module, Rotator::STAGES_INPUT));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
+    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
+
+    addInput(Port::create<PJ301MPort>(Vec(75, 150), Port::INPUT, module, Rotator::ROTATE_INPUT));
+    addInput(Port::create<PJ301MPort>(Vec(75, 310), Port::INPUT, module, Rotator::STAGES_INPUT));
 
     const int inXPos = 10;
     const int outXPos = 145;
@@ -139,13 +139,15 @@ RotatorWidget::RotatorWidget()
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, i));
+        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
 
         //////OUTPUTS//////
-        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
+        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
+        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
+        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
     }
 }
+
+Model *modelRotator = Model::create<Rotator, RotatorWidget>("HetrickCV", "Rotator", "Rotator", SWITCH_TAG);
