@@ -171,12 +171,12 @@ Menu *BlankPanelWidget::createContextMenu()
 	assert(blank);
 
     menu->addChild(construct<MenuEntry>());
-    menu->addChild(construct<MenuLabel>(&MenuEntry::text, "Panel Art"));
-	menu->addChild(construct<Panel1Item>(&MenuEntry::text, "Sideways Logo", &Panel1Item::blank, blank));
-    menu->addChild(construct<Panel2Item>(&MenuEntry::text, "Bleeding Edge", &Panel2Item::blank, blank));
-    menu->addChild(construct<Panel3Item>(&MenuEntry::text, "Hetrick Stack", &Panel3Item::blank, blank));
-    menu->addChild(construct<Panel4Item>(&MenuEntry::text, "Simple CV",     &Panel4Item::blank, blank));
-    menu->addChild(construct<Panel5Item>(&MenuEntry::text, "Plain Jane",    &Panel5Item::blank, blank));
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel Art"));
+	menu->addChild(construct<Panel1Item>(&Panel1Item::text, "Sideways Logo", &Panel1Item::blank, blank));
+    menu->addChild(construct<Panel2Item>(&Panel2Item::text, "Bleeding Edge", &Panel2Item::blank, blank));
+    menu->addChild(construct<Panel3Item>(&Panel3Item::text, "Hetrick Stack", &Panel3Item::blank, blank));
+    menu->addChild(construct<Panel4Item>(&Panel4Item::text, "Simple CV",     &Panel4Item::blank, blank));
+    menu->addChild(construct<Panel5Item>(&Panel5Item::text, "Plain Jane",    &Panel5Item::blank, blank));
 
 	return menu;
 }
