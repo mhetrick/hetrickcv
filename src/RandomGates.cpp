@@ -67,7 +67,7 @@ struct RandomGates : Module
     SchmittTrigger clockTrigger;
     SchmittTrigger modeTrigger;
 
-    TriggerGenerator trigger[8];
+    HCVTriggerGenerator trigger[8];
     SchmittTrigger trigOut[8];
 
     bool active[8] = {};

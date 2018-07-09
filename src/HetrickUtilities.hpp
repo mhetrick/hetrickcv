@@ -5,7 +5,7 @@
 
 float LERP(const float _amount, const float _inA, const float _inB);
 
-struct TriggerGenerator
+struct HCVTriggerGenerator
 {
     float time = 0.0;
 	float triggerTime = 0.001;
@@ -26,7 +26,7 @@ struct TriggerGenerator
 
 struct TriggerGenWithSchmitt
 {
-	TriggerGenerator trigGen;
+	HCVTriggerGenerator trigGen;
 	rack::SchmittTrigger schmitt;
 
 	bool process(bool _trigger)

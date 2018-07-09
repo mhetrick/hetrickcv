@@ -43,7 +43,7 @@ struct LogicCombine : Module
     bool trigState = false;
     const float lightLambda = 0.075;
 
-    TriggerGenerator trigger;
+    HCVTriggerGenerator trigger;
 
 	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
