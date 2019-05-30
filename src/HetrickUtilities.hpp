@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dsp/digital.hpp"
-#include "engine.hpp"
+#include "rack0.hpp"
+#include "engine/Engine.hpp"
 
 float LERP(const float _amount, const float _inA, const float _inB);
 

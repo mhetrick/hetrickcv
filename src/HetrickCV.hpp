@@ -1,5 +1,3 @@
-#include "rack0.hpp"
-
 #pragma once
 
 #include "HetrickUtilities.hpp"
