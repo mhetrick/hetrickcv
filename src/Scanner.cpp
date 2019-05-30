@@ -92,7 +92,7 @@ struct Scanner : Module
     }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -175,36 +175,36 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Scanner.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Scanner.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     const int knobX = 75;
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 70), Port::INPUT, module, Scanner::SCAN_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
+    addInput(createPort<PJ301MPort>(Vec(jackX, 70), PortWidget::INPUT, module, Scanner::SCAN_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 130), Port::INPUT, module, Scanner::STAGES_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
+    addInput(createPort<PJ301MPort>(Vec(jackX, 130), PortWidget::INPUT, module, Scanner::STAGES_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 190), Port::INPUT, module, Scanner::WIDTH_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
+    addInput(createPort<PJ301MPort>(Vec(jackX, 190), PortWidget::INPUT, module, Scanner::WIDTH_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 250), Port::INPUT, module, Scanner::SLOPE_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
+    addInput(createPort<PJ301MPort>(Vec(jackX, 250), PortWidget::INPUT, module, Scanner::SLOPE_INPUT));
 
-    addInput(Port::create<PJ301MPort>(Vec(96, 310), Port::INPUT, module, Scanner::ALLIN_INPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(141, 310), Port::OUTPUT, module, Scanner::MIX_OUTPUT));
+    addInput(createPort<PJ301MPort>(Vec(96, 310), PortWidget::INPUT, module, Scanner::ALLIN_INPUT));
+    addOutput(createPort<PJ301MPort>(Vec(141, 310), PortWidget::OUTPUT, module, Scanner::MIX_OUTPUT));
 
-    addParam(ParamWidget::create<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
+    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
 
     const int inXPos = 10;
     const int inLightX = 50;
@@ -218,15 +218,15 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
+        addInput(createPort<PJ301MPort>(Vec(inXPos, yPos), PortWidget::INPUT, module, i));
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
     }
 }
 
-Model *modelScanner = Model::create<Scanner, ScannerWidget>("Scanner");
+Model *modelScanner = createModel<Scanner, ScannerWidget>("Scanner");

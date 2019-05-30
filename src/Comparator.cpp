@@ -42,7 +42,7 @@ struct Comparator : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -83,34 +83,34 @@ ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Comparator.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Comparator.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM, -1.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM, -1.0, 1.0, 1.0));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(33, 195), Port::INPUT, module, Comparator::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Comparator::AMOUNT_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(33, 195), PortWidget::INPUT, module, Comparator::MAIN_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Comparator::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(12, 285), Port::OUTPUT, module, Comparator::LT_GATE_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 285), Port::OUTPUT, module, Comparator::GT_GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 315), Port::OUTPUT, module, Comparator::LT_TRIG_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 315), Port::OUTPUT, module, Comparator::GT_TRIG_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(32.5, 245), Port::OUTPUT, module, Comparator::ZEROX_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(12, 285), PortWidget::OUTPUT, module, Comparator::LT_GATE_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(53, 285), PortWidget::OUTPUT, module, Comparator::GT_GATE_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(12, 315), PortWidget::OUTPUT, module, Comparator::LT_TRIG_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(53, 315), PortWidget::OUTPUT, module, Comparator::GT_TRIG_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(32.5, 245), PortWidget::OUTPUT, module, Comparator::ZEROX_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
+	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
 }
 
-Model *modelComparator = Model::create<Comparator, ComparatorWidget>("Comparator");
+Model *modelComparator = createModel<Comparator, ComparatorWidget>("Comparator");

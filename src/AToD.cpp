@@ -83,14 +83,14 @@ struct AnalogToDigital : Module
         rectMode = round(randomf() * 2.0f);
     }
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
         json_object_set_new(rootJ, "mode", json_integer(mode));
         json_object_set_new(rootJ, "rectMode", json_integer(rectMode));
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
@@ -102,7 +102,7 @@ struct AnalogToDigital : Module
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -202,36 +202,36 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/AToD.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/AToD.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(ParamWidget::create<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<CKD6>(Vec(65, 270), module, AnalogToDigital::RECTIFY_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(65, 270), module, AnalogToDigital::RECTIFY_PARAM, 0.0, 1.0, 0.0));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 12;
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 306), module, AnalogToDigital::MODE_UNI8_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 319), module, AnalogToDigital::MODE_BOFF_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 332), module, AnalogToDigital::MODE_BSIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, AnalogToDigital::MODE_UNI8_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, AnalogToDigital::MODE_BOFF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, AnalogToDigital::MODE_BSIG_LIGHT));
 
     int rectLightX = 64;
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 306), module, AnalogToDigital::RECT_NONE_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 319), module, AnalogToDigital::RECT_HALF_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, AnalogToDigital::RECT_NONE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, AnalogToDigital::RECT_HALF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
 
     //////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(7, 70), Port::INPUT, module, AnalogToDigital::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(42, 152), Port::INPUT, module, AnalogToDigital::SYNC_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(7, 70), PortWidget::INPUT, module, AnalogToDigital::MAIN_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(42, 152), PortWidget::INPUT, module, AnalogToDigital::SYNC_INPUT));
 
-    addParam(ParamWidget::create<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(ParamWidget::create<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
+    addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
 
     const int outXPos = 145;
     const int outLightX = 120;
@@ -241,11 +241,11 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, AnalogToDigital::OUT1_OUTPUT + i));
+        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, AnalogToDigital::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));
     }
 }
 
-Model *modelAnalogToDigital = Model::create<AnalogToDigital, AnalogToDigitalWidget>("AnalogToDigital");
+Model *modelAnalogToDigital = createModel<AnalogToDigital, AnalogToDigitalWidget>("AnalogToDigital");

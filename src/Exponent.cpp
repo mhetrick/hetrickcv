@@ -29,7 +29,7 @@ struct Exponent : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -65,8 +65,8 @@ void Exponent::step()
 
 struct CKSSRot : SVGSwitch, ToggleSwitch {
 	CKSSRot() {
-		addFrame(SVG::load(assetPlugin(plugin, "res/CKSS_rot_0.svg")));
-		addFrame(SVG::load(assetPlugin(plugin, "res/CKSS_rot_1.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "res/CKSS_rot_0.svg")));
+		addFrame(SVG::load(assetPlugin(pluginInstance, "res/CKSS_rot_1.svg")));
 		sw->wrap();
 		box.size = sw->box.size;
 	}
@@ -82,26 +82,26 @@ ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Exponent.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Exponent.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(ParamWidget::create<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
+    addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(33, 235), Port::INPUT, module, Exponent::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Exponent::AMOUNT_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(33, 235), PortWidget::INPUT, module, Exponent::MAIN_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Exponent::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Exponent::MAIN_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Exponent::MAIN_OUTPUT));
 }
 
-Model *modelExponent = Model::create<Exponent, ExponentWidget>("Exponent");
+Model *modelExponent = createModel<Exponent, ExponentWidget>("Exponent");

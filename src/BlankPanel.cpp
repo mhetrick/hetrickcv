@@ -37,13 +37,13 @@ struct BlankPanel : Module
         panel = round(randomf() * (NUM_PANELS - 1.0f));
     }
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
         json_object_set_new(rootJ, "panel", json_integer(panel));
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		json_t *panelJ = json_object_get(rootJ, "panel");
 		if (panelJ)
@@ -70,33 +70,33 @@ BlankPanelWidget::BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
 
     panel1 = new SVGPanel();
     panel1->box.size = box.size;
-    panel1->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel3.svg")));
+    panel1->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel3.svg")));
     addChild(panel1);
 
     panel2 = new SVGPanel();
     panel2->box.size = box.size;
-    panel2->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel7.svg")));
+    panel2->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel7.svg")));
     addChild(panel2);
 
     panel3 = new SVGPanel();
     panel3->box.size = box.size;
-    panel3->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel2.svg")));
+    panel3->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel2.svg")));
     addChild(panel3);
 
     panel4 = new SVGPanel();
     panel4->box.size = box.size;
-    panel4->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel8.svg")));
+    panel4->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel8.svg")));
     addChild(panel4);
 
     panel5 = new SVGPanel();
     panel5->box.size = box.size;
-    panel5->setBackground(SVG::load(assetPlugin(plugin, "res/Blanks/BlankPanel1.svg")));
+    panel5->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel1.svg")));
     addChild(panel5);
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 }
 
 void BlankPanelWidget::step()
@@ -163,9 +163,9 @@ struct Panel5Item : MenuItem
 	}
 };
 
-Menu *BlankPanelWidget::createContextMenu()
+Menu *BlankPanelcreateWidgetContextMenu()
 {
-	Menu *menu = ModuleWidget::createContextMenu();
+	Menu *menu = ModulecreateWidgetContextMenu();
 
 	BlankPanel *blank = dynamic_cast<BlankPanel*>(module);
 	assert(blank);
@@ -181,4 +181,4 @@ Menu *BlankPanelWidget::createContextMenu()
 	return menu;
 }
 
-Model *modelBlankPanel = Model::create<BlankPanel, BlankPanelWidget>("BlankPanel");
+Model *modelBlankPanel = createModel<BlankPanel, BlankPanelWidget>("BlankPanel");

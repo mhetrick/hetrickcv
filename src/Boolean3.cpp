@@ -52,7 +52,7 @@ struct Boolean3 : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -112,31 +112,31 @@ Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Boolean3.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Boolean3.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(10, 105), Port::INPUT, module, Boolean3::INA_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(10, 195), Port::INPUT, module, Boolean3::INB_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(10, 285), Port::INPUT, module, Boolean3::INC_INPUT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
+    addInput(createPort<PJ301MPort>(Vec(10, 105), PortWidget::INPUT, module, Boolean3::INA_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(10, 195), PortWidget::INPUT, module, Boolean3::INB_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(10, 285), PortWidget::INPUT, module, Boolean3::INC_INPUT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
 
     //////OUTPUTS//////
     for(int i = 0; i < 6; i++)
     {
         const int yPos = i*45;
-        addOutput(Port::create<PJ301MPort>(Vec(45, 60 + yPos), Port::OUTPUT, module, Boolean3::OR_OUTPUT + i));
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
+        addOutput(createPort<PJ301MPort>(Vec(45, 60 + yPos), PortWidget::OUTPUT, module, Boolean3::OR_OUTPUT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
     }
 
 }
 
-Model *modelBoolean3 = Model::create<Boolean3, Boolean3Widget>("Boolean3");
+Model *modelBoolean3 = createModel<Boolean3, Boolean3Widget>("Boolean3");

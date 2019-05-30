@@ -53,7 +53,7 @@ struct LogicCombine : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -105,14 +105,14 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/LogicCombiner.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/LogicCombiner.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
@@ -123,18 +123,18 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 
     for(int i = 0; i < LogicCombine::NUM_INPUTS; i++)
     {
-        addInput(Port::create<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), Port::INPUT, module, LogicCombine::IN1_INPUT + i));
+        addInput(createPort<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), PortWidget::INPUT, module, LogicCombine::IN1_INPUT + i));
     }
 
     //////OUTPUTS//////
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 150), Port::OUTPUT, module, LogicCombine::OR_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 195), Port::OUTPUT, module, LogicCombine::NOR_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 240), Port::OUTPUT, module, LogicCombine::TRIG_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(outPos, 150), PortWidget::OUTPUT, module, LogicCombine::OR_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(outPos, 195), PortWidget::OUTPUT, module, LogicCombine::NOR_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(outPos, 240), PortWidget::OUTPUT, module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
 }
 
-Model *modelLogicCombine = Model::create<LogicCombine, LogicCombineWidget>("LogicCombine");
+Model *modelLogicCombine = createModel<LogicCombine, LogicCombineWidget>("LogicCombine");

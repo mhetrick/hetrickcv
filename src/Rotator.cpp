@@ -76,7 +76,7 @@ struct Rotator : Module
     }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -113,21 +113,21 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Rotator.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Rotator.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
 
-    addInput(Port::create<PJ301MPort>(Vec(75, 150), Port::INPUT, module, Rotator::ROTATE_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(75, 310), Port::INPUT, module, Rotator::STAGES_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(75, 150), PortWidget::INPUT, module, Rotator::ROTATE_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(75, 310), PortWidget::INPUT, module, Rotator::STAGES_INPUT));
 
     const int inXPos = 10;
     const int outXPos = 145;
@@ -139,15 +139,15 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
+        addInput(createPort<PJ301MPort>(Vec(inXPos, yPos), PortWidget::INPUT, module, i));
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
     }
 }
 
-Model *modelRotator = Model::create<Rotator, RotatorWidget>("Rotator");
+Model *modelRotator = createModel<Rotator, RotatorWidget>("Rotator");

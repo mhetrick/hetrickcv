@@ -31,7 +31,7 @@ struct Dust : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -81,24 +81,24 @@ DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Dust.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Dust.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM, 0, 4.0, 0.0));
-	addParam(ParamWidget::create<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM, 0, 4.0, 0.0));
+	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-	addInput(Port::create<PJ301MPort>(Vec(33, 146), Port::INPUT, module, Dust::RATE_INPUT));
+	addInput(createPort<PJ301MPort>(Vec(33, 146), PortWidget::INPUT, module, Dust::RATE_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Dust::DUST_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Dust::DUST_OUTPUT));
 }
 
-Model *modelDust = Model::create<Dust, DustWidget>("Dust");
+Model *modelDust = createModel<Dust, DustWidget>("Dust");

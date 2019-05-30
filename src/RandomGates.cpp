@@ -73,14 +73,14 @@ struct RandomGates : Module
     bool active[8] = {};
     int mode = 0;
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
 		json_object_set_new(rootJ, "mode", json_integer(mode));
 		return rootJ;
 	}
 
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
@@ -98,7 +98,7 @@ struct RandomGates : Module
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -186,14 +186,14 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/RandomGates.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/RandomGates.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //const int inXPos = 10;
     const int outXPos = 145;
@@ -201,18 +201,18 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
     const int inLightX = 45;
 
 
-    addInput(Port::create<PJ301MPort>(Vec(58, 90), Port::INPUT, module, RandomGates::CLOCK_INPUT));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
-    addInput(Port::create<PJ301MPort>(Vec(58, 150), Port::INPUT, module, RandomGates::MINI_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(58, 210), Port::INPUT, module, RandomGates::MAXI_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(58, 90), PortWidget::INPUT, module, RandomGates::CLOCK_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
+    addInput(createPort<PJ301MPort>(Vec(58, 150), PortWidget::INPUT, module, RandomGates::MINI_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(58, 210), PortWidget::INPUT, module, RandomGates::MAXI_INPUT));
 
-    addParam(ParamWidget::create<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
 
     //////BLINKENLIGHTS//////
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
 
     for(int i = 0; i < 8; i++)
     {
@@ -220,11 +220,11 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
     }
 }
 
-Model *modelRandomGates = Model::create<RandomGates, RandomGatesWidget>("RandomGates");
+Model *modelRandomGates = createModel<RandomGates, RandomGatesWidget>("RandomGates");

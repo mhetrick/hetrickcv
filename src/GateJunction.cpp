@@ -114,7 +114,7 @@ struct GateJunction : Module
 		}
     }
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
 		// states
@@ -131,7 +131,7 @@ struct GateJunction : Module
         json_object_set_new(rootJ, "invStates", invStatesJ);
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		// states
         json_t *muteStatesJ = json_object_get(rootJ, "muteStates");
@@ -157,7 +157,7 @@ struct GateJunction : Module
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -212,14 +212,14 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/GateJunction.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/GateJunction.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
@@ -233,20 +233,20 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, GateJunction::IN1_INPUT + i));
+        addInput(createPort<PJ301MPort>(Vec(inXPos, yPos), PortWidget::INPUT, module, GateJunction::IN1_INPUT + i));
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, GateJunction::OUT1_OUTPUT + i));
+        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, GateJunction::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));
 
-        addParam(ParamWidget::create<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
-        addParam(ParamWidget::create<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
+        addParam(createParam<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
+        addParam(createParam<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
 
-        addChild(ModuleLightWidget::create<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
-        addChild(ModuleLightWidget::create<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
+        addChild(createLight<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
+        addChild(createLight<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
     }
 }
 
-Model *modelGateJunction = Model::create<GateJunction, GateJunctionWidget>("GateJunction");
+Model *modelGateJunction = createModel<GateJunction, GateJunctionWidget>("GateJunction");

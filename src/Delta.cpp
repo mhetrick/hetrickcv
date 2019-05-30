@@ -46,7 +46,7 @@ struct Delta : Module
 	void step() override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
@@ -93,35 +93,35 @@ DeltaWidget::DeltaWidget(Delta *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Delta.svg")));
+		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Delta.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM, -1.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM, -1.0, 1.0, 1.0));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(12, 195), Port::INPUT, module, Delta::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Delta::AMOUNT_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(12, 195), PortWidget::INPUT, module, Delta::MAIN_INPUT));
+    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Delta::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-    addOutput(Port::create<PJ301MPort>(Vec(53, 195), Port::OUTPUT, module, Delta::DELTA_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 285), Port::OUTPUT, module, Delta::LT_GATE_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 285), Port::OUTPUT, module, Delta::GT_GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 315), Port::OUTPUT, module, Delta::LT_TRIG_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 315), Port::OUTPUT, module, Delta::GT_TRIG_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(32.5, 245), Port::OUTPUT, module, Delta::CHANGE_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(53, 195), PortWidget::OUTPUT, module, Delta::DELTA_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(12, 285), PortWidget::OUTPUT, module, Delta::LT_GATE_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(53, 285), PortWidget::OUTPUT, module, Delta::GT_GATE_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(12, 315), PortWidget::OUTPUT, module, Delta::LT_TRIG_OUTPUT));
+    addOutput(createPort<PJ301MPort>(Vec(53, 315), PortWidget::OUTPUT, module, Delta::GT_TRIG_OUTPUT));
+	addOutput(createPort<PJ301MPort>(Vec(32.5, 245), PortWidget::OUTPUT, module, Delta::CHANGE_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(22, 275), module, Delta::LT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(62, 275), module, Delta::GT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Delta::CHANGE_LIGHT));
+	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Delta::LT_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Delta::GT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Delta::CHANGE_LIGHT));
 }
 
-Model *modelDelta = Model::create<Delta, DeltaWidget>("Delta");
+Model *modelDelta = createModel<Delta, DeltaWidget>("Delta");
