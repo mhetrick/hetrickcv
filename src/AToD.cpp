@@ -248,4 +248,4 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
     }
 }
 
-Model *modelAnalogToDigital = Model::create<AnalogToDigital, AnalogToDigitalWidget>("HetrickCV", "AnalogToDigital", "Analog to Digital", LOGIC_TAG);
+Model *modelAnalogToDigital = Model::create<AnalogToDigital, AnalogToDigitalWidget>("AnalogToDigital");

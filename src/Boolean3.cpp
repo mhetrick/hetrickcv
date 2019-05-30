@@ -139,4 +139,4 @@ Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
 
 }
 
-Model *modelBoolean3 = Model::create<Boolean3, Boolean3Widget>("HetrickCV", "Boolean3", "Boolean Logic", LOGIC_TAG);
+Model *modelBoolean3 = Model::create<Boolean3, Boolean3Widget>("Boolean3");

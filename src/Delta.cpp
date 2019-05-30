@@ -124,4 +124,4 @@ DeltaWidget::DeltaWidget(Delta *module) : ModuleWidget(module)
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Delta::CHANGE_LIGHT));
 }
 
-Model *modelDelta = Model::create<Delta, DeltaWidget>("HetrickCV", "Delta", "Delta", LOGIC_TAG);
+Model *modelDelta = Model::create<Delta, DeltaWidget>("Delta");

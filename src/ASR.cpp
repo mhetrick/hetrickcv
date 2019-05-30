@@ -106,4 +106,4 @@ ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
     }
 }
 
-Model *modelASR = Model::create<ASR, ASRWidget>("HetrickCV", "ASR", "ASR", SEQUENCER_TAG);
+Model *modelASR = Model::create<ASR, ASRWidget>("ASR");

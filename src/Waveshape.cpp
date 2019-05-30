@@ -100,4 +100,4 @@ WaveshapeWidget::WaveshapeWidget(Waveshape *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Waveshape::MAIN_OUTPUT));
 }
 
-Model *modelWaveshape = Model::create<Waveshape, WaveshapeWidget>("HetrickCV", "Waveshaper", "Waveshaper", WAVESHAPER_TAG, DISTORTION_TAG, EFFECT_TAG);
+Model *modelWaveshape = Model::create<Waveshape, WaveshapeWidget>("Waveshaper");

@@ -111,4 +111,4 @@ FlipPanWidget::FlipPanWidget(FlipPan *module) : ModuleWidget(module)
     addOutput(Port::create<PJ301MPort>(Vec(55, 285), Port::OUTPUT, module, FlipPan::RIGHT_OUTPUT));
 }
 
-Model *modelFlipPan = Model::create<FlipPan, FlipPanWidget>("HetrickCV", "FlipPan", "Flip Pan", PANNING_TAG);
+Model *modelFlipPan = Model::create<FlipPan, FlipPanWidget>("FlipPan");

@@ -249,4 +249,4 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
     }
 }
 
-Model *modelGateJunction = Model::create<GateJunction, GateJunctionWidget>("HetrickCV", "Gate Junction", "Gate Junction", SWITCH_TAG, LOGIC_TAG);
+Model *modelGateJunction = Model::create<GateJunction, GateJunctionWidget>("GateJunction");

@@ -108,4 +108,4 @@ BitshiftWidget::BitshiftWidget(Bitshift *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Bitshift::MAIN_OUTPUT));
 }
 
-Model *modelBitshift = Model::create<Bitshift, BitshiftWidget>("HetrickCV", "Bitshift", "Bitshift", DISTORTION_TAG, EFFECT_TAG);
+Model *modelBitshift = Model::create<Bitshift, BitshiftWidget>("Bitshift");

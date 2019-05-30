@@ -229,4 +229,4 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
     }
 }
 
-Model *modelScanner = Model::create<Scanner, ScannerWidget>("HetrickCV", "Scanner", "Scanner", MIXER_TAG);
+Model *modelScanner = Model::create<Scanner, ScannerWidget>("Scanner");

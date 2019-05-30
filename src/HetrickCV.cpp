@@ -6,8 +6,6 @@ Plugin *plugin;
 
 void init(rack::Plugin *p) {
 	plugin = p;
-	p->slug = TOSTRING(SLUG);
-	plugin->version = TOSTRING(VERSION);
 
 	p->website = "https://github.com/mhetrick/hetrickcv";
  	p->manual = "https://github.com/mhetrick/hetrickcv/blob/master/README.md";

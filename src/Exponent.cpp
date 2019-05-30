@@ -104,4 +104,4 @@ ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Exponent::MAIN_OUTPUT));
 }
 
-Model *modelExponent = Model::create<Exponent, ExponentWidget>("HetrickCV", "Exponent", "Exponent", WAVESHAPER_TAG);
+Model *modelExponent = Model::create<Exponent, ExponentWidget>("Exponent");

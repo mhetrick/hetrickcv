@@ -122,4 +122,4 @@ FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
     }
 }
 
-Model *modelFlipFlop = Model::create<FlipFlop, FlipFlopWidget>("HetrickCV", "FlipFlop", "Flip-Flop", LOGIC_TAG);
+Model *modelFlipFlop = Model::create<FlipFlop, FlipFlopWidget>("FlipFlop");

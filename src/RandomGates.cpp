@@ -227,4 +227,4 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
     }
 }
 
-Model *modelRandomGates = Model::create<RandomGates, RandomGatesWidget>("HetrickCV", "RandomGates", "Random Gates", RANDOM_TAG);
+Model *modelRandomGates = Model::create<RandomGates, RandomGatesWidget>("RandomGates");

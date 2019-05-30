@@ -137,4 +137,4 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
 }
 
-Model *modelLogicCombine = Model::create<LogicCombine, LogicCombineWidget>("HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)", LOGIC_TAG);
+Model *modelLogicCombine = Model::create<LogicCombine, LogicCombineWidget>("LogicCombine");

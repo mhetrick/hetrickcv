@@ -181,4 +181,4 @@ Menu *BlankPanelWidget::createContextMenu()
 	return menu;
 }
 
-Model *modelBlankPanel = Model::create<BlankPanel, BlankPanelWidget>("HetrickCV", "BlankPanel", "Blank Panel");
+Model *modelBlankPanel = Model::create<BlankPanel, BlankPanelWidget>("BlankPanel");

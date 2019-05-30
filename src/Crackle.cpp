@@ -110,4 +110,4 @@ CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Crackle::MAIN_OUTPUT));
 }
 
-Model *modelCrackle = Model::create<Crackle, CrackleWidget>("HetrickCV", "Crackle", "Crackle", NOISE_TAG);
+Model *modelCrackle = Model::create<Crackle, CrackleWidget>("Crackle");

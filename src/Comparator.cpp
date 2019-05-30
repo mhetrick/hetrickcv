@@ -113,4 +113,4 @@ ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
     addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
 }
 
-Model *modelComparator = Model::create<Comparator, ComparatorWidget>("HetrickCV", "Comparator", "Comparator", LOGIC_TAG);
+Model *modelComparator = Model::create<Comparator, ComparatorWidget>("Comparator");

@@ -107,5 +107,5 @@ TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
     }
 }
 
-Model *modelTwoToFour = Model::create<TwoToFour, TwoToFourWidget>("HetrickCV", "2To4", "2 To 4 Mix Matrix", MIXER_TAG);
+Model *modelTwoToFour = Model::create<TwoToFour, TwoToFourWidget>("2To4");
 

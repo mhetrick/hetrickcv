@@ -101,4 +101,4 @@ DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Dust::DUST_OUTPUT));
 }
 
-Model *modelDust = Model::create<Dust, DustWidget>("HetrickCV", "Dust", "Dust", NOISE_TAG, GRANULAR_TAG);
+Model *modelDust = Model::create<Dust, DustWidget>("Dust");

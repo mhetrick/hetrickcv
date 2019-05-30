@@ -98,4 +98,4 @@ ContrastWidget::ContrastWidget(Contrast *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Contrast::MAIN_OUTPUT));
 }
 
-Model *modelContrast = Model::create<Contrast, ContrastWidget>("HetrickCV", "Contrast", "Contrast", EFFECT_TAG);
+Model *modelContrast = Model::create<Contrast, ContrastWidget>("Contrast");

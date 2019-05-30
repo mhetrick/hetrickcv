@@ -150,4 +150,4 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
     }
 }
 
-Model *modelRotator = Model::create<Rotator, RotatorWidget>("HetrickCV", "Rotator", "Rotator", SWITCH_TAG);
+Model *modelRotator = Model::create<Rotator, RotatorWidget>("Rotator");
