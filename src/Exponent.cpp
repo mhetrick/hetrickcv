@@ -43,12 +43,12 @@ void Exponent::process(const ProcessArgs &args)
 	const bool negativeInput = input < 0.0f;
 
     bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
-	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
+    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
+	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
 	input = std::abs(input);
 
     float exponent = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    exponent = clampf(exponent, -5.0f, 5.0f) * 0.2f;
+    exponent = clamp(exponent, -5.0f, 5.0f) * 0.2f;
 
 	if(exponent < 0)
 	{

@@ -52,7 +52,7 @@ void FlipPan::process(const ProcessArgs &args)
     bool linear = (params[STYLE_PARAM].getValue() == 0.0f);
 
     float pan = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    pan = clampf(pan, 0.0f, 5.0f) * 0.2f;
+    pan = clamp(pan, 0.0f, 5.0f) * 0.2f;
 
     if(linear)
     {

@@ -42,11 +42,11 @@ void Contrast::process(const ProcessArgs &args)
     float input = inputs[MAIN_INPUT].getVoltage();
 
     bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
-    else input = clampf(input, -10.0f, 10.0f) * 0.1f;
+    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
+    else input = clamp(input, -10.0f, 10.0f) * 0.1f;
 
     float contrast = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    contrast = clampf(contrast, 0.0f, 5.0f) * 0.2f;
+    contrast = clamp(contrast, 0.0f, 5.0f) * 0.2f;
 
     const float factor1 = input * 1.57143;
     const float factor2 = sinf(input * 6.28571) * contrast;

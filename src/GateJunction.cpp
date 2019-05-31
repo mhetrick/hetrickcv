@@ -115,8 +115,8 @@ struct GateJunction : Module
     {
         for (int i = 0; i < 8; i++)
         {
-            muteState[i] = (randomf() < 0.5);
-            invState[i] = (randomf() < 0.5);
+            muteState[i] = (random::uniform() < 0.5);
+            invState[i] = (random::uniform() < 0.5);
 		}
     }
 

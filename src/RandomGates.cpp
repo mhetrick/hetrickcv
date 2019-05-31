@@ -96,7 +96,7 @@ struct RandomGates : Module
 
     void onRandomize() override
     {
-		mode = round(randomf() * 2.0f);
+		mode = round(random::uniform() * 2.0f);
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file

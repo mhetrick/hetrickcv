@@ -64,7 +64,7 @@ void Delta::process(const ProcessArgs &args)
     falling = (delta < 0.0f);
 
 	float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	boost = clampf(boost, 0.0f, 5.0f) * 8000.0f + 1;
+	boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
 
 	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(rising) ? 5.0f : 0.0f);
 	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(falling) ? 5.0f : 0.0f);
@@ -72,9 +72,9 @@ void Delta::process(const ProcessArgs &args)
 	outputs[LT_GATE_OUTPUT].setVoltage(falling ? 5.0f : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
+	allTrigs = clamp(allTrigs, 0.0f, 5.0f);
 
-    const float deltaOutput = clampf(delta * boost, -5.0f, 5.0f);
+    const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);
 
 	outputs[CHANGE_OUTPUT].setVoltage(allTrigs);
     outputs[DELTA_OUTPUT].setVoltage(deltaOutput);

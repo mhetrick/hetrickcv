@@ -31,7 +31,7 @@ struct Crackle : Module
 		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "");
 		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "");
 
-		y1 = randomf();
+		y1 = random::uniform();
 		y2 = 0.0f;
 		lasty1 = 0.0f;
 	}
@@ -40,7 +40,7 @@ struct Crackle : Module
 
 	void onReset() override
 	{
-		y1 = randomf();
+		y1 = random::uniform();
 		y2 = 0.0f;
 		lasty1 = 0.0f;
 	}
@@ -58,7 +58,7 @@ void Crackle::process(const ProcessArgs &args)
 
 	if(lastDensity != densityInput)
 	{
-		densityScaled = clampf(densityInput, 0.0f, 2.0f)/2.0f;
+		densityScaled = clamp(densityInput, 0.0f, 2.0f)/2.0f;
 		densityScaled = powf(densityScaled, 3.0f) + 1.0f;
 		lastDensity = densityInput;
     }
@@ -70,15 +70,15 @@ void Crackle::process(const ProcessArgs &args)
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
 		y2 = y1;
 		y1 = lasty1;
-		lasty1 = clampf(y0, -1.0f, 1.0f);
-        outputs[MAIN_OUTPUT].setVoltage(clampf(y0 * 5.0f, -5.0, 5.0));
+		lasty1 = clamp(y0, -1.0f, 1.0f);
+        outputs[MAIN_OUTPUT].setVoltage(clamp(y0 * 5.0f, -5.0, 5.0));
     }
     else
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
         y2 = y1;
         y1 = y0;
-        outputs[MAIN_OUTPUT].setVoltage(clampf(y0 * 5.0f, -5.0, 5.0));
+        outputs[MAIN_OUTPUT].setVoltage(clamp(y0 * 5.0f, -5.0, 5.0));
     }
 
 }

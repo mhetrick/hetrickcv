@@ -44,7 +44,7 @@ void Dust::process(const ProcessArgs &args)
 
 	if(lastDensity != densityInput)
 	{
-		densityScaled = clampf(densityInput, 0.0f, 4.0f) / 4.0f;
+		densityScaled = clamp(densityInput, 0.0f, 4.0f) / 4.0f;
 		densityScaled = args.sampleRate * powf(densityScaled, 3.0f);
 		lastDensity = densityInput;
 		threshold = (1.0/args.sampleRate) * densityScaled;
@@ -59,12 +59,12 @@ void Dust::process(const ProcessArgs &args)
 		if(bipolar)
 		{
 			const float scale = (threshold > 0.0f) ? 2.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].setVoltage(clampf((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f));
+			outputs[DUST_OUTPUT].setVoltage(clamp((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f));
 		}
 		else
 		{
 			const float scale = (threshold > 0.0f) ? 1.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].setVoltage(clampf(noiseValue * scale * 5.0f, 5.0f, 5.0f));
+			outputs[DUST_OUTPUT].setVoltage(clamp(noiseValue * scale * 5.0f, 5.0f, 5.0f));
 		}
 	}
 	else

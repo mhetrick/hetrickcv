@@ -122,14 +122,14 @@ void Scanner::process(const ProcessArgs &args)
     const float remainInvStages = 1.0f - invStages;
 
     float widthControl = params[WIDTH_PARAM].getValue() + inputs[WIDTH_INPUT].getVoltage();
-    widthControl = clampf(widthControl, 0.0f, 5.0f) * 0.2f;
+    widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
     widthControl = widthControl * widthControl * widthTable[stages];
 
     float scanControl = params[SCAN_PARAM].getValue() + inputs[SCAN_INPUT].getVoltage();
-    scanControl = clampf(scanControl, 0.0f, 5.0f) * 0.2f;
+    scanControl = clamp(scanControl, 0.0f, 5.0f) * 0.2f;
 
     float slopeControl = params[SLOPE_PARAM].getValue() + inputs[SLOPE_INPUT].getVoltage();
-    slopeControl = clampf(slopeControl, 0.0f, 5.0f) * 0.2f;
+    slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
 
     float scanFactor1 = LERP(widthControl, halfStages, invStages);
     float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
@@ -146,9 +146,9 @@ void Scanner::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
         inMults[i] = triShape(inMults[i]);
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
 
         const float shaped = (2.0f - inMults[i]) * inMults[i];
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);

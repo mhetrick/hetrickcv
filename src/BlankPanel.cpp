@@ -35,7 +35,7 @@ struct BlankPanel : Module
 	}
     void onRandomize() override
     {
-        panel = round(randomf() * (NUM_PANELS - 1.0f));
+        panel = round(random::uniform() * (NUM_PANELS - 1.0f));
     }
 
     json_t *dataToJson() override
@@ -96,7 +96,7 @@ struct BlankPanelWidget : ModuleWidget
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 	}
     
-    void step(const ProcessArgs &args) override
+    void step() override
 	{
 		auto blank = dynamic_cast<BlankPanel*>(module);
 		
@@ -116,7 +116,7 @@ struct BlankPanelWidget : ModuleWidget
 	{
 		BlankPanel *blank;
 		void onAction(const event::Action &e) override { blank->panel = 0; }
-		void process(const ProcessArgs &args) override {
+		void step() override {
 			rightText = (blank->panel == 0) ? "✔" : "";
 			MenuItem::step();
 		}
@@ -126,7 +126,7 @@ struct BlankPanelWidget : ModuleWidget
 	{
 		BlankPanel *blank;
 		void onAction(const event::Action &e) override { blank->panel = 1; }
-		void process(const ProcessArgs &args) override {
+		void step() override {
 			rightText = (blank->panel == 1) ? "✔" : "";
 			MenuItem::step();
 		}
@@ -136,7 +136,7 @@ struct BlankPanelWidget : ModuleWidget
 	{
 		BlankPanel *blank;
 		void onAction(const event::Action &e) override { blank->panel = 2; }
-		void process(const ProcessArgs &args) override {
+		void step() override {
 			rightText = (blank->panel == 2) ? "✔" : "";
 			MenuItem::step();
 		}
@@ -146,7 +146,7 @@ struct BlankPanelWidget : ModuleWidget
 	{
 		BlankPanel *blank;
 		void onAction(const event::Action &e) override { blank->panel = 3; }
-		void process(const ProcessArgs &args) override {
+		void step() override {
 			rightText = (blank->panel == 3) ? "✔" : "";
 			MenuItem::step();
 		}
@@ -156,7 +156,7 @@ struct BlankPanelWidget : ModuleWidget
 	{
 		BlankPanel *blank;
 		void onAction(const event::Action &e) override { blank->panel = 4; }
-		void process(const ProcessArgs &args) override {
+		void step() override {
 			rightText = (blank->panel == 4) ? "✔" : "";
 			MenuItem::step();
 		}

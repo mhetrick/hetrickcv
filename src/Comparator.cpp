@@ -54,7 +54,7 @@ void Comparator::process(const ProcessArgs &args)
 	float input = inputs[MAIN_INPUT].getVoltage();
 
 	float compare = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	compare = clampf(compare, -5.0f, 5.0f);
+	compare = clamp(compare, -5.0f, 5.0f);
 
 	const bool greaterThan = (input > compare);
 	const bool lessThan = (input < compare);
@@ -65,7 +65,7 @@ void Comparator::process(const ProcessArgs &args)
 	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? 5.0f : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
+	allTrigs = clamp(allTrigs, 0.0f, 5.0f);
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 

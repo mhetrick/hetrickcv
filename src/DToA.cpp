@@ -87,8 +87,8 @@ struct DigitalToAnalog : Module
 	}
     void onRandomize() override
     {
-        mode = round(randomf() * 2.0f);
-        rectMode = round(randomf() * 2.0f);
+        mode = round(random::uniform() * 2.0f);
+        rectMode = round(random::uniform() * 2.0f);
     }
 
     json_t *dataToJson() override

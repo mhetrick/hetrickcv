@@ -42,11 +42,11 @@ void Bitshift::process(const ProcessArgs &args)
 	float input = inputs[MAIN_INPUT].getVoltage();
 
     bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
-	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
+    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
+	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
 
 	float shift = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	shift = clampf(shift, -5.0f, 5.0f) * 0.2f;
+	shift = clamp(shift, -5.0f, 5.0f) * 0.2f;
 	shift *= 31.0f;
 
 	int finalShift = round(shift);
@@ -61,7 +61,7 @@ void Bitshift::process(const ProcessArgs &args)
 	}
 
 	float output = shiftedInput/2147483647.0f;
-	output = clampf(output, -1.0f, 1.0f);
+	output = clamp(output, -1.0f, 1.0f);
 
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
