@@ -28,6 +28,9 @@ struct Crackle : Module
 
 	Crackle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
+		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "");
+		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "");
+
 		y1 = randomf();
 		y2 = 0.0f;
 		lasty1 = 0.0f;
@@ -100,8 +103,8 @@ CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM, 0.0, 2.0, 1.7));
-    addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM));
+    addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM));
 
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 146), module, Crackle::RATE_INPUT));

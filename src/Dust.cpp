@@ -25,7 +25,8 @@ struct Dust : Module
 
 	Dust() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-
+		configParam(Dust::RATE_PARAM, 0, 4.0, 0.0, "");
+		configParam(Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -91,8 +92,8 @@ DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM, 0, 4.0, 0.0));
-	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM));
+	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM));
 
 	//////INPUTS//////
 	addInput(createInput<PJ301MPort>(Vec(33, 146), module, Dust::RATE_INPUT));

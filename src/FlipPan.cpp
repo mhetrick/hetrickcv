@@ -25,7 +25,9 @@ struct FlipPan : Module
 
 	FlipPan() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-
+		configParam(FlipPan::AMOUNT_PARAM, 0.0, 5.0, 2.5, "");
+		configParam(FlipPan::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -95,9 +97,9 @@ FlipPanWidget::FlipPanWidget(FlipPan *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, FlipPan::AMOUNT_PARAM, 0.0, 5.0, 2.5));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, FlipPan::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, FlipPan::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, FlipPan::SCALE_PARAM));
+    addParam(createParam<CKSSRot>(Vec(35, 200), module, FlipPan::STYLE_PARAM));
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(10, 235), module, FlipPan::LEFT_INPUT));

@@ -23,7 +23,9 @@ struct Contrast : Module
 
 	Contrast() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-
+		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "");
+		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -84,9 +86,9 @@ ContrastWidget::ContrastWidget(Contrast *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Contrast::AMOUNT_PARAM, 0, 5.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Contrast::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, Contrast::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Contrast::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Contrast::SCALE_PARAM));
+    addParam(createParam<CKSSRot>(Vec(35, 200), module, Contrast::RANGE_PARAM));
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 235), module, Contrast::MAIN_INPUT));

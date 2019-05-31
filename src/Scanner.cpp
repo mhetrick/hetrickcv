@@ -73,7 +73,12 @@ struct Scanner : Module
 
 	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-
+        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "");
+        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -188,23 +193,23 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM));
     addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM));
     addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM));
     addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM));
     addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
 
     addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
     addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
 
-    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
+    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM));
+    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM));
 
     const int inXPos = 10;
     const int inLightX = 50;

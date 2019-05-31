@@ -68,7 +68,10 @@ struct DigitalToAnalog : Module
 
 	DigitalToAnalog() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-
+        configParam(DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "");
+        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -223,8 +226,8 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWi
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM));
+    addParam(createParam<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 82;
@@ -244,8 +247,8 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWi
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(112, 152), module, DigitalToAnalog::SYNC_INPUT));
 
-    addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM));
+    addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM));
 
     const int inXPos = 10;
     const int inLightX = 50;

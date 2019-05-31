@@ -52,7 +52,9 @@ struct RandomGates : Module
 
 	RandomGates() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-
+        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "");
+        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "");
+        configParam(RandomGates::MODE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -202,12 +204,12 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
 
 
     addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM));
     addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
     addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
 
-    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM));
 
     //////BLINKENLIGHTS//////
     addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));

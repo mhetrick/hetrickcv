@@ -63,7 +63,8 @@ struct Rotator : Module
 
 	Rotator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-
+        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "");
+        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -123,8 +124,8 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM));
 
     addInput(createInput<PJ301MPort>(Vec(75, 150), module, Rotator::ROTATE_INPUT));
     addInput(createInput<PJ301MPort>(Vec(75, 310), module, Rotator::STAGES_INPUT));

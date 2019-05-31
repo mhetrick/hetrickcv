@@ -23,7 +23,9 @@ struct Exponent : Module
 
 	Exponent() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
 	{
-
+		configParam(Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
+		configParam(Exponent::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Exponent::RANGE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -90,9 +92,9 @@ ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM));
+    addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM));
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 235), module, Exponent::MAIN_INPUT));

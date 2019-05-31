@@ -92,6 +92,12 @@ struct GateJunction : Module
 
 	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
+        for (int i = 0; i < 8; ++i)
+        {
+            configParam(GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0, "");
+            configParam(GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0, "");
+        }
+
 		onReset();
 	}
 
@@ -241,8 +247,8 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));
 
-        addParam(createParam<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0));
-        addParam(createParam<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0));
+        addParam(createParam<LEDBezel>(Vec(50, 1 + yPos), module, GateJunction::MUTE1_PARAM + i));
+        addParam(createParam<LEDBezel>(Vec(85, 1 + yPos), module, GateJunction::INV1_PARAM + i));
 
         addChild(createLight<MuteLight<RedLight>>(Vec(52.2, 3 + yPos), module, GateJunction::MUTE1_LIGHT + i));
         addChild(createLight<MuteLight<BlueLight>>(Vec(87.2, 3 + yPos), module, GateJunction::INV1_LIGHT + i));
