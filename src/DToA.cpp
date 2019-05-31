@@ -77,12 +77,12 @@ struct DigitalToAnalog : Module
     void processBiOff();
     void processBiSig();
 
-    void reset() override
+    void onReset() override
     {
         mode = 0;
         rectMode = 0;
 	}
-    void randomize() override
+    void onRandomize() override
     {
         mode = round(randomf() * 2.0f);
         rectMode = round(randomf() * 2.0f);

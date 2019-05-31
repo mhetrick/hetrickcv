@@ -35,7 +35,7 @@ struct Crackle : Module
 
 	void step() override;
 
-	void reset() override
+	void onReset() override
 	{
 		y1 = randomf();
 		y2 = 0.0f;

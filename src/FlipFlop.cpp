@@ -39,12 +39,12 @@ struct FlipFlop : Module
 
 	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		reset();
+		onReset();
 	}
 
 	void step() override;
 
-    void reset() override
+    void onReset() override
     {
         lights[DATA_LIGHT].value = 0.0f;
         outs[0] = 0.0f;

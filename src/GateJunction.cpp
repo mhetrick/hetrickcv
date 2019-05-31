@@ -92,12 +92,12 @@ struct GateJunction : Module
 
 	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
-		reset();
+		onReset();
 	}
 
     void step() override;
 
-    void reset() override
+    void onReset() override
     {
         for (int i = 0; i < 8; i++)
         {
@@ -105,7 +105,7 @@ struct GateJunction : Module
             invState[i] = false;
 		}
 	}
-    void randomize() override
+    void onRandomize() override
     {
         for (int i = 0; i < 8; i++)
         {

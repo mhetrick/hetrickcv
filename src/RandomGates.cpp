@@ -87,12 +87,12 @@ struct RandomGates : Module
 			mode = json_integer_value(modeJ);
     }
 
-    void reset() override
+    void onReset() override
     {
 		mode = 0;
     }
 
-    void randomize() override
+    void onRandomize() override
     {
 		mode = round(randomf() * 2.0f);
 	}

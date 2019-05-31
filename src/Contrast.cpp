@@ -57,12 +57,10 @@ void Contrast::step()
     outputs[MAIN_OUTPUT].value = output;
 }
 
-struct CKSSRot : SVGSwitch, ToggleSwitch {
+struct CKSSRot : SVGSwitch {
 	CKSSRot() {
-		addFrame(SVG::load(assetPlugin(pluginInstance, "res/CKSS_rot_0.svg")));
-		addFrame(SVG::load(assetPlugin(pluginInstance, "res/CKSS_rot_1.svg")));
-		sw->wrap();
-		box.size = sw->box.size;
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
 	}
 };
 

@@ -7,9 +7,6 @@ Plugin *pluginInstance;
 void init(rack::Plugin *p) {
 	pluginInstance = p;
 
-	p->website = "https://github.com/mhetrick/hetrickcv";
- 	p->manual = "https://github.com/mhetrick/hetrickcv/blob/master/README.md";
-
 	p->addModel(modelTwoToFour);
 	p->addModel(modelAnalogToDigital);
 	p->addModel(modelASR);

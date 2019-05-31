@@ -28,11 +28,11 @@ struct BlankPanel : Module
 
 	void step() override {}
 
-	void reset() override
+	void onReset() override
     {
         panel = 0;
 	}
-    void randomize() override
+    void onRandomize() override
     {
         panel = round(randomf() * (NUM_PANELS - 1.0f));
     }
@@ -61,7 +61,70 @@ struct BlankPanelWidget : ModuleWidget
     SVGPanel *panel5;
     BlankPanelWidget(BlankPanel *module);
     void step() override;
-	Menu *createContextMenu() override;
+
+    struct Panel1Item : MenuItem
+	{
+		BlankPanel *blank;
+		void onAction(const event::Action &e) override { blank->panel = 0; }
+		void step() override {
+			rightText = (blank->panel == 0) ? "✔" : "";
+			MenuItem::step();
+		}
+	};
+
+	struct Panel2Item : MenuItem
+	{
+		BlankPanel *blank;
+		void onAction(const event::Action &e) override { blank->panel = 1; }
+		void step() override {
+			rightText = (blank->panel == 1) ? "✔" : "";
+			MenuItem::step();
+		}
+	};
+
+	struct Panel3Item : MenuItem
+	{
+		BlankPanel *blank;
+		void onAction(const event::Action &e) override { blank->panel = 2; }
+		void step() override {
+			rightText = (blank->panel == 2) ? "✔" : "";
+			MenuItem::step();
+		}
+	};
+
+	struct Panel4Item : MenuItem
+	{
+		BlankPanel *blank;
+		void onAction(const event::Action &e) override { blank->panel = 3; }
+		void step() override {
+			rightText = (blank->panel == 3) ? "✔" : "";
+			MenuItem::step();
+		}
+	};
+
+	struct Panel5Item : MenuItem
+	{
+		BlankPanel *blank;
+		void onAction(const event::Action &e) override { blank->panel = 4; }
+		void step() override {
+			rightText = (blank->panel == 4) ? "✔" : "";
+			MenuItem::step();
+		}
+	};
+
+	void appendContextMenu(Menu *menu) override
+	{
+		BlankPanel *blank = dynamic_cast<BlankPanel*>(this->module);
+		assert(blank);
+
+	    menu->addChild(construct<MenuEntry>());
+	    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel Art"));
+		menu->addChild(construct<Panel1Item>(&Panel1Item::text, "Sideways Logo", &Panel1Item::blank, blank));
+	    menu->addChild(construct<Panel2Item>(&Panel2Item::text, "Bleeding Edge", &Panel2Item::blank, blank));
+	    menu->addChild(construct<Panel3Item>(&Panel3Item::text, "Hetrick Stack", &Panel3Item::blank, blank));
+	    menu->addChild(construct<Panel4Item>(&Panel4Item::text, "Simple CV",     &Panel4Item::blank, blank));
+	    menu->addChild(construct<Panel5Item>(&Panel5Item::text, "Plain Jane",    &Panel5Item::blank, blank));
+	}
 };
 
 BlankPanelWidget::BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
@@ -111,74 +174,6 @@ void BlankPanelWidget::step()
     panel5->visible = (blank->panel == 4);
 
 	ModuleWidget::step();
-}
-
-struct Panel1Item : MenuItem
-{
-	BlankPanel *blank;
-	void onAction(EventAction &e) override { blank->panel = 0; }
-	void step() override {
-		rightText = (blank->panel == 0) ? "✔" : "";
-		MenuItem::step();
-	}
-};
-
-struct Panel2Item : MenuItem
-{
-	BlankPanel *blank;
-	void onAction(EventAction &e) override { blank->panel = 1; }
-	void step() override {
-		rightText = (blank->panel == 1) ? "✔" : "";
-		MenuItem::step();
-	}
-};
-
-struct Panel3Item : MenuItem
-{
-	BlankPanel *blank;
-	void onAction(EventAction &e) override { blank->panel = 2; }
-	void step() override {
-		rightText = (blank->panel == 2) ? "✔" : "";
-		MenuItem::step();
-	}
-};
-
-struct Panel4Item : MenuItem
-{
-	BlankPanel *blank;
-	void onAction(EventAction &e) override { blank->panel = 3; }
-	void step() override {
-		rightText = (blank->panel == 3) ? "✔" : "";
-		MenuItem::step();
-	}
-};
-
-struct Panel5Item : MenuItem
-{
-	BlankPanel *blank;
-	void onAction(EventAction &e) override { blank->panel = 4; }
-	void step() override {
-		rightText = (blank->panel == 4) ? "✔" : "";
-		MenuItem::step();
-	}
-};
-
-Menu *BlankPanelcreateWidgetContextMenu()
-{
-	Menu *menu = ModulecreateWidgetContextMenu();
-
-	BlankPanel *blank = dynamic_cast<BlankPanel*>(module);
-	assert(blank);
-
-    menu->addChild(construct<MenuEntry>());
-    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panel Art"));
-	menu->addChild(construct<Panel1Item>(&Panel1Item::text, "Sideways Logo", &Panel1Item::blank, blank));
-    menu->addChild(construct<Panel2Item>(&Panel2Item::text, "Bleeding Edge", &Panel2Item::blank, blank));
-    menu->addChild(construct<Panel3Item>(&Panel3Item::text, "Hetrick Stack", &Panel3Item::blank, blank));
-    menu->addChild(construct<Panel4Item>(&Panel4Item::text, "Simple CV",     &Panel4Item::blank, blank));
-    menu->addChild(construct<Panel5Item>(&Panel5Item::text, "Plain Jane",    &Panel5Item::blank, blank));
-
-	return menu;
 }
 
 Model *modelBlankPanel = createModel<BlankPanel, BlankPanelWidget>("BlankPanel");
