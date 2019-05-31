@@ -33,7 +33,7 @@ struct Crackle : Module
 		lasty1 = 0.0f;
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	void onReset() override
 	{
@@ -49,9 +49,9 @@ struct Crackle : Module
 };
 
 
-void Crackle::step()
+void Crackle::process(const ProcessArgs &args)
 {
-	const float densityInput = params[RATE_PARAM].value + inputs[RATE_INPUT].value;
+	const float densityInput = params[RATE_PARAM].getValue() + inputs[RATE_INPUT].getVoltage();
 
 	if(lastDensity != densityInput)
 	{
@@ -60,7 +60,7 @@ void Crackle::step()
 		lastDensity = densityInput;
     }
 
-    const bool brokenMode = (params[BROKEN_PARAM].value == 0.0);
+    const bool brokenMode = (params[BROKEN_PARAM].getValue() == 0.0);
 
     if(brokenMode)
     {
@@ -68,14 +68,14 @@ void Crackle::step()
 		y2 = y1;
 		y1 = lasty1;
 		lasty1 = clampf(y0, -1.0f, 1.0f);
-        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
+        outputs[MAIN_OUTPUT].setVoltage(clampf(y0 * 5.0f, -5.0, 5.0));
     }
     else
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
         y2 = y1;
         y1 = y0;
-        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
+        outputs[MAIN_OUTPUT].setVoltage(clampf(y0 * 5.0f, -5.0, 5.0));
     }
 
 }
@@ -90,7 +90,7 @@ CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Crackle.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Crackle.svg")));
 		addChild(panel);
 	}
 
@@ -104,10 +104,10 @@ CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
     addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0));
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(33, 146), PortWidget::INPUT, module, Crackle::RATE_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 146), module, Crackle::RATE_INPUT));
 
     //////OUTPUTS//////
-	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Crackle::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Crackle::MAIN_OUTPUT));
 }
 
 Model *modelCrackle = createModel<Crackle, CrackleWidget>("Crackle");

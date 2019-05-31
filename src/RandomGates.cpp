@@ -55,7 +55,7 @@ struct RandomGates : Module
 
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
@@ -64,11 +64,11 @@ struct RandomGates : Module
         return _in;
     }
 
-    SchmittTrigger clockTrigger;
-    SchmittTrigger modeTrigger;
+    dsp::SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger modeTrigger;
 
     HCVTriggerGenerator trigger[8];
-    SchmittTrigger trigOut[8];
+    dsp::SchmittTrigger trigOut[8];
 
     bool active[8] = {};
     int mode = 0;
@@ -104,19 +104,19 @@ struct RandomGates : Module
 };
 
 
-void RandomGates::step()
+void RandomGates::process(const ProcessArgs &args)
 {
-    int max = round(params[MAX_PARAM].value + inputs[MAXI_INPUT].value);
-    int min = round(params[MIN_PARAM].value + inputs[MINI_INPUT].value);
+    int max = round(params[MAX_PARAM].getValue() + inputs[MAXI_INPUT].getVoltage());
+    int min = round(params[MIN_PARAM].getValue() + inputs[MINI_INPUT].getVoltage());
 
     max = clampInt(max);
     min = clampInt(min);
 
     if (min > max) min = max;
 
-    const bool clockHigh = inputs[CLOCK_INPUT].value > 1.0f;
+    const bool clockHigh = inputs[CLOCK_INPUT].getVoltage() > 1.0f;
 
-    if (modeTrigger.process(params[MODE_PARAM].value))
+    if (modeTrigger.process(params[MODE_PARAM].getValue()))
     {
 		mode = (mode + 1) % 3;
     }
@@ -126,7 +126,7 @@ void RandomGates::step()
         uint32_t range = max-min;
         uint32_t randNum;
         if (range == 0) randNum = max;
-        else randNum = (randomu32() % (range + 1)) + min;
+        else randNum = (random::u32() % (range + 1)) + min;
 
         for(uint32_t i = 0; i < 8; i++)
         {
@@ -148,21 +148,21 @@ void RandomGates::step()
                 trigger[i].trigger();
                 active[i] = false;
             }
-            outputs[i].value = (trigger[i].process() ? 5.0f : 0.0f);
+            outputs[i].setVoltage((trigger[i].process() ? 5.0f : 0.0f));
         }
         break;
 
         case 1: //hold mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].value = (active[i] ? 5.0f : 0.0f);
+            outputs[i].setVoltage((active[i] ? 5.0f : 0.0f));
         }
         break;
 
         case 2: //gate mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].value = ((active[i] && clockHigh) ? 5.0f : 0.0f);
+            outputs[i].setVoltage(((active[i] && clockHigh) ? 5.0f : 0.0f));
         }
         break;
 
@@ -186,7 +186,7 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/RandomGates.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/RandomGates.svg")));
 		addChild(panel);
 	}
 
@@ -201,11 +201,11 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
     const int inLightX = 45;
 
 
-    addInput(createPort<PJ301MPort>(Vec(58, 90), PortWidget::INPUT, module, RandomGates::CLOCK_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
     addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
     addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
-    addInput(createPort<PJ301MPort>(Vec(58, 150), PortWidget::INPUT, module, RandomGates::MINI_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(58, 210), PortWidget::INPUT, module, RandomGates::MAXI_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
 
     addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
 
@@ -220,7 +220,7 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));

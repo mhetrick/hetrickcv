@@ -26,7 +26,7 @@ struct Bitshift : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -35,15 +35,15 @@ struct Bitshift : Module
 };
 
 
-void Bitshift::step()
+void Bitshift::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 
-    bool mode5V = (params[RANGE_PARAM].value == 0.0f);
+    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
     if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
 	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
 
-	float shift = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
+	float shift = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
 	shift = clampf(shift, -5.0f, 5.0f) * 0.2f;
 	shift *= 31.0f;
 
@@ -64,7 +64,7 @@ void Bitshift::step()
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
 
-    outputs[MAIN_OUTPUT].value = output;
+    outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
 struct CKSSRot : SVGSwitch {
@@ -84,7 +84,7 @@ BitshiftWidget::BitshiftWidget(Bitshift *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Bitshift.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Bitshift.svg")));
 		addChild(panel);
 	}
 
@@ -99,11 +99,11 @@ BitshiftWidget::BitshiftWidget(Bitshift *module) : ModuleWidget(module)
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(33, 235), PortWidget::INPUT, module, Bitshift::MAIN_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Bitshift::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Bitshift::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Bitshift::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Bitshift::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Bitshift::MAIN_OUTPUT));
 }
 
 Model *modelBitshift = createModel<Bitshift, BitshiftWidget>("Bitshift");

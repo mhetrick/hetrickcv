@@ -38,7 +38,7 @@ struct TwoToFour : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -47,20 +47,20 @@ struct TwoToFour : Module
 };
 
 
-void TwoToFour::step()
+void TwoToFour::process(const ProcessArgs &args)
 {
-    const float inA = inputs[INA_INPUT].value;
-    const float inB = inputs[INB_INPUT].value;
+    const float inA = inputs[INA_INPUT].getVoltage();
+    const float inB = inputs[INB_INPUT].getVoltage();
 
     outs[0] = inA + inB;
     outs[1] = outs[0] * -1.0f;
     outs[3] = inA - inB;
     outs[2] = outs[3] * -1.0f;
 
-    outputs[OUT1_OUTPUT].value = outs[0];
-    outputs[OUT2_OUTPUT].value = outs[1];
-    outputs[OUT3_OUTPUT].value = outs[2];
-	outputs[OUT4_OUTPUT].value = outs[3];
+    outputs[OUT1_OUTPUT].setVoltage(outs[0]);
+    outputs[OUT2_OUTPUT].setVoltage(outs[1]);
+    outputs[OUT3_OUTPUT].setVoltage(outs[2]);
+	outputs[OUT4_OUTPUT].setVoltage(outs[3]);
 
 	lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[0] / 5.0));
     lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[0] / 5.0));
@@ -84,7 +84,7 @@ TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/2To4.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/2To4.svg")));
 		addChild(panel);
 	}
 
@@ -96,13 +96,13 @@ TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(10, 100), PortWidget::INPUT, module, TwoToFour::INA_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(55, 100), PortWidget::INPUT, module, TwoToFour::INB_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 100), module, TwoToFour::INA_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(55, 100), module, TwoToFour::INB_INPUT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createPort<PJ301MPort>(Vec(33, 150 + yPos), PortWidget::OUTPUT, module, TwoToFour::OUT1_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, TwoToFour::OUT1_OUTPUT + i));
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, TwoToFour::OUT1_POS_LIGHT + i*2));
     }
 }

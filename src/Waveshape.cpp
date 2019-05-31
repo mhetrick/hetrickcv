@@ -26,7 +26,7 @@ struct Waveshape : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -35,15 +35,15 @@ struct Waveshape : Module
 };
 
 
-void Waveshape::step()
+void Waveshape::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 
-    bool mode5V = (params[RANGE_PARAM].value == 0.0f);
+    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
     if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
 	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
 
-	float shape = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
+	float shape = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
 	shape = clampf(shape, -5.0f, 5.0f) * 0.2f;
 	shape *= 0.99f;
 
@@ -56,7 +56,7 @@ void Waveshape::step()
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
 
-    outputs[MAIN_OUTPUT].value = output;
+    outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
 struct CKSSRot : SVGSwitch {
@@ -76,7 +76,7 @@ WaveshapeWidget::WaveshapeWidget(Waveshape *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Waveshape.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Waveshape.svg")));
 		addChild(panel);
 	}
 
@@ -91,11 +91,11 @@ WaveshapeWidget::WaveshapeWidget(Waveshape *module) : ModuleWidget(module)
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Waveshape::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(33, 235), PortWidget::INPUT, module, Waveshape::MAIN_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Waveshape::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Waveshape::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Waveshape::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Waveshape::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Waveshape::MAIN_OUTPUT));
 }
 
 Model *modelWaveshape = createModel<Waveshape, WaveshapeWidget>("Waveshaper");

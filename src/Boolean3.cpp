@@ -49,7 +49,7 @@ struct Boolean3 : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -58,17 +58,17 @@ struct Boolean3 : Module
 };
 
 
-void Boolean3::step()
+void Boolean3::process(const ProcessArgs &args)
 {
-    inA = ins[0].process(inputs[INA_INPUT].value);
-    inB = ins[1].process(inputs[INB_INPUT].value);
-    inC = ins[2].process(inputs[INC_INPUT].value);
+    inA = ins[0].process(inputs[INA_INPUT].getVoltage());
+    inB = ins[1].process(inputs[INB_INPUT].getVoltage());
+    inC = ins[2].process(inputs[INC_INPUT].getVoltage());
 
     lights[INA_LIGHT].value = inA ? 5.0f : 0.0f;
     lights[INB_LIGHT].value = inB ? 5.0f : 0.0f;
     lights[INC_LIGHT].value = inC ? 5.0f : 0.0f;
 
-    if(inputs[INC_INPUT].active)
+    if(inputs[INC_INPUT].isConnected())
     {
         outs[0] = ((inA || inB) || inC) ? 5.0f : 0.0f;
         outs[1] = ((inA && inB) && inC) ? 5.0f : 0.0f;
@@ -88,12 +88,12 @@ void Boolean3::step()
     }
 
 
-    outputs[OR_OUTPUT].value = outs[0];
-    outputs[AND_OUTPUT].value = outs[1];
-    outputs[XOR_OUTPUT].value = outs[2];
-    outputs[NOR_OUTPUT].value = outs[3];
-    outputs[NAND_OUTPUT].value = outs[4];
-    outputs[XNOR_OUTPUT].value = outs[5];
+    outputs[OR_OUTPUT].setVoltage(outs[0]);
+    outputs[AND_OUTPUT].setVoltage(outs[1]);
+    outputs[XOR_OUTPUT].setVoltage(outs[2]);
+    outputs[NOR_OUTPUT].setVoltage(outs[3]);
+    outputs[NAND_OUTPUT].setVoltage(outs[4]);
+    outputs[XNOR_OUTPUT].setVoltage(outs[5]);
 
     lights[OR_LIGHT].value = outs[0];
     lights[AND_LIGHT].value = outs[1];
@@ -112,7 +112,7 @@ Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Boolean3.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Boolean3.svg")));
 		addChild(panel);
 	}
 
@@ -122,9 +122,9 @@ Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
 	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(10, 105), PortWidget::INPUT, module, Boolean3::INA_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(10, 195), PortWidget::INPUT, module, Boolean3::INB_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(10, 285), PortWidget::INPUT, module, Boolean3::INC_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 105), module, Boolean3::INA_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 195), module, Boolean3::INB_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 285), module, Boolean3::INC_INPUT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 92), module, Boolean3::INA_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 182), module, Boolean3::INB_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 272), module, Boolean3::INC_LIGHT));
@@ -133,7 +133,7 @@ Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
     for(int i = 0; i < 6; i++)
     {
         const int yPos = i*45;
-        addOutput(createPort<PJ301MPort>(Vec(45, 60 + yPos), PortWidget::OUTPUT, module, Boolean3::OR_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(45, 60 + yPos), module, Boolean3::OR_OUTPUT + i));
         addChild(createLight<SmallLight<RedLight>>(Vec(74, 68 + yPos), module, Boolean3::OR_LIGHT + i));
     }
 

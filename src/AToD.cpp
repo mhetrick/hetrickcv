@@ -52,9 +52,9 @@ struct AnalogToDigital : Module
 		NUM_LIGHTS
     };
 
-    SchmittTrigger clockTrigger;
-    SchmittTrigger modeTrigger;
-    SchmittTrigger rectTrigger;
+    dsp::SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger modeTrigger;
+    dsp::SchmittTrigger rectTrigger;
 
     int mode = 0;
     int rectMode = 0;
@@ -66,7 +66,7 @@ struct AnalogToDigital : Module
 
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     void processUni8(float _input);
     void processBiOff(float _input);
@@ -108,10 +108,10 @@ struct AnalogToDigital : Module
 };
 
 
-void AnalogToDigital::step()
+void AnalogToDigital::process(const ProcessArgs &args)
 {
-    if (modeTrigger.process(params[MODE_PARAM].value)) mode = (mode + 1) % 3;
-    if (rectTrigger.process(params[RECTIFY_PARAM].value)) rectMode = (rectMode + 1) % 3;
+    if (modeTrigger.process(params[MODE_PARAM].getValue())) mode = (mode + 1) % 3;
+    if (rectTrigger.process(params[RECTIFY_PARAM].getValue())) rectMode = (rectMode + 1) % 3;
 
     lights[MODE_UNI8_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
     lights[MODE_BOFF_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
@@ -121,14 +121,14 @@ void AnalogToDigital::step()
     lights[RECT_HALF_LIGHT].setBrightness(rectMode == 1 ? 1.0f : 0.0f);
     lights[RECT_FULL_LIGHT].setBrightness(rectMode == 2 ? 1.0f : 0.0f);
 
-    const bool syncModeEnabled = inputs[SYNC_INPUT].active;
-    const bool readyForProcess = (!syncModeEnabled || (syncModeEnabled && clockTrigger.process(inputs[SYNC_INPUT].value)));
+    const bool syncModeEnabled = inputs[SYNC_INPUT].isConnected();
+    const bool readyForProcess = (!syncModeEnabled || (syncModeEnabled && clockTrigger.process(inputs[SYNC_INPUT].getVoltage())));
 
     if(readyForProcess)
     {
-        float input = inputs[MAIN_INPUT].value;
-        input *= params[SCALE_PARAM].value;
-        input += params[OFFSET_PARAM].value;
+        float input = inputs[MAIN_INPUT].getVoltage();
+        input *= params[SCALE_PARAM].getValue();
+        input += params[OFFSET_PARAM].getValue();
         if (rectMode == 1) input = input > 0.0f? input : 0.0f;
         else if (rectMode == 2) input = std::abs(input);
 
@@ -139,7 +139,7 @@ void AnalogToDigital::step()
 
     for(int i = 0; i < 8; i++)
     {
-        outputs[OUT1_OUTPUT + i].value = outs[i];
+        outputs[OUT1_OUTPUT + i].setVoltage(outs[i]);
         lights[OUT1_LIGHT + i].value = outs[i];
     }
 }
@@ -202,7 +202,7 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/AToD.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AToD.svg")));
 		addChild(panel);
 	}
 
@@ -227,8 +227,8 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
     addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(7, 70), PortWidget::INPUT, module, AnalogToDigital::MAIN_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(42, 152), PortWidget::INPUT, module, AnalogToDigital::SYNC_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(7, 70), module, AnalogToDigital::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(42, 152), module, AnalogToDigital::SYNC_INPUT));
 
     addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2));
     addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0));
@@ -241,7 +241,7 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWi
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, AnalogToDigital::OUT1_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, AnalogToDigital::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));

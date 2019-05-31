@@ -85,17 +85,17 @@ struct GateJunction : Module
     float outs[8] = {};
 
     bool muteState[8] = {};
-    SchmittTrigger muteTrigger[8];
+    dsp::SchmittTrigger muteTrigger[8];
 
     bool invState[8] = {};
-	SchmittTrigger invTrigger[8];
+	dsp::SchmittTrigger invTrigger[8];
 
 	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
 	{
 		onReset();
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     void onReset() override
     {
@@ -163,16 +163,16 @@ struct GateJunction : Module
 };
 
 
-void GateJunction::step()
+void GateJunction::process(const ProcessArgs &args)
 {
-    ins[0] = (inputs[IN1_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
+    ins[0] = (inputs[IN1_INPUT].getVoltage() >= 1.0f) ? 5.0f : 0.0f;
 
     for(int i = 1; i < 8; i++)
     {
         const int thisInput = IN1_INPUT + i;
-        if(inputs[thisInput].active)
+        if(inputs[thisInput].isConnected())
         {
-            ins[i] = (inputs[thisInput].value >= 1.0f) ? 5.0f : 0.0f;
+            ins[i] = (inputs[thisInput].getVoltage() >= 1.0f) ? 5.0f : 0.0f;
         }
         else
         {
@@ -182,13 +182,13 @@ void GateJunction::step()
 
     for(int i = 0; i < 8; i++)
     {
-        if (muteTrigger[i].process(params[MUTE1_PARAM + i].value)) muteState[i] ^= true;
-        if (invTrigger[i].process(params[INV1_PARAM + i].value)) invState[i] ^= true;
+        if (muteTrigger[i].process(params[MUTE1_PARAM + i].getValue())) muteState[i] ^= true;
+        if (invTrigger[i].process(params[INV1_PARAM + i].getValue())) invState[i] ^= true;
 
         if(invState[i]) ins[i] = 5.0f - ins[i];
         if(muteState[i]) ins[i] = 0.0f;
 
-        outputs[OUT1_OUTPUT + i].value = ins[i];
+        outputs[OUT1_OUTPUT + i].setVoltage(ins[i]);
         lights[OUT1_LIGHT + i].value = ins[i];
 
         lights[MUTE1_LIGHT + i].setBrightness(muteState[i] ? 0.9 : 0.0);
@@ -212,7 +212,7 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/GateJunction.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/GateJunction.svg")));
 		addChild(panel);
 	}
 
@@ -233,10 +233,10 @@ GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(modu
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(createPort<PJ301MPort>(Vec(inXPos, yPos), PortWidget::INPUT, module, GateJunction::IN1_INPUT + i));
+        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, GateJunction::IN1_INPUT + i));
 
         //////OUTPUTS//////
-        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, GateJunction::OUT1_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, GateJunction::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, GateJunction::OUT1_LIGHT + i));

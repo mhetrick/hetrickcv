@@ -32,7 +32,7 @@ struct FlipFlop : Module
         NUM_LIGHTS
 	};
 
-    SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger clockTrigger;
     float outs[4] = {};
     bool toggle = false;
     bool dataIn = false;
@@ -42,7 +42,7 @@ struct FlipFlop : Module
 		onReset();
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
     void onReset() override
     {
@@ -60,13 +60,13 @@ struct FlipFlop : Module
 };
 
 
-void FlipFlop::step()
+void FlipFlop::process(const ProcessArgs &args)
 {
-    dataIn = (inputs[IND_INPUT].value >= 1.0f);
+    dataIn = (inputs[IND_INPUT].getVoltage() >= 1.0f);
     lights[DATA_LIGHT].value = dataIn ? 5.0f : 0.0f;
-    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].value >= 1.0f) ? 5.0f : 0.0f;
+    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? 5.0f : 0.0f;
 
-    if (clockTrigger.process(inputs[INT_INPUT].value))
+    if (clockTrigger.process(inputs[INT_INPUT].getVoltage()))
     {
         toggle = !toggle;
 
@@ -77,10 +77,10 @@ void FlipFlop::step()
         outs[3] = 5.0f - outs[1];
     }
 
-    outputs[FFT_OUTPUT].value = outs[0];
-    outputs[FFD_OUTPUT].value = outs[1];
-    outputs[FFTNOT_OUTPUT].value = outs[2];
-    outputs[FFDNOT_OUTPUT].value = outs[3];
+    outputs[FFT_OUTPUT].setVoltage(outs[0]);
+    outputs[FFD_OUTPUT].setVoltage(outs[1]);
+    outputs[FFTNOT_OUTPUT].setVoltage(outs[2]);
+    outputs[FFDNOT_OUTPUT].setVoltage(outs[3]);
 
     lights[FFT_LIGHT].value = outs[0];
     lights[FFD_LIGHT].value = outs[1];
@@ -97,7 +97,7 @@ FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/FlipFlop.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FlipFlop.svg")));
 		addChild(panel);
 	}
 
@@ -109,15 +109,15 @@ FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(10, 100), PortWidget::INPUT, module, FlipFlop::INT_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(55, 100), PortWidget::INPUT, module, FlipFlop::IND_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 100), module, FlipFlop::INT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(55, 100), module, FlipFlop::IND_INPUT));
     addChild(createLight<SmallLight<RedLight>>(Vec(18, 87), module, FlipFlop::TOGGLE_LIGHT));
     addChild(createLight<SmallLight<RedLight>>(Vec(63, 87), module, FlipFlop::DATA_LIGHT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createPort<PJ301MPort>(Vec(33, 150 + yPos), PortWidget::OUTPUT, module, FlipFlop::FFT_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, FlipFlop::FFT_OUTPUT + i));
         addChild(createLight<SmallLight<RedLight>>(Vec(70, 158 + yPos), module, FlipFlop::FFT_LIGHT + i));
     }
 }

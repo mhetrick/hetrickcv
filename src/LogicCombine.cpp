@@ -38,7 +38,7 @@ struct LogicCombine : Module
     bool trigs[NUM_INPUTS] = {};
     float outs[3] = {};
     float trigLight;
-    SchmittTrigger inTrigs[NUM_INPUTS];
+    dsp::SchmittTrigger inTrigs[NUM_INPUTS];
     bool orState = false;
     bool trigState = false;
     const float lightLambda = 0.075;
@@ -50,7 +50,7 @@ struct LogicCombine : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -59,15 +59,15 @@ struct LogicCombine : Module
 };
 
 
-void LogicCombine::step()
+void LogicCombine::process(const ProcessArgs &args)
 {
     orState = false;
     trigState = false;
 
     for(int i = 0; i < NUM_INPUTS; i++)
     {
-        ins[i] = (inputs[IN1_INPUT + i].value >= 1.0f);
-        trigs[i] = inTrigs[i].process(inputs[IN1_INPUT + i].value);
+        ins[i] = (inputs[IN1_INPUT + i].getVoltage() >= 1.0f);
+        trigs[i] = inTrigs[i].process(inputs[IN1_INPUT + i].getVoltage());
 
         orState = orState || ins[i];
         trigState = trigState || trigs[i];
@@ -85,11 +85,11 @@ void LogicCombine::step()
     outs[2] = trigger.process() ? 5.0f : 0.0f;
 
     if (lights[TRIG_LIGHT].value > 0.01)
-        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * engineGetSampleTime();
+        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * args.sampleTime;
 
-    outputs[OR_OUTPUT].value = outs[0];
-    outputs[NOR_OUTPUT].value = outs[1];
-    outputs[TRIG_OUTPUT].value = outs[2];
+    outputs[OR_OUTPUT].setVoltage(outs[0]);
+    outputs[NOR_OUTPUT].setVoltage(outs[1]);
+    outputs[TRIG_OUTPUT].setVoltage(outs[2]);
 
     lights[OR_LIGHT].setBrightness(outs[0]);
     lights[NOR_LIGHT].setBrightness(outs[1]);
@@ -105,7 +105,7 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/LogicCombiner.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LogicCombiner.svg")));
 		addChild(panel);
 	}
 
@@ -123,13 +123,13 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 
     for(int i = 0; i < LogicCombine::NUM_INPUTS; i++)
     {
-        addInput(createPort<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), PortWidget::INPUT, module, LogicCombine::IN1_INPUT + i));
+        addInput(createInput<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), module, LogicCombine::IN1_INPUT + i));
     }
 
     //////OUTPUTS//////
-    addOutput(createPort<PJ301MPort>(Vec(outPos, 150), PortWidget::OUTPUT, module, LogicCombine::OR_OUTPUT));
-    addOutput(createPort<PJ301MPort>(Vec(outPos, 195), PortWidget::OUTPUT, module, LogicCombine::NOR_OUTPUT));
-    addOutput(createPort<PJ301MPort>(Vec(outPos, 240), PortWidget::OUTPUT, module, LogicCombine::TRIG_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 150), module, LogicCombine::OR_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 195), module, LogicCombine::NOR_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 240), module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
     addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));

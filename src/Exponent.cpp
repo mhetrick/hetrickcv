@@ -26,7 +26,7 @@ struct Exponent : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -35,17 +35,17 @@ struct Exponent : Module
 };
 
 
-void Exponent::step()
+void Exponent::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 	const bool negativeInput = input < 0.0f;
 
-    bool mode5V = (params[RANGE_PARAM].value == 0.0f);
+    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
     if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
 	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
 	input = std::abs(input);
 
-    float exponent = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
+    float exponent = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
     exponent = clampf(exponent, -5.0f, 5.0f) * 0.2f;
 
 	if(exponent < 0)
@@ -60,7 +60,7 @@ void Exponent::step()
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
 
-    outputs[MAIN_OUTPUT].value = output;
+    outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
 struct CKSSRot : SVGSwitch {
@@ -80,7 +80,7 @@ ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Exponent.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Exponent.svg")));
 		addChild(panel);
 	}
 
@@ -95,11 +95,11 @@ ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(33, 235), PortWidget::INPUT, module, Exponent::MAIN_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, Exponent::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Exponent::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Exponent::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Exponent::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Exponent::MAIN_OUTPUT));
 }
 
 Model *modelExponent = createModel<Exponent, ExponentWidget>("Exponent");

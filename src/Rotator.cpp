@@ -66,7 +66,7 @@ struct Rotator : Module
 
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
@@ -82,10 +82,10 @@ struct Rotator : Module
 };
 
 
-void Rotator::step()
+void Rotator::process(const ProcessArgs &args)
 {
-    int rotation = round(params[ROTATE_PARAM].value + inputs[ROTATE_INPUT].value);
-    int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
+    int rotation = round(params[ROTATE_PARAM].getValue() + inputs[ROTATE_INPUT].getVoltage());
+    int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getVoltage());
 
     rotation = clampInt(rotation);
     stages = clampInt(stages) + 1;
@@ -93,10 +93,10 @@ void Rotator::step()
     for(int i = 0; i < 8; i++)
     {
         const int input = (rotation + i) % stages;
-        outputs[i].value = inputs[input].value;
+        outputs[i].setVoltage(inputs[input].getVoltage());
 
-        lights[IN1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / 5.0));
-		lights[IN1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / -5.0));
+        lights[IN1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].getVoltage() / 5.0));
+		lights[IN1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].getVoltage() / -5.0));
 
         lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
 		lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
@@ -113,7 +113,7 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Rotator.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rotator.svg")));
 		addChild(panel);
 	}
 
@@ -126,8 +126,8 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
     addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
     addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
 
-    addInput(createPort<PJ301MPort>(Vec(75, 150), PortWidget::INPUT, module, Rotator::ROTATE_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(75, 310), PortWidget::INPUT, module, Rotator::STAGES_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(75, 150), module, Rotator::ROTATE_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(75, 310), module, Rotator::STAGES_INPUT));
 
     const int inXPos = 10;
     const int outXPos = 145;
@@ -139,10 +139,10 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(createPort<PJ301MPort>(Vec(inXPos, yPos), PortWidget::INPUT, module, i));
+        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, i));
 
         //////OUTPUTS//////
-        addOutput(createPort<PJ301MPort>(Vec(outXPos, yPos), PortWidget::OUTPUT, module, i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));

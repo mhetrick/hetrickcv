@@ -28,7 +28,7 @@ struct FlipPan : Module
 
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     float paraPanShape(const float _input) const
     {
@@ -42,20 +42,20 @@ struct FlipPan : Module
 };
 
 
-void FlipPan::step()
+void FlipPan::process(const ProcessArgs &args)
 {
-	float inL = inputs[LEFT_INPUT].value;
-	float inR = inputs[RIGHT_INPUT].value;
+	float inL = inputs[LEFT_INPUT].getVoltage();
+	float inR = inputs[RIGHT_INPUT].getVoltage();
 
-    bool linear = (params[STYLE_PARAM].value == 0.0f);
+    bool linear = (params[STYLE_PARAM].getValue() == 0.0f);
 
-    float pan = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
+    float pan = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
     pan = clampf(pan, 0.0f, 5.0f) * 0.2f;
 
     if(linear)
     {
-        outputs[LEFT_OUTPUT].value = LERP(pan, inR, inL);
-        outputs[RIGHT_OUTPUT].value = LERP(pan, inL, inR);
+        outputs[LEFT_OUTPUT].setVoltage(LERP(pan, inR, inL));
+        outputs[RIGHT_OUTPUT].setVoltage(LERP(pan, inL, inR));
     }
     else
     {
@@ -63,8 +63,8 @@ void FlipPan::step()
         const float panL = paraPanShape(1.0f - pan);
         const float panR = paraPanShape(1.0f + pan);
 
-        outputs[LEFT_OUTPUT].value = (inL * panL) + (inR * panR);
-        outputs[RIGHT_OUTPUT].value = (inL * panR) + (inR * panL);
+        outputs[LEFT_OUTPUT].setVoltage((inL * panL) + (inR * panR));
+        outputs[RIGHT_OUTPUT].setVoltage((inL * panR) + (inR * panL));
     }
 }
 
@@ -85,7 +85,7 @@ FlipPanWidget::FlipPanWidget(FlipPan *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/FlipPan.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FlipPan.svg")));
 		addChild(panel);
 	}
 
@@ -100,13 +100,13 @@ FlipPanWidget::FlipPanWidget(FlipPan *module) : ModuleWidget(module)
     addParam(createParam<CKSSRot>(Vec(35, 200), module, FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(10, 235), PortWidget::INPUT, module, FlipPan::LEFT_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(55, 235), PortWidget::INPUT, module, FlipPan::RIGHT_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(33, 145), PortWidget::INPUT, module, FlipPan::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 235), module, FlipPan::LEFT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(55, 235), module, FlipPan::RIGHT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, FlipPan::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-    addOutput(createPort<PJ301MPort>(Vec(10, 285), PortWidget::OUTPUT, module, FlipPan::LEFT_OUTPUT));
-    addOutput(createPort<PJ301MPort>(Vec(55, 285), PortWidget::OUTPUT, module, FlipPan::RIGHT_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(10, 285), module, FlipPan::LEFT_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(55, 285), module, FlipPan::RIGHT_OUTPUT));
 }
 
 Model *modelFlipPan = createModel<FlipPan, FlipPanWidget>("FlipPan");

@@ -28,7 +28,7 @@ struct Dust : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -37,38 +37,38 @@ struct Dust : Module
 };
 
 
-void Dust::step()
+void Dust::process(const ProcessArgs &args)
 {
-	float densityInput = params[RATE_PARAM].value + inputs[RATE_INPUT].value;
+	float densityInput = params[RATE_PARAM].getValue() + inputs[RATE_INPUT].getVoltage();
 
 	if(lastDensity != densityInput)
 	{
 		densityScaled = clampf(densityInput, 0.0f, 4.0f) / 4.0f;
-		densityScaled = engineGetSampleRate() * powf(densityScaled, 3.0f);
+		densityScaled = args.sampleRate * powf(densityScaled, 3.0f);
 		lastDensity = densityInput;
-		threshold = (1.0/engineGetSampleRate()) * densityScaled;
+		threshold = (1.0/args.sampleRate) * densityScaled;
 	}
 
 	const float noiseValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
 	if (noiseValue < threshold)
 	{
-		const bool bipolar = (params[BIPOLAR_PARAM].value == 0.0);
+		const bool bipolar = (params[BIPOLAR_PARAM].getValue() == 0.0);
 
 		if(bipolar)
 		{
 			const float scale = (threshold > 0.0f) ? 2.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].value = clampf((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f);
+			outputs[DUST_OUTPUT].setVoltage(clampf((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f));
 		}
 		else
 		{
 			const float scale = (threshold > 0.0f) ? 1.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].value = clampf(noiseValue * scale * 5.0f, 5.0f, 5.0f);
+			outputs[DUST_OUTPUT].setVoltage(clampf(noiseValue * scale * 5.0f, 5.0f, 5.0f));
 		}
 	}
 	else
 	{
-		outputs[DUST_OUTPUT].value = 0.0;
+		outputs[DUST_OUTPUT].setVoltage(0.0);
 	}
 }
 
@@ -81,7 +81,7 @@ DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Dust.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dust.svg")));
 		addChild(panel);
 	}
 
@@ -95,10 +95,10 @@ DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
 	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0));
 
 	//////INPUTS//////
-	addInput(createPort<PJ301MPort>(Vec(33, 146), PortWidget::INPUT, module, Dust::RATE_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(33, 146), module, Dust::RATE_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(createPort<PJ301MPort>(Vec(33, 285), PortWidget::OUTPUT, module, Dust::DUST_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Dust::DUST_OUTPUT));
 }
 
 Model *modelDust = createModel<Dust, DustWidget>("Dust");

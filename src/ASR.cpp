@@ -29,7 +29,7 @@ struct ASR : Module
         NUM_LIGHTS
 	};
 
-    SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger clockTrigger;
     float stages[4] = {};
 
 	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
@@ -37,7 +37,7 @@ struct ASR : Module
 
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -46,20 +46,20 @@ struct ASR : Module
 };
 
 
-void ASR::step()
+void ASR::process(const ProcessArgs &args)
 {
-    if (clockTrigger.process(inputs[CLK_INPUT].value))
+    if (clockTrigger.process(inputs[CLK_INPUT].getVoltage()))
     {
         stages[3] = stages[2];
         stages[2] = stages[1];
         stages[1] = stages[0];
-        stages[0] = inputs[MAIN_INPUT].value;
+        stages[0] = inputs[MAIN_INPUT].getVoltage();
     }
 
-    outputs[STAGE1_OUTPUT].value = stages[0];
-    outputs[STAGE2_OUTPUT].value = stages[1];
-    outputs[STAGE3_OUTPUT].value = stages[2];
-    outputs[STAGE4_OUTPUT].value = stages[3];
+    outputs[STAGE1_OUTPUT].setVoltage(stages[0]);
+    outputs[STAGE2_OUTPUT].setVoltage(stages[1]);
+    outputs[STAGE3_OUTPUT].setVoltage(stages[2]);
+    outputs[STAGE4_OUTPUT].setVoltage(stages[3]);
 
     lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[0] / 5.0));
     lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[0] / 5.0));
@@ -83,7 +83,7 @@ ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
 	{
 		auto *panel = new SVGPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(pluginInstance, "res/ASR.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ASR.svg")));
 		addChild(panel);
 	}
 
@@ -95,13 +95,13 @@ ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(createPort<PJ301MPort>(Vec(10, 100), PortWidget::INPUT, module, ASR::MAIN_INPUT));
-    addInput(createPort<PJ301MPort>(Vec(55, 100), PortWidget::INPUT, module, ASR::CLK_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 100), module, ASR::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(55, 100), module, ASR::CLK_INPUT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(createPort<PJ301MPort>(Vec(33, 150 + yPos), PortWidget::OUTPUT, module, ASR::STAGE1_OUTPUT + i));
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, ASR::STAGE1_OUTPUT + i));
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
     }
 }
