@@ -59,8 +59,58 @@ struct BlankPanelWidget : ModuleWidget
     SVGPanel *panel3;
 	SVGPanel *panel4;
     SVGPanel *panel5;
-    BlankPanelWidget(BlankPanel *module);
-    void step() override;
+
+    BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
+	{
+		setModule(module);
+		box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
+
+	    panel1 = new SVGPanel();
+	    panel1->box.size = box.size;
+	    panel1->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel3.svg")));
+	    addChild(panel1);
+
+	    panel2 = new SVGPanel();
+	    panel2->box.size = box.size;
+	    panel2->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel7.svg")));
+	    addChild(panel2);
+
+	    panel3 = new SVGPanel();
+	    panel3->box.size = box.size;
+	    panel3->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel2.svg")));
+	    addChild(panel3);
+
+	    panel4 = new SVGPanel();
+	    panel4->box.size = box.size;
+	    panel4->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel8.svg")));
+	    addChild(panel4);
+
+	    panel5 = new SVGPanel();
+	    panel5->box.size = box.size;
+	    panel5->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel1.svg")));
+	    addChild(panel5);
+
+		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	}
+    
+    void step() override
+	{
+		auto blank = dynamic_cast<BlankPanel*>(module);
+		
+		if(blank)
+		{
+			panel1->visible = (blank->panel == 0);
+			panel2->visible = (blank->panel == 1);
+		    panel3->visible = (blank->panel == 2);
+			panel4->visible = (blank->panel == 3);
+		    panel5->visible = (blank->panel == 4);
+		}
+
+		ModuleWidget::step();
+	}
 
     struct Panel1Item : MenuItem
 	{
@@ -114,7 +164,7 @@ struct BlankPanelWidget : ModuleWidget
 
 	void appendContextMenu(Menu *menu) override
 	{
-		BlankPanel *blank = dynamic_cast<BlankPanel*>(this->module);
+		BlankPanel *blank = dynamic_cast<BlankPanel*>(module);
 		assert(blank);
 
 	    menu->addChild(construct<MenuEntry>());
@@ -126,54 +176,5 @@ struct BlankPanelWidget : ModuleWidget
 	    menu->addChild(construct<Panel5Item>(&Panel5Item::text, "Plain Jane",    &Panel5Item::blank, blank));
 	}
 };
-
-BlankPanelWidget::BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
-{
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-    panel1 = new SVGPanel();
-    panel1->box.size = box.size;
-    panel1->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel3.svg")));
-    addChild(panel1);
-
-    panel2 = new SVGPanel();
-    panel2->box.size = box.size;
-    panel2->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel7.svg")));
-    addChild(panel2);
-
-    panel3 = new SVGPanel();
-    panel3->box.size = box.size;
-    panel3->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel2.svg")));
-    addChild(panel3);
-
-    panel4 = new SVGPanel();
-    panel4->box.size = box.size;
-    panel4->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel8.svg")));
-    addChild(panel4);
-
-    panel5 = new SVGPanel();
-    panel5->box.size = box.size;
-    panel5->setBackground(SVG::load(assetPlugin(pluginInstance, "res/Blanks/BlankPanel1.svg")));
-    addChild(panel5);
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
-}
-
-void BlankPanelWidget::step()
-{
-	BlankPanel *blank = dynamic_cast<BlankPanel*>(module);
-	assert(blank);
-
-	panel1->visible = (blank->panel == 0);
-	panel2->visible = (blank->panel == 1);
-    panel3->visible = (blank->panel == 2);
-	panel4->visible = (blank->panel == 3);
-    panel5->visible = (blank->panel == 4);
-
-	ModuleWidget::step();
-}
 
 Model *modelBlankPanel = createModel<BlankPanel, BlankPanelWidget>("BlankPanel");
