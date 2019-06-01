@@ -62,17 +62,17 @@ void TwoToFour::process(const ProcessArgs &args)
     outputs[OUT3_OUTPUT].setVoltage(outs[2]);
 	outputs[OUT4_OUTPUT].setVoltage(outs[3]);
 
-	lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[0] / 5.0));
-    lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[0] / 5.0));
+	lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[0] / 5.0), 10);
+    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[0] / 5.0), 10);
 
-    lights[OUT2_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[1] / 5.0));
-    lights[OUT2_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[1] / 5.0));
+    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[1] / 5.0), 10);
+    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[1] / 5.0), 10);
 
-    lights[OUT3_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[2] / 5.0));
-    lights[OUT3_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[2] / 5.0));
+    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[2] / 5.0), 10);
+    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[2] / 5.0), 10);
 
-    lights[OUT4_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, outs[3] / 5.0));
-    lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -outs[3] / 5.0));
+    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[3] / 5.0), 10);
+    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[3] / 5.0), 10);
 }
 
 struct TwoToFourWidget : ModuleWidget { TwoToFourWidget(TwoToFour *module); };
@@ -82,7 +82,7 @@ TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/2To4.svg")));
 		addChild(panel);

@@ -93,7 +93,7 @@ void LogicCombine::process(const ProcessArgs &args)
 
     lights[OR_LIGHT].setBrightness(outs[0]);
     lights[NOR_LIGHT].setBrightness(outs[1]);
-    lights[TRIG_LIGHT].setBrightnessSmooth(outs[2]);
+    lights[TRIG_LIGHT].setSmoothBrightness(outs[2], 10);
 }
 
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget(LogicCombine *module); };
@@ -103,7 +103,7 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 	box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LogicCombiner.svg")));
 		addChild(panel);

@@ -79,9 +79,9 @@ void Delta::process(const ProcessArgs &args)
 	outputs[CHANGE_OUTPUT].setVoltage(allTrigs);
     outputs[DELTA_OUTPUT].setVoltage(deltaOutput);
 
-	lights[GT_LIGHT].setBrightnessSmooth(outputs[GT_GATE_OUTPUT].value);
-	lights[LT_LIGHT].setBrightnessSmooth(outputs[LT_GATE_OUTPUT].value);
-	lights[CHANGE_LIGHT].setBrightnessSmooth(allTrigs);
+	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
+	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	lights[CHANGE_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 
 
@@ -92,7 +92,7 @@ DeltaWidget::DeltaWidget(Delta *module) : ModuleWidget(module)
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Delta.svg")));
 		addChild(panel);

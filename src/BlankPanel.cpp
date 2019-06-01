@@ -55,37 +55,37 @@ struct BlankPanel : Module
 
 struct BlankPanelWidget : ModuleWidget
 {
-    SVGPanel *panel1;
-	SVGPanel *panel2;
-    SVGPanel *panel3;
-	SVGPanel *panel4;
-    SVGPanel *panel5;
+    SvgPanel *panel1;
+	SvgPanel *panel2;
+    SvgPanel *panel3;
+	SvgPanel *panel4;
+    SvgPanel *panel5;
 
     BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
 	{
 		box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
-	    panel1 = new SVGPanel();
+	    panel1 = new SvgPanel();
 	    panel1->box.size = box.size;
 	    panel1->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel3.svg")));
 	    addChild(panel1);
 
-	    panel2 = new SVGPanel();
+	    panel2 = new SvgPanel();
 	    panel2->box.size = box.size;
 	    panel2->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel7.svg")));
 	    addChild(panel2);
 
-	    panel3 = new SVGPanel();
+	    panel3 = new SvgPanel();
 	    panel3->box.size = box.size;
 	    panel3->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel2.svg")));
 	    addChild(panel3);
 
-	    panel4 = new SVGPanel();
+	    panel4 = new SvgPanel();
 	    panel4->box.size = box.size;
 	    panel4->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel8.svg")));
 	    addChild(panel4);
 
-	    panel5 = new SVGPanel();
+	    panel5 = new SvgPanel();
 	    panel5->box.size = box.size;
 	    panel5->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel1.svg")));
 	    addChild(panel5);

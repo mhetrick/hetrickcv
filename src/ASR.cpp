@@ -61,17 +61,17 @@ void ASR::process(const ProcessArgs &args)
     outputs[STAGE3_OUTPUT].setVoltage(stages[2]);
     outputs[STAGE4_OUTPUT].setVoltage(stages[3]);
 
-    lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[0] / 5.0));
-    lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[0] / 5.0));
+    lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0] / 5.0), 10);
+    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0] / 5.0), 10);
 
-    lights[OUT2_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[1] / 5.0));
-    lights[OUT2_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[1] / 5.0));
+    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[1] / 5.0), 10);
+    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[1] / 5.0), 10);
 
-    lights[OUT3_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[2] / 5.0));
-    lights[OUT3_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[2] / 5.0));
+    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[2] / 5.0), 10);
+    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[2] / 5.0), 10);
 
-    lights[OUT4_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[3] / 5.0));
-    lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[3] / 5.0));
+    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[3] / 5.0), 10);
+    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[3] / 5.0), 10);
 }
 
 struct ASRWidget : ModuleWidget { ASRWidget(ASR *module); };
@@ -81,7 +81,7 @@ ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ASR.svg")));
 		addChild(panel);

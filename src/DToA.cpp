@@ -154,8 +154,8 @@ void DigitalToAnalog::process(const ProcessArgs &args)
         mainOutput *= params[SCALE_PARAM].getValue();
         mainOutput += params[OFFSET_PARAM].getValue();
 
-        lights[OUT_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, mainOutput * 0.2f));
-        lights[OUT_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, mainOutput * 0.2f));
+        lights[OUT_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, mainOutput * 0.2f), 10);
+        lights[OUT_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, mainOutput * 0.2f), 10);
 
         outputs[MAIN_OUTPUT].setVoltage(mainOutput);
     }
@@ -214,7 +214,7 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWi
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DToA.svg")));
 		addChild(panel);

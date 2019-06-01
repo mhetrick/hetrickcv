@@ -160,10 +160,10 @@ void Scanner::process(const ProcessArgs &args)
     {
         outputs[i].setVoltage(ins[i] * inMults[i]);
 
-        lights[IN1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
+        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]), 10);
 
-        lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
-        lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
+        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / 5.0), 10);
+        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / -5.0), 10);
         outputs[MIX_OUTPUT].setVoltage(outputs[MIX_OUTPUT].value + outputs[i].value);
     }
 
@@ -178,7 +178,7 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
 	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Scanner.svg")));
 		addChild(panel);

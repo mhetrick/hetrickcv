@@ -95,7 +95,7 @@ FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FlipFlop.svg")));
 		addChild(panel);

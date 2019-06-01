@@ -174,7 +174,7 @@ void RandomGates::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        lights[OUT1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value));
+        lights[OUT1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, outputs[i].value), 10);
     }
 }
 
@@ -186,7 +186,7 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/RandomGates.svg")));
 		addChild(panel);

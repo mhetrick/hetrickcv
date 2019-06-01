@@ -69,9 +69,9 @@ void Comparator::process(const ProcessArgs &args)
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 
-	lights[GT_LIGHT].setBrightnessSmooth(outputs[GT_GATE_OUTPUT].value);
-	lights[LT_LIGHT].setBrightnessSmooth(outputs[LT_GATE_OUTPUT].value);
-	lights[ZEROX_LIGHT].setBrightnessSmooth(allTrigs);
+	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
+	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	lights[ZEROX_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 
 
@@ -82,7 +82,7 @@ ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
 		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Comparator.svg")));
 		addChild(panel);
