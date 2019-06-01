@@ -23,8 +23,9 @@ struct FlipPan : Module
 		NUM_OUTPUTS
 	};
 
-	FlipPan() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	FlipPan()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(FlipPan::AMOUNT_PARAM, 0.0, 5.0, 2.5, "");
 		configParam(FlipPan::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 		configParam(FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0, "");
@@ -70,7 +71,7 @@ void FlipPan::process(const ProcessArgs &args)
     }
 }
 
-struct CKSSRot : SVGSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
@@ -80,8 +81,9 @@ struct CKSSRot : SVGSwitch {
 
 struct FlipPanWidget : ModuleWidget { FlipPanWidget(FlipPan *module); };
 
-FlipPanWidget::FlipPanWidget(FlipPan *module) : ModuleWidget(module)
+FlipPanWidget::FlipPanWidget(FlipPan *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

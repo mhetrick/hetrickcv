@@ -71,8 +71,9 @@ struct Scanner : Module
     float inMults[8] = {};
     float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
-	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Scanner()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "");
         configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "");
         configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "");
@@ -173,8 +174,9 @@ void Scanner::process(const ProcessArgs &args)
 
 struct ScannerWidget : ModuleWidget { ScannerWidget(Scanner *module); };
 
-ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
+ScannerWidget::ScannerWidget(Scanner *module)
 {
+    setModule(module);
 	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

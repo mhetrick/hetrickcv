@@ -21,8 +21,9 @@ struct Waveshape : Module
 		NUM_OUTPUTS
 	};
 
-	Waveshape() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Waveshape()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Waveshape::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
 		configParam(Waveshape::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 		configParam(Waveshape::RANGE_PARAM, 0.0, 1.0, 0.0, "");
@@ -61,7 +62,7 @@ void Waveshape::process(const ProcessArgs &args)
     outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SVGSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
@@ -71,8 +72,9 @@ struct CKSSRot : SVGSwitch {
 
 struct WaveshapeWidget : ModuleWidget { WaveshapeWidget(Waveshape *module); };
 
-WaveshapeWidget::WaveshapeWidget(Waveshape *module) : ModuleWidget(module)
+WaveshapeWidget::WaveshapeWidget(Waveshape *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

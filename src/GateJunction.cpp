@@ -90,8 +90,9 @@ struct GateJunction : Module
     bool invState[8] = {};
 	dsp::SchmittTrigger invTrigger[8];
 
-	GateJunction() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	GateJunction()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         for (int i = 0; i < 8; ++i)
         {
             configParam(GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0, "");
@@ -211,8 +212,9 @@ struct MuteLight : BASE {
 
 struct GateJunctionWidget : ModuleWidget { GateJunctionWidget(GateJunction *module); };
 
-GateJunctionWidget::GateJunctionWidget(GateJunction *module) : ModuleWidget(module)
+GateJunctionWidget::GateJunctionWidget(GateJunction *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

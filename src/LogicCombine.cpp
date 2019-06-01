@@ -45,9 +45,9 @@ struct LogicCombine : Module
 
     HCVTriggerGenerator trigger;
 
-	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	LogicCombine()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -98,8 +98,9 @@ void LogicCombine::process(const ProcessArgs &args)
 
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget(LogicCombine *module); };
 
-LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(module)
+LogicCombineWidget::LogicCombineWidget(LogicCombine *module)
 {
+    setModule(module);
 	box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

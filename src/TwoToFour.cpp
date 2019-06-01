@@ -33,9 +33,9 @@ struct TwoToFour : Module
 
     float outs[4] = {};
 
-	TwoToFour() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	TwoToFour()
 	{
-
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -77,8 +77,9 @@ void TwoToFour::process(const ProcessArgs &args)
 
 struct TwoToFourWidget : ModuleWidget { TwoToFourWidget(TwoToFour *module); };
 
-TwoToFourWidget::TwoToFourWidget(TwoToFour *module) : ModuleWidget(module)
+TwoToFourWidget::TwoToFourWidget(TwoToFour *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

@@ -61,8 +61,9 @@ struct AnalogToDigital : Module
 
     float outs[8] = {};
 
-	AnalogToDigital() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	AnalogToDigital()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam(AnalogToDigital::MODE_PARAM, 0.0, 1.0, 0.0, "");
         configParam(AnalogToDigital::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
         configParam(AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2, "");
@@ -198,8 +199,9 @@ void AnalogToDigital::processBiSig(float _input)
 
 struct AnalogToDigitalWidget : ModuleWidget { AnalogToDigitalWidget(AnalogToDigital *module); };
 
-AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module) : ModuleWidget(module)
+AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

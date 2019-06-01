@@ -21,8 +21,9 @@ struct Exponent : Module
 		NUM_OUTPUTS
 	};
 
-	Exponent() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Exponent()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
 		configParam(Exponent::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 		configParam(Exponent::RANGE_PARAM, 0.0, 1.0, 0.0, "");
@@ -65,7 +66,7 @@ void Exponent::process(const ProcessArgs &args)
     outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SVGSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
@@ -75,8 +76,9 @@ struct CKSSRot : SVGSwitch {
 
 struct ExponentWidget : ModuleWidget { ExponentWidget(Exponent *module); };
 
-ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
+ExponentWidget::ExponentWidget(Exponent *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

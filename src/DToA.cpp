@@ -66,8 +66,9 @@ struct DigitalToAnalog : Module
 
     bool ins[8] = {};
 
-	DigitalToAnalog() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	DigitalToAnalog()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam(DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0, "");
         configParam(DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
         configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "");
@@ -209,8 +210,9 @@ void DigitalToAnalog::processBiSig()
 
 struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
 
-DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWidget(module)
+DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

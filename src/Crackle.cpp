@@ -26,8 +26,9 @@ struct Crackle : Module
 
 	float lasty1 = 0.2643f;
 
-	Crackle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Crackle()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "");
 		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "");
 
@@ -86,8 +87,9 @@ void Crackle::process(const ProcessArgs &args)
 
 struct CrackleWidget : ModuleWidget { CrackleWidget(Crackle *module); };
 
-CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
+CrackleWidget::CrackleWidget(Crackle *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

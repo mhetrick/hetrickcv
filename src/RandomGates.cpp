@@ -50,8 +50,9 @@ struct RandomGates : Module
 		NUM_LIGHTS
 	};
 
-	RandomGates() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	RandomGates()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "");
         configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "");
         configParam(RandomGates::MODE_PARAM, 0.0, 1.0, 0.0, "");
@@ -181,8 +182,9 @@ void RandomGates::process(const ProcessArgs &args)
 
 struct RandomGatesWidget : ModuleWidget { RandomGatesWidget(RandomGates *module); };
 
-RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
+RandomGatesWidget::RandomGatesWidget(RandomGates *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

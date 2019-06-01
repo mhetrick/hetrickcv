@@ -44,9 +44,9 @@ struct Boolean3 : Module
     bool inC = false;
     float outs[6] = {};
 
-	Boolean3() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Boolean3()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -105,8 +105,9 @@ void Boolean3::process(const ProcessArgs &args)
 
 struct Boolean3Widget : ModuleWidget { Boolean3Widget(Boolean3 *module); };
 
-Boolean3Widget::Boolean3Widget(Boolean3 *module) : ModuleWidget(module)
+Boolean3Widget::Boolean3Widget(Boolean3 *module)
 {
+    setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

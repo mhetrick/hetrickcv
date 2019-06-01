@@ -37,8 +37,9 @@ struct FlipFlop : Module
     bool toggle = false;
     bool dataIn = false;
 
-	FlipFlop() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	FlipFlop()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		onReset();
 	}
 
@@ -90,8 +91,9 @@ void FlipFlop::process(const ProcessArgs &args)
 
 struct FlipFlopWidget : ModuleWidget { FlipFlopWidget(FlipFlop *module); };
 
-FlipFlopWidget::FlipFlopWidget(FlipFlop *module) : ModuleWidget(module)
+FlipFlopWidget::FlipFlopWidget(FlipFlop *module)
 {
+    setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

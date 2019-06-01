@@ -24,8 +24,10 @@ struct BlankPanel : Module
 
     int panel = 0;
 
-	BlankPanel() {
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);}
+	BlankPanel() 
+	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+	}
 
 	void process(const ProcessArgs &args) override {}
 
@@ -61,8 +63,9 @@ struct BlankPanelWidget : ModuleWidget
 	SvgPanel *panel4;
     SvgPanel *panel5;
 
-    BlankPanelWidget(BlankPanel *module) : ModuleWidget(module)
+    BlankPanelWidget(BlankPanel *module)
 	{
+		setModule(module);
 		box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	    panel1 = new SvgPanel();

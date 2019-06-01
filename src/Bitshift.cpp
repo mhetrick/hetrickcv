@@ -21,8 +21,9 @@ struct Bitshift : Module
 		NUM_OUTPUTS
 	};
 
-	Bitshift() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Bitshift()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
 		configParam(Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 		configParam(Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0, "");
@@ -69,7 +70,7 @@ void Bitshift::process(const ProcessArgs &args)
     outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SVGSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
@@ -79,8 +80,9 @@ struct CKSSRot : SVGSwitch {
 
 struct BitshiftWidget : ModuleWidget { BitshiftWidget(Bitshift *module); };
 
-BitshiftWidget::BitshiftWidget(Bitshift *module) : ModuleWidget(module)
+BitshiftWidget::BitshiftWidget(Bitshift *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

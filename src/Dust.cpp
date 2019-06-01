@@ -23,8 +23,9 @@ struct Dust : Module
 	float densityScaled = 0.0;
 	float threshold = 0.0;
 
-	Dust() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Dust()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Dust::RATE_PARAM, 0, 4.0, 0.0, "");
 		configParam(Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0, "");
 	}
@@ -75,8 +76,9 @@ void Dust::process(const ProcessArgs &args)
 
 struct DustWidget : ModuleWidget { DustWidget(Dust *module); };
 
-DustWidget::DustWidget(Dust *module) : ModuleWidget(module)
+DustWidget::DustWidget(Dust *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

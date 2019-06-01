@@ -33,8 +33,9 @@ struct Delta : Module
         NUM_LIGHTS
 	};
 
-	Delta() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Delta()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "");
 		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 	}
@@ -87,8 +88,9 @@ void Delta::process(const ProcessArgs &args)
 
 struct DeltaWidget : ModuleWidget { DeltaWidget(Delta *module); };
 
-DeltaWidget::DeltaWidget(Delta *module) : ModuleWidget(module)
+DeltaWidget::DeltaWidget(Delta *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

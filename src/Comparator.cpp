@@ -32,8 +32,9 @@ struct Comparator : Module
         NUM_LIGHTS
 	};
 
-	Comparator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Comparator()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
 		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 	}
@@ -77,8 +78,9 @@ void Comparator::process(const ProcessArgs &args)
 
 struct ComparatorWidget : ModuleWidget { ComparatorWidget(Comparator *module); };
 
-ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
+ComparatorWidget::ComparatorWidget(Comparator* module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

@@ -61,8 +61,9 @@ struct Rotator : Module
     float ins[8] = {};
     float outs[8] = {};
 
-	Rotator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Rotator()
 	{
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "");
         configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "");
 	}
@@ -107,8 +108,9 @@ void Rotator::process(const ProcessArgs &args)
 
 struct RotatorWidget : ModuleWidget { RotatorWidget(Rotator *module); };
 
-RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
+RotatorWidget::RotatorWidget(Rotator *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

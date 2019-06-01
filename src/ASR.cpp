@@ -32,9 +32,9 @@ struct ASR : Module
     dsp::SchmittTrigger clockTrigger;
     float stages[4] = {};
 
-	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	ASR()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -76,8 +76,9 @@ void ASR::process(const ProcessArgs &args)
 
 struct ASRWidget : ModuleWidget { ASRWidget(ASR *module); };
 
-ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
+ASRWidget::ASRWidget(ASR *module)
 {
+    setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{

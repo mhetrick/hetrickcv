@@ -21,8 +21,9 @@ struct Contrast : Module
 		NUM_OUTPUTS
 	};
 
-	Contrast() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Contrast()
 	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "");
 		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 		configParam(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "");
@@ -59,7 +60,7 @@ void Contrast::process(const ProcessArgs &args)
     outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SVGSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
@@ -69,8 +70,9 @@ struct CKSSRot : SVGSwitch {
 
 struct ContrastWidget : ModuleWidget { ContrastWidget(Contrast *module); };
 
-ContrastWidget::ContrastWidget(Contrast *module) : ModuleWidget(module)
+ContrastWidget::ContrastWidget(Contrast *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
