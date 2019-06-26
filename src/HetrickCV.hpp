@@ -1,5 +1,3 @@
-#include "rack.hpp"
-
 #pragma once
 
 #include "HetrickUtilities.hpp"
@@ -7,7 +5,7 @@
 using namespace rack;
 
 
-extern Plugin *plugin;
+extern Plugin *pluginInstance;
 
 extern Model *modelTwoToFour;
 extern Model *modelAnalogToDigital;

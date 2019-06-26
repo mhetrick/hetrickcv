@@ -50,12 +50,15 @@ struct RandomGates : Module
 		NUM_LIGHTS
 	};
 
-	RandomGates() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	RandomGates()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "");
+        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "");
+        configParam(RandomGates::MODE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
@@ -64,59 +67,59 @@ struct RandomGates : Module
         return _in;
     }
 
-    SchmittTrigger clockTrigger;
-    SchmittTrigger modeTrigger;
+    dsp::SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger modeTrigger;
 
     HCVTriggerGenerator trigger[8];
-    SchmittTrigger trigOut[8];
+    dsp::SchmittTrigger trigOut[8];
 
     bool active[8] = {};
     int mode = 0;
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
 		json_object_set_new(rootJ, "mode", json_integer(mode));
 		return rootJ;
 	}
 
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
 			mode = json_integer_value(modeJ);
     }
 
-    void reset() override
+    void onReset() override
     {
 		mode = 0;
     }
 
-    void randomize() override
+    void onRandomize() override
     {
-		mode = round(randomf() * 2.0f);
+		mode = round(random::uniform() * 2.0f);
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void RandomGates::step()
+void RandomGates::process(const ProcessArgs &args)
 {
-    int max = round(params[MAX_PARAM].value + inputs[MAXI_INPUT].value);
-    int min = round(params[MIN_PARAM].value + inputs[MINI_INPUT].value);
+    int max = round(params[MAX_PARAM].getValue() + inputs[MAXI_INPUT].getVoltage());
+    int min = round(params[MIN_PARAM].getValue() + inputs[MINI_INPUT].getVoltage());
 
     max = clampInt(max);
     min = clampInt(min);
 
     if (min > max) min = max;
 
-    const bool clockHigh = inputs[CLOCK_INPUT].value > 1.0f;
+    const bool clockHigh = inputs[CLOCK_INPUT].getVoltage() > 1.0f;
 
-    if (modeTrigger.process(params[MODE_PARAM].value))
+    if (modeTrigger.process(params[MODE_PARAM].getValue()))
     {
 		mode = (mode + 1) % 3;
     }
@@ -126,7 +129,7 @@ void RandomGates::step()
         uint32_t range = max-min;
         uint32_t randNum;
         if (range == 0) randNum = max;
-        else randNum = (randomu32() % (range + 1)) + min;
+        else randNum = (random::u32() % (range + 1)) + min;
 
         for(uint32_t i = 0; i < 8; i++)
         {
@@ -148,21 +151,21 @@ void RandomGates::step()
                 trigger[i].trigger();
                 active[i] = false;
             }
-            outputs[i].value = (trigger[i].process() ? 5.0f : 0.0f);
+            outputs[i].setVoltage((trigger[i].process() ? 5.0f : 0.0f));
         }
         break;
 
         case 1: //hold mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].value = (active[i] ? 5.0f : 0.0f);
+            outputs[i].setVoltage((active[i] ? 5.0f : 0.0f));
         }
         break;
 
         case 2: //gate mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].value = ((active[i] && clockHigh) ? 5.0f : 0.0f);
+            outputs[i].setVoltage(((active[i] && clockHigh) ? 5.0f : 0.0f));
         }
         break;
 
@@ -172,28 +175,29 @@ void RandomGates::step()
 
     for(int i = 0; i < 8; i++)
     {
-        lights[OUT1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value));
+        lights[OUT1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, outputs[i].value), 10);
     }
 }
 
 
 struct RandomGatesWidget : ModuleWidget { RandomGatesWidget(RandomGates *module); };
 
-RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
+RandomGatesWidget::RandomGatesWidget(RandomGates *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/RandomGates.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/RandomGates.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //const int inXPos = 10;
     const int outXPos = 145;
@@ -201,18 +205,18 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
     const int inLightX = 45;
 
 
-    addInput(Port::create<PJ301MPort>(Vec(58, 90), Port::INPUT, module, RandomGates::CLOCK_INPUT));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM, 0, 7.0, 0.0));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM, 0, 7.0, 7.0));
-    addInput(Port::create<PJ301MPort>(Vec(58, 150), Port::INPUT, module, RandomGates::MINI_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(58, 210), Port::INPUT, module, RandomGates::MAXI_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM));
+    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
 
-    addParam(ParamWidget::create<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM));
 
     //////BLINKENLIGHTS//////
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 319), module, RandomGates::MODE_HOLD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 332), module, RandomGates::MODE_GATE_LIGHT));
 
     for(int i = 0; i < 8; i++)
     {
@@ -220,11 +224,11 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, RandomGates::OUT1_LIGHT + i));
     }
 }
 
-Model *modelRandomGates = Model::create<RandomGates, RandomGatesWidget>("HetrickCV", "RandomGates", "Random Gates", RANDOM_TAG);
+Model *modelRandomGates = createModel<RandomGates, RandomGatesWidget>("RandomGates");

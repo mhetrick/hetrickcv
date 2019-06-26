@@ -33,9 +33,11 @@ struct Delta : Module
         NUM_LIGHTS
 	};
 
-	Delta() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Delta()
 	{
-
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "");
+		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
@@ -43,18 +45,18 @@ struct Delta : Module
     bool rising = false;
     bool falling = false;
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Delta::step()
+void Delta::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 
     float delta = input - lastInput;
     lastInput = input;
@@ -62,66 +64,67 @@ void Delta::step()
     rising = (delta > 0.0f);
     falling = (delta < 0.0f);
 
-	float boost = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
-	boost = clampf(boost, 0.0f, 5.0f) * 8000.0f + 1;
+	float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
+	boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
 
-	outputs[GT_TRIG_OUTPUT].value = gtTrig.process(rising) ? 5.0f : 0.0f;
-	outputs[LT_TRIG_OUTPUT].value = ltTrig.process(falling) ? 5.0f : 0.0f;
-	outputs[GT_GATE_OUTPUT].value = rising ? 5.0f : 0.0f;
-	outputs[LT_GATE_OUTPUT].value = falling ? 5.0f : 0.0f;
+	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(rising) ? 5.0f : 0.0f);
+	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(falling) ? 5.0f : 0.0f);
+	outputs[GT_GATE_OUTPUT].setVoltage(rising ? 5.0f : 0.0f);
+	outputs[LT_GATE_OUTPUT].setVoltage(falling ? 5.0f : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
+	allTrigs = clamp(allTrigs, 0.0f, 5.0f);
 
-    const float deltaOutput = clampf(delta * boost, -5.0f, 5.0f);
+    const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);
 
-	outputs[CHANGE_OUTPUT].value = allTrigs;
-    outputs[DELTA_OUTPUT].value = deltaOutput;
+	outputs[CHANGE_OUTPUT].setVoltage(allTrigs);
+    outputs[DELTA_OUTPUT].setVoltage(deltaOutput);
 
-	lights[GT_LIGHT].setBrightnessSmooth(outputs[GT_GATE_OUTPUT].value);
-	lights[LT_LIGHT].setBrightnessSmooth(outputs[LT_GATE_OUTPUT].value);
-	lights[CHANGE_LIGHT].setBrightnessSmooth(allTrigs);
+	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
+	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	lights[CHANGE_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 
 
 struct DeltaWidget : ModuleWidget { DeltaWidget(Delta *module); };
 
-DeltaWidget::DeltaWidget(Delta *module) : ModuleWidget(module)
+DeltaWidget::DeltaWidget(Delta *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Delta.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Delta.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM, -1.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(12, 195), Port::INPUT, module, Delta::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Delta::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(12, 195), module, Delta::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Delta::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-    addOutput(Port::create<PJ301MPort>(Vec(53, 195), Port::OUTPUT, module, Delta::DELTA_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 285), Port::OUTPUT, module, Delta::LT_GATE_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 285), Port::OUTPUT, module, Delta::GT_GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 315), Port::OUTPUT, module, Delta::LT_TRIG_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 315), Port::OUTPUT, module, Delta::GT_TRIG_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(32.5, 245), Port::OUTPUT, module, Delta::CHANGE_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 195), module, Delta::DELTA_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 285), module, Delta::LT_GATE_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 285), module, Delta::GT_GATE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 315), module, Delta::LT_TRIG_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 315), module, Delta::GT_TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(32.5, 245), module, Delta::CHANGE_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(22, 275), module, Delta::LT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(62, 275), module, Delta::GT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Delta::CHANGE_LIGHT));
+	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Delta::LT_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Delta::GT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Delta::CHANGE_LIGHT));
 }
 
-Model *modelDelta = Model::create<Delta, DeltaWidget>("HetrickCV", "Delta", "Delta", LOGIC_TAG);
+Model *modelDelta = createModel<Delta, DeltaWidget>("Delta");

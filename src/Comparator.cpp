@@ -32,85 +32,88 @@ struct Comparator : Module
         NUM_LIGHTS
 	};
 
-	Comparator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Comparator()
 	{
-
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
+		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Comparator::step()
+void Comparator::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 
-	float compare = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
-	compare = clampf(compare, -5.0f, 5.0f);
+	float compare = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
+	compare = clamp(compare, -5.0f, 5.0f);
 
 	const bool greaterThan = (input > compare);
 	const bool lessThan = (input < compare);
 
-	outputs[GT_TRIG_OUTPUT].value = gtTrig.process(greaterThan) ? 5.0f : 0.0f;
-	outputs[LT_TRIG_OUTPUT].value = ltTrig.process(lessThan) ? 5.0f : 0.0f;
-	outputs[GT_GATE_OUTPUT].value = greaterThan ? 5.0f : 0.0f;
-	outputs[LT_GATE_OUTPUT].value = lessThan ? 5.0f : 0.0f;
+	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? 5.0f : 0.0f);
+	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? 5.0f : 0.0f);
+	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? 5.0f : 0.0f);
+	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? 5.0f : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clampf(allTrigs, 0.0f, 5.0f);
+	allTrigs = clamp(allTrigs, 0.0f, 5.0f);
 
-	outputs[ZEROX_OUTPUT].value = allTrigs;
+	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 
-	lights[GT_LIGHT].setBrightnessSmooth(outputs[GT_GATE_OUTPUT].value);
-	lights[LT_LIGHT].setBrightnessSmooth(outputs[LT_GATE_OUTPUT].value);
-	lights[ZEROX_LIGHT].setBrightnessSmooth(allTrigs);
+	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
+	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	lights[ZEROX_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 
 
 struct ComparatorWidget : ModuleWidget { ComparatorWidget(Comparator *module); };
 
-ComparatorWidget::ComparatorWidget(Comparator* module) : ModuleWidget(module)
+ComparatorWidget::ComparatorWidget(Comparator* module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Comparator.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Comparator.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM, -1.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(33, 195), Port::INPUT, module, Comparator::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Comparator::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 195), module, Comparator::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Comparator::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(12, 285), Port::OUTPUT, module, Comparator::LT_GATE_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 285), Port::OUTPUT, module, Comparator::GT_GATE_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(12, 315), Port::OUTPUT, module, Comparator::LT_TRIG_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(53, 315), Port::OUTPUT, module, Comparator::GT_TRIG_OUTPUT));
-	addOutput(Port::create<PJ301MPort>(Vec(32.5, 245), Port::OUTPUT, module, Comparator::ZEROX_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 285), module, Comparator::LT_GATE_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 285), module, Comparator::GT_GATE_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(12, 315), module, Comparator::LT_TRIG_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(53, 315), module, Comparator::GT_TRIG_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(32.5, 245), module, Comparator::ZEROX_OUTPUT));
 
 	//////BLINKENLIGHTS//////
-	addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
+	addChild(createLight<SmallLight<RedLight>>(Vec(22, 275), module, Comparator::LT_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(62, 275), module, Comparator::GT_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(42, 275), module, Comparator::ZEROX_LIGHT));
 }
 
-Model *modelComparator = Model::create<Comparator, ComparatorWidget>("HetrickCV", "Comparator", "Comparator", LOGIC_TAG);
+Model *modelComparator = createModel<Comparator, ComparatorWidget>("Comparator");
