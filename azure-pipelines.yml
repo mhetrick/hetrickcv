@@ -50,6 +50,7 @@ jobs:
       cp dist/*zip products_win/
     displayName: Build Windows Plugins
     condition: variables.isWindows
+
   - bash: |
       export RACK_DIR=$AGENT_TEMPDIRECTORY/Rack-SDK
       make dist
@@ -57,6 +58,7 @@ jobs:
       cp dist/*zip products_mac/
     displayName: Build Mac Plugins
     condition: variables.isMac
+
   - bash: |
       export RACK_DIR=$AGENT_TEMPDIRECTORY/Rack-SDK
       make dist
@@ -64,6 +66,7 @@ jobs:
       cp dist/*zip products_lin/
     displayName: Build Linux Plugins
     condition: variables.isLinux
+    
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'HetrickCV_ZIP_LINUX'
@@ -113,9 +116,11 @@ jobs:
      for file in $(Build.ArtifactStagingDirectory)/*.zip; do mv "$file" "${file/.zip/-${EXTEND_TAG}.zip}"; done
      ls -l $(Build.ArtifactStagingDirectory)         
     displayName: Tag asset names with Date
+
   - bash: |
      scripts/release-notes.sh > $(Build.ArtifactStagingDirectory)/ReleaseNotes.md
     displayName: Fake up release notes
+
   - task: GitHubRelease@0
     displayName: "Update Github Release"
     inputs:
