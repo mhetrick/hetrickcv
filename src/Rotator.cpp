@@ -61,12 +61,14 @@ struct Rotator : Module
     float ins[8] = {};
     float outs[8] = {};
 
-	Rotator() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Rotator()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "");
+        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "");
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
@@ -76,16 +78,16 @@ struct Rotator : Module
     }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Rotator::step()
+void Rotator::process(const ProcessArgs &args)
 {
-    int rotation = round(params[ROTATE_PARAM].value + inputs[ROTATE_INPUT].value);
-    int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
+    int rotation = round(params[ROTATE_PARAM].getValue() + inputs[ROTATE_INPUT].getVoltage());
+    int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getVoltage());
 
     rotation = clampInt(rotation);
     stages = clampInt(stages) + 1;
@@ -93,41 +95,42 @@ void Rotator::step()
     for(int i = 0; i < 8; i++)
     {
         const int input = (rotation + i) % stages;
-        outputs[i].value = inputs[input].value;
+        outputs[i].setVoltage(inputs[input].getVoltage());
 
-        lights[IN1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / 5.0));
-		lights[IN1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, inputs[i].value / -5.0));
+        lights[IN1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / 5.0), 10);
+		lights[IN1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / -5.0), 10);
 
-        lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
-		lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
+        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / 5.0), 10);
+		lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / -5.0), 10);
     }
 }
 
 
 struct RotatorWidget : ModuleWidget { RotatorWidget(Rotator *module); };
 
-RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
+RotatorWidget::RotatorWidget(Rotator *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Rotator.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rotator.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM, 0, 7.0, 0.0));
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM, 0, 7.0, 7.0));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM));
 
-    addInput(Port::create<PJ301MPort>(Vec(75, 150), Port::INPUT, module, Rotator::ROTATE_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(75, 310), Port::INPUT, module, Rotator::STAGES_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(75, 150), module, Rotator::ROTATE_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(75, 310), module, Rotator::STAGES_INPUT));
 
     const int inXPos = 10;
     const int outXPos = 145;
@@ -139,15 +142,15 @@ RotatorWidget::RotatorWidget(Rotator *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
+        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, i));
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(inLightX, lightY), module, Rotator::IN1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Rotator::OUT1_POS_LIGHT + 2*i));
     }
 }
 
-Model *modelRotator = Model::create<Rotator, RotatorWidget>("HetrickCV", "Rotator", "Rotator", SWITCH_TAG);
+Model *modelRotator = createModel<Rotator, RotatorWidget>("Rotator");

@@ -1,6 +1,3 @@
-SLUG = HetrickCV
-VERSION = 0.6.0
-
 SOURCES += $(wildcard src/*.cpp)
 
 DISTRIBUTABLES += $(wildcard LICENSE*) res

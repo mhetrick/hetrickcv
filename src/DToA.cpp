@@ -55,9 +55,9 @@ struct DigitalToAnalog : Module
 		NUM_LIGHTS
     };
 
-    SchmittTrigger clockTrigger;
-    SchmittTrigger modeTrigger;
-    SchmittTrigger rectTrigger;
+    dsp::SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger modeTrigger;
+    dsp::SchmittTrigger rectTrigger;
 
     int mode = 0;
     int rectMode = 0;
@@ -66,36 +66,40 @@ struct DigitalToAnalog : Module
 
     bool ins[8] = {};
 
-	DigitalToAnalog() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	DigitalToAnalog()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "");
+        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "");
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     void processUni8();
     void processBiOff();
     void processBiSig();
 
-    void reset() override
+    void onReset() override
     {
         mode = 0;
         rectMode = 0;
 	}
-    void randomize() override
+    void onRandomize() override
     {
-        mode = round(randomf() * 2.0f);
-        rectMode = round(randomf() * 2.0f);
+        mode = round(random::uniform() * 2.0f);
+        rectMode = round(random::uniform() * 2.0f);
     }
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
         json_object_set_new(rootJ, "mode", json_integer(mode));
         json_object_set_new(rootJ, "rectMode", json_integer(rectMode));
 		return rootJ;
 	}
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
 		json_t *modeJ = json_object_get(rootJ, "mode");
 		if (modeJ)
@@ -107,16 +111,16 @@ struct DigitalToAnalog : Module
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void DigitalToAnalog::step()
+void DigitalToAnalog::process(const ProcessArgs &args)
 {
-    if (modeTrigger.process(params[MODE_PARAM].value)) mode = (mode + 1) % 3;
-    if (rectTrigger.process(params[RECTIFY_PARAM].value)) rectMode = (rectMode + 1) % 3;
+    if (modeTrigger.process(params[MODE_PARAM].getValue())) mode = (mode + 1) % 3;
+    if (rectTrigger.process(params[RECTIFY_PARAM].getValue())) rectMode = (rectMode + 1) % 3;
 
     lights[MODE_UNI8_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
     lights[MODE_BOFF_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
@@ -126,8 +130,8 @@ void DigitalToAnalog::step()
     lights[RECT_HALF_LIGHT].setBrightness(rectMode == 1 ? 1.0f : 0.0f);
     lights[RECT_FULL_LIGHT].setBrightness(rectMode == 2 ? 1.0f : 0.0f);
 
-    const bool syncModeEnabled = inputs[SYNC_INPUT].active;
-    const bool readyForProcess = (!syncModeEnabled || (syncModeEnabled && clockTrigger.process(inputs[SYNC_INPUT].value)));
+    const bool syncModeEnabled = inputs[SYNC_INPUT].isConnected();
+    const bool readyForProcess = (!syncModeEnabled || (syncModeEnabled && clockTrigger.process(inputs[SYNC_INPUT].getVoltage())));
 
     if(readyForProcess)
     {
@@ -135,7 +139,7 @@ void DigitalToAnalog::step()
 
         for(int i = 0; i < 8; i++)
         {
-            ins[i] = inputs[IN1_INPUT + i].value > 1.0f;
+            ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
             lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         }
 
@@ -148,13 +152,13 @@ void DigitalToAnalog::step()
         if (rectMode == 1) mainOutput = mainOutput > 0.0f ? mainOutput : 0.0f;
         else if (rectMode == 2) mainOutput = std::abs(mainOutput);
 
-        mainOutput *= params[SCALE_PARAM].value;
-        mainOutput += params[OFFSET_PARAM].value;
+        mainOutput *= params[SCALE_PARAM].getValue();
+        mainOutput += params[OFFSET_PARAM].getValue();
 
-        lights[OUT_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, mainOutput * 0.2f));
-        lights[OUT_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, mainOutput * 0.2f));
+        lights[OUT_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, mainOutput * 0.2f), 10);
+        lights[OUT_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, mainOutput * 0.2f), 10);
 
-        outputs[MAIN_OUTPUT].value = mainOutput;
+        outputs[MAIN_OUTPUT].setVoltage(mainOutput);
     }
 }
 
@@ -206,46 +210,47 @@ void DigitalToAnalog::processBiSig()
 
 struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
 
-DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWidget(module)
+DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
+    setModule(module);
 	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/DToA.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DToA.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-    addParam(ParamWidget::create<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0));
+    addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM));
+    addParam(createParam<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 82;
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 306), module, DigitalToAnalog::MODE_UNI8_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 319), module, DigitalToAnalog::MODE_BOFF_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(modeLightX, 332), module, DigitalToAnalog::MODE_BSIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, DigitalToAnalog::MODE_UNI8_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, DigitalToAnalog::MODE_BOFF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, DigitalToAnalog::MODE_BSIG_LIGHT));
 
     int rectLightX = 134;
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 306), module, DigitalToAnalog::RECT_NONE_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 319), module, DigitalToAnalog::RECT_HALF_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(rectLightX, 332), module, DigitalToAnalog::RECT_FULL_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, DigitalToAnalog::RECT_NONE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, DigitalToAnalog::RECT_HALF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, DigitalToAnalog::RECT_FULL_LIGHT));
 
 
-    addOutput(Port::create<PJ301MPort>(Vec(78, 70), Port::OUTPUT, module, DigitalToAnalog::MAIN_OUTPUT));
-    addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(87, 111), module, DigitalToAnalog::OUT_POS_LIGHT));
+    addOutput(createOutput<PJ301MPort>(Vec(78, 70), module, DigitalToAnalog::MAIN_OUTPUT));
+    addChild(createLight<SmallLight<GreenRedLight>>(Vec(87, 111), module, DigitalToAnalog::OUT_POS_LIGHT));
 
     //////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(112, 152), Port::INPUT, module, DigitalToAnalog::SYNC_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(112, 152), module, DigitalToAnalog::SYNC_INPUT));
 
-    addParam(ParamWidget::create<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2));
-    addParam(ParamWidget::create<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0));
+    addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM));
+    addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM));
 
     const int inXPos = 10;
     const int inLightX = 50;
@@ -255,11 +260,11 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module) : ModuleWi
         const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, DigitalToAnalog::IN1_INPUT + i));
+        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, DigitalToAnalog::IN1_INPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, lightY), module, DigitalToAnalog::IN1_LIGHT + i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, DigitalToAnalog::IN1_LIGHT + i));
     }
 }
 
-Model *modelDigitalToAnalog = Model::create<DigitalToAnalog, DigitalToAnalogWidget>("HetrickCV", "DigitalToAnalog", "Digital to Analog", LOGIC_TAG);
+Model *modelDigitalToAnalog = createModel<DigitalToAnalog, DigitalToAnalogWidget>("DigitalToAnalog");

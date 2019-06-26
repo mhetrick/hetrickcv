@@ -26,56 +26,60 @@ struct Crackle : Module
 
 	float lasty1 = 0.2643f;
 
-	Crackle() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Crackle()
 	{
-		y1 = randomf();
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "");
+		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "");
+
+		y1 = random::uniform();
 		y2 = 0.0f;
 		lasty1 = 0.0f;
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
-	void reset() override
+	void onReset() override
 	{
-		y1 = randomf();
+		y1 = random::uniform();
 		y2 = 0.0f;
 		lasty1 = 0.0f;
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Crackle::step()
+void Crackle::process(const ProcessArgs &args)
 {
-	const float densityInput = params[RATE_PARAM].value + inputs[RATE_INPUT].value;
+	const float densityInput = params[RATE_PARAM].getValue() + inputs[RATE_INPUT].getVoltage();
 
 	if(lastDensity != densityInput)
 	{
-		densityScaled = clampf(densityInput, 0.0f, 2.0f)/2.0f;
+		densityScaled = clamp(densityInput, 0.0f, 2.0f)/2.0f;
 		densityScaled = powf(densityScaled, 3.0f) + 1.0f;
 		lastDensity = densityInput;
     }
 
-    const bool brokenMode = (params[BROKEN_PARAM].value == 0.0);
+    const bool brokenMode = (params[BROKEN_PARAM].getValue() == 0.0);
 
     if(brokenMode)
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
 		y2 = y1;
 		y1 = lasty1;
-		lasty1 = clampf(y0, -1.0f, 1.0f);
-        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
+		lasty1 = clamp(y0, -1.0f, 1.0f);
+        outputs[MAIN_OUTPUT].setVoltage(clamp(y0 * 5.0f, -5.0, 5.0));
     }
     else
     {
         const float y0 = fabs(y1 * densityScaled - y2 - 0.05f);
         y2 = y1;
         y1 = y0;
-        outputs[MAIN_OUTPUT].value = clampf(y0 * 5.0f, -5.0, 5.0);
+        outputs[MAIN_OUTPUT].setVoltage(clamp(y0 * 5.0f, -5.0, 5.0));
     }
 
 }
@@ -83,31 +87,32 @@ void Crackle::step()
 
 struct CrackleWidget : ModuleWidget { CrackleWidget(Crackle *module); };
 
-CrackleWidget::CrackleWidget(Crackle *module) : ModuleWidget(module)
+CrackleWidget::CrackleWidget(Crackle *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Crackle.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Crackle.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM, 0.0, 2.0, 1.7));
-    addParam(ParamWidget::create<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM));
+    addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM));
 
     //////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(33, 146), Port::INPUT, module, Crackle::RATE_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 146), module, Crackle::RATE_INPUT));
 
     //////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Crackle::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Crackle::MAIN_OUTPUT));
 }
 
-Model *modelCrackle = Model::create<Crackle, CrackleWidget>("HetrickCV", "Crackle", "Crackle", NOISE_TAG);
+Model *modelCrackle = createModel<Crackle, CrackleWidget>("Crackle");

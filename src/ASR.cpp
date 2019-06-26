@@ -29,81 +29,82 @@ struct ASR : Module
         NUM_LIGHTS
 	};
 
-    SchmittTrigger clockTrigger;
+    dsp::SchmittTrigger clockTrigger;
     float stages[4] = {};
 
-	ASR() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	ASR()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void ASR::step()
+void ASR::process(const ProcessArgs &args)
 {
-    if (clockTrigger.process(inputs[CLK_INPUT].value))
+    if (clockTrigger.process(inputs[CLK_INPUT].getVoltage()))
     {
         stages[3] = stages[2];
         stages[2] = stages[1];
         stages[1] = stages[0];
-        stages[0] = inputs[MAIN_INPUT].value;
+        stages[0] = inputs[MAIN_INPUT].getVoltage();
     }
 
-    outputs[STAGE1_OUTPUT].value = stages[0];
-    outputs[STAGE2_OUTPUT].value = stages[1];
-    outputs[STAGE3_OUTPUT].value = stages[2];
-    outputs[STAGE4_OUTPUT].value = stages[3];
+    outputs[STAGE1_OUTPUT].setVoltage(stages[0]);
+    outputs[STAGE2_OUTPUT].setVoltage(stages[1]);
+    outputs[STAGE3_OUTPUT].setVoltage(stages[2]);
+    outputs[STAGE4_OUTPUT].setVoltage(stages[3]);
 
-    lights[OUT1_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[0] / 5.0));
-    lights[OUT1_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[0] / 5.0));
+    lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0] / 5.0), 10);
+    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0] / 5.0), 10);
 
-    lights[OUT2_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[1] / 5.0));
-    lights[OUT2_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[1] / 5.0));
+    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[1] / 5.0), 10);
+    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[1] / 5.0), 10);
 
-    lights[OUT3_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[2] / 5.0));
-    lights[OUT3_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[2] / 5.0));
+    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[2] / 5.0), 10);
+    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[2] / 5.0), 10);
 
-    lights[OUT4_POS_LIGHT].setBrightnessSmooth(fmaxf(0.0, stages[3] / 5.0));
-    lights[OUT4_NEG_LIGHT].setBrightnessSmooth(fmaxf(0.0, -stages[3] / 5.0));
+    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[3] / 5.0), 10);
+    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[3] / 5.0), 10);
 }
 
 struct ASRWidget : ModuleWidget { ASRWidget(ASR *module); };
 
-ASRWidget::ASRWidget(ASR *module) : ModuleWidget(module)
+ASRWidget::ASRWidget(ASR *module)
 {
+    setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/ASR.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ASR.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
     //////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(10, 100), Port::INPUT, module, ASR::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(55, 100), Port::INPUT, module, ASR::CLK_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(10, 100), module, ASR::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(55, 100), module, ASR::CLK_INPUT));
 
     for(int i = 0; i < 4; i++)
     {
         const int yPos = i*45;
-        addOutput(Port::create<PJ301MPort>(Vec(33, 150 + yPos), Port::OUTPUT, module, ASR::STAGE1_OUTPUT + i));
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
+        addOutput(createOutput<PJ301MPort>(Vec(33, 150 + yPos), module, ASR::STAGE1_OUTPUT + i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(70, 158 + yPos), module, ASR::OUT1_POS_LIGHT + i*2));
     }
 }
 
-Model *modelASR = Model::create<ASR, ASRWidget>("HetrickCV", "ASR", "ASR", SEQUENCER_TAG);
+Model *modelASR = createModel<ASR, ASRWidget>("ASR");

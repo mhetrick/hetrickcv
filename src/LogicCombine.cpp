@@ -38,36 +38,36 @@ struct LogicCombine : Module
     bool trigs[NUM_INPUTS] = {};
     float outs[3] = {};
     float trigLight;
-    SchmittTrigger inTrigs[NUM_INPUTS];
+    dsp::SchmittTrigger inTrigs[NUM_INPUTS];
     bool orState = false;
     bool trigState = false;
     const float lightLambda = 0.075;
 
     HCVTriggerGenerator trigger;
 
-	LogicCombine() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	LogicCombine()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void LogicCombine::step()
+void LogicCombine::process(const ProcessArgs &args)
 {
     orState = false;
     trigState = false;
 
     for(int i = 0; i < NUM_INPUTS; i++)
     {
-        ins[i] = (inputs[IN1_INPUT + i].value >= 1.0f);
-        trigs[i] = inTrigs[i].process(inputs[IN1_INPUT + i].value);
+        ins[i] = (inputs[IN1_INPUT + i].getVoltage() >= 1.0f);
+        trigs[i] = inTrigs[i].process(inputs[IN1_INPUT + i].getVoltage());
 
         orState = orState || ins[i];
         trigState = trigState || trigs[i];
@@ -85,34 +85,35 @@ void LogicCombine::step()
     outs[2] = trigger.process() ? 5.0f : 0.0f;
 
     if (lights[TRIG_LIGHT].value > 0.01)
-        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * engineGetSampleTime();
+        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * args.sampleTime;
 
-    outputs[OR_OUTPUT].value = outs[0];
-    outputs[NOR_OUTPUT].value = outs[1];
-    outputs[TRIG_OUTPUT].value = outs[2];
+    outputs[OR_OUTPUT].setVoltage(outs[0]);
+    outputs[NOR_OUTPUT].setVoltage(outs[1]);
+    outputs[TRIG_OUTPUT].setVoltage(outs[2]);
 
     lights[OR_LIGHT].setBrightness(outs[0]);
     lights[NOR_LIGHT].setBrightness(outs[1]);
-    lights[TRIG_LIGHT].setBrightnessSmooth(outs[2]);
+    lights[TRIG_LIGHT].setSmoothBrightness(outs[2], 10);
 }
 
 struct LogicCombineWidget : ModuleWidget { LogicCombineWidget(LogicCombine *module); };
 
-LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(module)
+LogicCombineWidget::LogicCombineWidget(LogicCombine *module)
 {
+    setModule(module);
 	box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/LogicCombiner.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LogicCombiner.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
@@ -123,18 +124,18 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module) : ModuleWidget(modu
 
     for(int i = 0; i < LogicCombine::NUM_INPUTS; i++)
     {
-        addInput(Port::create<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), Port::INPUT, module, LogicCombine::IN1_INPUT + i));
+        addInput(createInput<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), module, LogicCombine::IN1_INPUT + i));
     }
 
     //////OUTPUTS//////
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 150), Port::OUTPUT, module, LogicCombine::OR_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 195), Port::OUTPUT, module, LogicCombine::NOR_OUTPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(outPos, 240), Port::OUTPUT, module, LogicCombine::TRIG_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 150), module, LogicCombine::OR_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 195), module, LogicCombine::NOR_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(outPos, 240), module, LogicCombine::TRIG_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
-    addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, LogicCombine::OR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 203), module, LogicCombine::NOR_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 248), module, LogicCombine::TRIG_LIGHT));
 }
 
-Model *modelLogicCombine = Model::create<LogicCombine, LogicCombineWidget>("HetrickCV", "Logic Combine", "OR Logic (Gate Combiner)", LOGIC_TAG);
+Model *modelLogicCombine = createModel<LogicCombine, LogicCombineWidget>("LogicCombine");

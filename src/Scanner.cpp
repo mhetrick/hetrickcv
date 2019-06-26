@@ -71,12 +71,18 @@ struct Scanner : Module
     float inMults[8] = {};
     float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
-	Scanner() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS)
+	Scanner()
 	{
-
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "");
+        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "");
+        configParam(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "");
 	}
 
-    void step() override;
+    void process(const ProcessArgs &args) override;
 
     int clampInt(const int _in, const int min = 0, const int max = 7)
     {
@@ -92,39 +98,39 @@ struct Scanner : Module
     }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Scanner::step()
+void Scanner::process(const ProcessArgs &args)
 {
     float allInValue = 0.0f;
-    if(inputs[ALLIN_INPUT].active) allInValue = inputs[ALLIN_INPUT].value;
-    else if(params[OFFSET_PARAM].value != 0.0f) allInValue = 5.0f;
+    if(inputs[ALLIN_INPUT].isConnected()) allInValue = inputs[ALLIN_INPUT].getVoltage();
+    else if(params[OFFSET_PARAM].getValue() != 0.0f) allInValue = 5.0f;
 
     for(int i = 0; i < 8; i++)
     {
-        if(!inputs[IN1_INPUT + i].active) ins[i] = allInValue;
-        else ins[i] = inputs[IN1_INPUT + i].value;
+        if(!inputs[IN1_INPUT + i].isConnected()) ins[i] = allInValue;
+        else ins[i] = inputs[IN1_INPUT + i].getVoltage();
     }
 
-    int stages = round(params[STAGES_PARAM].value + inputs[STAGES_INPUT].value);
+    int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getVoltage());
     stages = clampInt(stages, 0, 6) + 2;
     const float invStages = 1.0f/stages;
     const float halfStages = stages * 0.5f;
     const float remainInvStages = 1.0f - invStages;
 
-    float widthControl = params[WIDTH_PARAM].value + inputs[WIDTH_INPUT].value;
-    widthControl = clampf(widthControl, 0.0f, 5.0f) * 0.2f;
+    float widthControl = params[WIDTH_PARAM].getValue() + inputs[WIDTH_INPUT].getVoltage();
+    widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
     widthControl = widthControl * widthControl * widthTable[stages];
 
-    float scanControl = params[SCAN_PARAM].value + inputs[SCAN_INPUT].value;
-    scanControl = clampf(scanControl, 0.0f, 5.0f) * 0.2f;
+    float scanControl = params[SCAN_PARAM].getValue() + inputs[SCAN_INPUT].getVoltage();
+    scanControl = clamp(scanControl, 0.0f, 5.0f) * 0.2f;
 
-    float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
-    slopeControl = clampf(slopeControl, 0.0f, 5.0f) * 0.2f;
+    float slopeControl = params[SLOPE_PARAM].getValue() + inputs[SLOPE_INPUT].getVoltage();
+    slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
 
     float scanFactor1 = LERP(widthControl, halfStages, invStages);
     float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
@@ -141,70 +147,71 @@ void Scanner::step()
 
     for(int i = 0; i < 8; i++)
     {
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
         inMults[i] = triShape(inMults[i]);
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
 
         const float shaped = (2.0f - inMults[i]) * inMults[i];
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);
     }
 
-    outputs[MIX_OUTPUT].value = 0.0f;
+    outputs[MIX_OUTPUT].setVoltage(0.0f);
 
     for(int i = 0; i < 8; i++)
     {
-        outputs[i].value = ins[i] * inMults[i];
+        outputs[i].setVoltage(ins[i] * inMults[i]);
 
-        lights[IN1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
+        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]), 10);
 
-        lights[OUT1_POS_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / 5.0));
-        lights[OUT1_NEG_LIGHT + 2*i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value / -5.0));
-        outputs[MIX_OUTPUT].value = outputs[MIX_OUTPUT].value + outputs[i].value;
+        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / 5.0), 10);
+        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / -5.0), 10);
+        outputs[MIX_OUTPUT].setVoltage(outputs[MIX_OUTPUT].value + outputs[i].value);
     }
 
-    outputs[MIX_OUTPUT].value = outputs[MIX_OUTPUT].value * params[MIXSCALE_PARAM].value;
+    outputs[MIX_OUTPUT].setVoltage(outputs[MIX_OUTPUT].value * params[MIXSCALE_PARAM].getValue());
 }
 
 
 struct ScannerWidget : ModuleWidget { ScannerWidget(Scanner *module); };
 
-ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
+ScannerWidget::ScannerWidget(Scanner *module)
 {
+    setModule(module);
 	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Scanner.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Scanner.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     const int knobX = 75;
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 70), Port::INPUT, module, Scanner::SCAN_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM, 0, 6.0, 6.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 130), Port::INPUT, module, Scanner::STAGES_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 190), Port::INPUT, module, Scanner::WIDTH_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
 
-    addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM, 0, 5.0, 0.0));
-    addInput(Port::create<PJ301MPort>(Vec(jackX, 250), Port::INPUT, module, Scanner::SLOPE_INPUT));
+    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM));
+    addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
 
-    addInput(Port::create<PJ301MPort>(Vec(96, 310), Port::INPUT, module, Scanner::ALLIN_INPUT));
-    addOutput(Port::create<PJ301MPort>(Vec(141, 310), Port::OUTPUT, module, Scanner::MIX_OUTPUT));
+    addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
 
-    addParam(ParamWidget::create<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125));
+    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM));
+    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM));
 
     const int inXPos = 10;
     const int inLightX = 50;
@@ -218,15 +225,15 @@ ScannerWidget::ScannerWidget(Scanner *module) : ModuleWidget(module)
         const int lightY = 59 + (40 * i);
 
         //////INPUTS//////
-        addInput(Port::create<PJ301MPort>(Vec(inXPos, yPos), Port::INPUT, module, i));
+        addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, i));
 
         //////OUTPUTS//////
-        addOutput(Port::create<PJ301MPort>(Vec(outXPos, yPos), Port::OUTPUT, module, i));
+        addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, i));
 
         //////BLINKENLIGHTS//////
-        addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
-        addChild(ModuleLightWidget::create<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, Scanner::IN1_LIGHT + i));
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(outLightX, lightY), module, Scanner::OUT1_POS_LIGHT + 2*i));
     }
 }
 
-Model *modelScanner = Model::create<Scanner, ScannerWidget>("HetrickCV", "Scanner", "Scanner", MIXER_TAG);
+Model *modelScanner = createModel<Scanner, ScannerWidget>("Scanner");

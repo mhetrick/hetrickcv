@@ -21,32 +21,35 @@ struct Exponent : Module
 		NUM_OUTPUTS
 	};
 
-	Exponent() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS)
+	Exponent()
 	{
-
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		configParam(Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
+		configParam(Exponent::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Exponent::RANGE_PARAM, 0.0, 1.0, 0.0, "");
 	}
 
-	void step() override;
+	void process(const ProcessArgs &args) override;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
-	// - toJson, fromJson: serialization of internal data
+	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 
-void Exponent::step()
+void Exponent::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].value;
+	float input = inputs[MAIN_INPUT].getVoltage();
 	const bool negativeInput = input < 0.0f;
 
-    bool mode5V = (params[RANGE_PARAM].value == 0.0f);
-    if(mode5V) input = clampf(input, -5.0f, 5.0f) * 0.2f;
-	else input = clampf(input, -10.0f, 10.0f) * 0.1f;
+    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
+    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
+	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
 	input = std::abs(input);
 
-    float exponent = params[AMOUNT_PARAM].value + (inputs[AMOUNT_INPUT].value * params[SCALE_PARAM].value);
-    exponent = clampf(exponent, -5.0f, 5.0f) * 0.2f;
+    float exponent = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
+    exponent = clamp(exponent, -5.0f, 5.0f) * 0.2f;
 
 	if(exponent < 0)
 	{
@@ -60,48 +63,47 @@ void Exponent::step()
     if(mode5V) output *= 5.0f;
     else output *= 10.0f;
 
-    outputs[MAIN_OUTPUT].value = output;
+    outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SVGSwitch, ToggleSwitch {
+struct CKSSRot : SvgSwitch {
 	CKSSRot() {
-		addFrame(SVG::load(assetPlugin(plugin, "res/CKSS_rot_0.svg")));
-		addFrame(SVG::load(assetPlugin(plugin, "res/CKSS_rot_1.svg")));
-		sw->wrap();
-		box.size = sw->box.size;
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
 	}
 };
 
 
 struct ExponentWidget : ModuleWidget { ExponentWidget(Exponent *module); };
 
-ExponentWidget::ExponentWidget(Exponent *module) : ModuleWidget(module)
+ExponentWidget::ExponentWidget(Exponent *module)
 {
+	setModule(module);
 	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
-		auto *panel = new SVGPanel();
+		auto *panel = new SvgPanel();
 		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Exponent.svg")));
+		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Exponent.svg")));
 		addChild(panel);
 	}
 
-	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
+	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 	//////PARAMS//////
-	addParam(ParamWidget::create<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0));
-    addParam(ParamWidget::create<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM, -1.0, 1.0, 1.0));
-    addParam(ParamWidget::create<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM));
+    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM));
+    addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM));
 
 	//////INPUTS//////
-    addInput(Port::create<PJ301MPort>(Vec(33, 235), Port::INPUT, module, Exponent::MAIN_INPUT));
-    addInput(Port::create<PJ301MPort>(Vec(33, 145), Port::INPUT, module, Exponent::AMOUNT_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 235), module, Exponent::MAIN_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(33, 145), module, Exponent::AMOUNT_INPUT));
 
 	//////OUTPUTS//////
-	addOutput(Port::create<PJ301MPort>(Vec(33, 285), Port::OUTPUT, module, Exponent::MAIN_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Exponent::MAIN_OUTPUT));
 }
 
-Model *modelExponent = Model::create<Exponent, ExponentWidget>("HetrickCV", "Exponent", "Exponent", WAVESHAPER_TAG);
+Model *modelExponent = createModel<Exponent, ExponentWidget>("Exponent");

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "dsp/digital.hpp"
-#include "engine.hpp"
+#include "rack.hpp"
+#include "engine/Engine.hpp"
 
 float LERP(const float _amount, const float _inA, const float _inB);
 
@@ -11,7 +11,7 @@ struct HCVTriggerGenerator
 	float triggerTime = 0.001;
     bool process() 
     {
-		time += rack::engineGetSampleTime();
+		time += rack::APP->engine->getSampleTime();
 		return time < triggerTime;
 	}
     void trigger() 
@@ -27,7 +27,7 @@ struct HCVTriggerGenerator
 struct TriggerGenWithSchmitt
 {
 	HCVTriggerGenerator trigGen;
-	rack::SchmittTrigger schmitt;
+	rack::dsp::SchmittTrigger schmitt;
 
 	bool process(bool _trigger)
 	{
