@@ -41,9 +41,7 @@ jobs:
       unzip Rack-SDK.zip
       
     displayName: Get Rack 
-  - bash: |
-      ./scripts/resetversion.sh
-    displayName: Update Version in plugins.json
+
   - bash: |
       export RACK_DIR=$AGENT_TEMPDIRECTORY/Rack-SDK
       export CC=gcc
