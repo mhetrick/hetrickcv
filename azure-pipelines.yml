@@ -121,7 +121,7 @@ jobs:
   - task: GitHubRelease@0
     displayName: "Update Github Release"
     inputs:
-      gitHubConnection: mhetrick.hetrickcv
+      gitHubConnection: mhetrick
       repositoryName: mhetrick/hetrickcv
       action: edit
       tag: Nightly
