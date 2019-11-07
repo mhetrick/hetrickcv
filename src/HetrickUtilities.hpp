@@ -11,7 +11,7 @@ struct HCVTriggerGenerator
 	float triggerTime = 0.001;
     bool process() 
     {
-		time += rack::APP->engine->getSampleTime();
+		time += APP->engine->getSampleTime();
 		return time < triggerTime;
 	}
     void trigger() 
