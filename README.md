@@ -144,7 +144,7 @@ Patch Ideas:
 - This module thrives at jumbling gate signals and creating odd rhythms. Try connecting multiple Boolean Logic outputs to the inputs, along with various other clock sources. Modulate the ROTATE parameter with an LFO. For more predictable results, use an LFO that is running at the same speed as one of the clocks.
 
 ### Scanner
-This module was inspired by the [Toppobrillo Mixiplexer](http://www.toppobrillo.com/mixiplexer.html) and [Make Noise RxMx](http://www.makenoisemusic.com/modules/rxmx). It can be thought of as a smooth, CV-controlled 8-way switch.
+This module was inspired by the [Toppobrillo Mixiplexer](http://sdiy.org/toppobrillo/mixiplexer.html) and [Make Noise RxMx](http://www.makenoisemusic.com/modules/rxmx-legacy). It can be thought of as a smooth, CV-controlled 8-way switch.
 The SCAN control determines which input is active. The STAGES control determines how many inputs the SCAN control can reach. The WIDTH control determines how many stages can be active at a time, while the SLOPE control determines how much smoothing occurs between scanned stages. Although it may sound complicated and esoteric, try out the following:
 
 - 8-channel crossfader/mixer: Use up to eight different inputs. Monitor the Mix Out. Use the SCAN control to smoothly crossfade between the eight inputs.
