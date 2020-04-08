@@ -158,7 +158,7 @@ void RandomGates::process(const ProcessArgs &args)
         case 1: //hold mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].setVoltage((active[i] ? 5.0f : 0.0f));
+            outputs[i].setVoltage((active[i] ? 10.0f : 0.0f));
         }
         break;
 
