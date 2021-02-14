@@ -40,26 +40,34 @@ struct Waveshape : Module
 
 void Waveshape::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
+	const bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
+	const float amount = params[AMOUNT_PARAM].getValue();
+	const float scale = params[SCALE_PARAM].getValue();
 
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
+	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
+	for (int c = 0; c < channels; c ++)
+	{
+		float input = inputs[MAIN_INPUT].getPolyVoltage(c);
 
-	float shape = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
-	shape *= 0.99f;
+		if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
+		else input = clamp(input, -10.0f, 10.0f) * 0.1f;
 
-	const float shapeB = (1.0 - shape) / (1.0 + shape);
-	const float shapeA = (4.0 * shape) / ((1.0 - shape) * (1.0 + shape));
+		float shape = amount + (inputs[AMOUNT_INPUT].getPolyVoltage(c) * scale);
+		shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
+		shape *= 0.99f;
 
-	float output = input * (shapeA + shapeB);
-	output = output / ((std::abs(input) * shapeA) + shapeB);
+		const float shapeB = (1.0 - shape) / (1.0 + shape);
+		const float shapeA = (4.0 * shape) / ((1.0 - shape) * (1.0 + shape));
 
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+		float output = input * (shapeA + shapeB);
+		output = output / ((std::abs(input) * shapeA) + shapeB);
 
-    outputs[MAIN_OUTPUT].setVoltage(output);
+		if(mode5V) output *= 5.0f;
+		else output *= 10.0f;
+
+		outputs[MAIN_OUTPUT].setVoltage(output, c);
+	}
+	outputs[MAIN_OUTPUT].setChannels(channels);
 }
 
 struct CKSSRot : SvgSwitch {
