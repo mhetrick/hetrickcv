@@ -61,6 +61,29 @@ void MinMax::process(const ProcessArgs &args)
 
     outputs[MIN_OUTPUT].setVoltage(totalMin);
     outputs[MAX_OUTPUT].setVoltage(totalMax);
+
+    if (totalMin > 0.0)
+    {
+        lights[MIN_POS_LIGHT].setSmoothBrightness(totalMin * 0.2, args.sampleTime);
+        lights[MIN_NEG_LIGHT].setSmoothBrightness(0.0, args.sampleTime);
+    }
+    else
+    {
+        lights[MIN_POS_LIGHT].setSmoothBrightness(0.0, args.sampleTime);
+        lights[MIN_NEG_LIGHT].setSmoothBrightness(std::abs(totalMin) * 0.2, args.sampleTime);
+    }
+
+    if (totalMax > 0.0)
+    {
+        lights[MAX_POS_LIGHT].setSmoothBrightness(totalMax * 0.2, args.sampleTime);
+        lights[MAX_NEG_LIGHT].setSmoothBrightness(0.0, args.sampleTime);
+    }
+    else
+    {
+        lights[MAX_POS_LIGHT].setSmoothBrightness(0.0, args.sampleTime);
+        lights[MAX_NEG_LIGHT].setSmoothBrightness(std::abs(totalMax) * 0.2, args.sampleTime);
+    }
+    
 }
 
 struct MinMaxWidget : ModuleWidget { MinMaxWidget(MinMax *module); };
@@ -92,9 +115,15 @@ MinMaxWidget::MinMaxWidget(MinMax *module)
     addOutput(createOutput<PJ301MPort>(Vec(jackX, outputY + inSpacing), module, MinMax::MIN_OUTPUT));
 
     //////BLINKENLIGHTS//////
-    //addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, MinMax::OR_LIGHT));
-    //addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 203), module, MinMax::NOR_LIGHT));
-    //addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 248), module, MinMax::TRIG_LIGHT));
+    int lightXLeft = 9;
+    int lightXRight = 44;
+    int maxY = 251;
+    int minY = 294;
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightXLeft, maxY), module, MinMax::MAX_NEG_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(lightXRight, maxY), module, MinMax::MAX_POS_LIGHT));
+
+    addChild(createLight<SmallLight<RedLight>>(Vec(lightXLeft, minY), module, MinMax::MIN_NEG_LIGHT));
+    addChild(createLight<SmallLight<GreenLight>>(Vec(lightXRight, minY), module, MinMax::MIN_POS_LIGHT));
 }
 
 Model *modelMinMax = createModel<MinMax, MinMaxWidget>("MinMax");
