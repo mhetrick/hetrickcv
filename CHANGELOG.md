@@ -1,5 +1,11 @@
 # HetrickCV Changelog
 
+## 1.1.0
+- I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!
+- Added Min-Max module.
+- Waveshaper is now polyphonic (thanks, nickfeisst!)
+- Random Gates now output 10V instead of 5V (thanks, giogramegna!)
+
 ## 0.5.3
 - BREAKING CHANGE: Removed Boolean Logic (2-input). The 3-input version will behave identically now if nothing is connected to the third input.
 - Added Comparator module.

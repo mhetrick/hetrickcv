@@ -71,24 +71,25 @@ MinMaxWidget::MinMaxWidget(MinMax *module)
     setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MinMax.svg")));
 
 	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
 	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
     //////PARAMS//////
 
     //////INPUTS//////
-    const int inSpacing = 42;
-    const int jackX = 16;
+    const float inSpacing = 43.5f;
+    const float jackX = 17.5f;
 
     for(int i = 0; i < MinMax::NUM_INPUTS; i++)
     {
-        addInput(createInput<PJ301MPort>(Vec(jackX, 54 + (i*inSpacing)), module, MinMax::IN1_INPUT + i));
+        addInput(createInput<PJ301MPort>(Vec(jackX, 59 + (i*inSpacing)), module, MinMax::IN1_INPUT + i));
     }
 
     //////OUTPUTS//////
-    addOutput(createOutput<PJ301MPort>(Vec(jackX, 227), module, MinMax::MAX_OUTPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(jackX, 269), module, MinMax::MIN_OUTPUT));
+    const int outputY = 242;
+    addOutput(createOutput<PJ301MPort>(Vec(jackX, outputY), module, MinMax::MAX_OUTPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(jackX, outputY + inSpacing), module, MinMax::MIN_OUTPUT));
 
     //////BLINKENLIGHTS//////
     //addChild(createLight<SmallLight<RedLight>>(Vec(lightPos, 158), module, MinMax::OR_LIGHT));
