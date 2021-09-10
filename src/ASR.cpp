@@ -1,5 +1,20 @@
 #include "HetrickCV.hpp"
 
+/*
+│
+│ analog shift register
+└───────►┐
+         │
+         │
+         └───────►┐
+                  │
+                  │
+                  └───────►┐
+                           │
+                           │
+                           └────────►
+ */
+
 struct ASR : Module
 {
 	enum ParamIds
