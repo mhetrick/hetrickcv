@@ -16,13 +16,13 @@ jobs:
   strategy:
     matrix:
       mac:
-        imageName: 'macos-10.14'
+        imageName: 'macos-latest'
         isMac: true
       windows:
         imageName: 'vs2017-win2016'
         isWindows: true
       linux:
-        imageName: 'ubuntu-16.04'
+        imageName: 'ubuntu-latest'
         isLinux: true
 
   pool:

@@ -1,5 +1,18 @@
 #include "HetrickCV.hpp"
 
+/*
+┌───────────────┐
+│               │
+│               │
+│               │
+│               │
+│    blank.     │
+│               │
+│               │
+│               │
+└───────────────┘
+ */
+
 #define NUM_PANELS 5
 
 struct BlankPanel : Module
