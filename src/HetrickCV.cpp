@@ -24,6 +24,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelFlipPan);
 	p->addModel(modelGateJunction);
 	p->addModel(modelLogicCombine);
+	p->addModel(modelMinMax);
 	p->addModel(modelRandomGates);
 	p->addModel(modelRotator);
 	p->addModel(modelScanner);

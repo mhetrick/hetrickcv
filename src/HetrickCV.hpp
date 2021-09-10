@@ -24,6 +24,7 @@ extern Model *modelFlipFlop;
 extern Model *modelFlipPan;
 extern Model *modelGateJunction;
 extern Model *modelLogicCombine;
+extern Model *modelMinMax;
 extern Model *modelRandomGates;
 extern Model *modelRotator;
 extern Model *modelScanner;

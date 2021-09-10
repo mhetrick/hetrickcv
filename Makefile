@@ -2,7 +2,7 @@ SOURCES += $(wildcard src/*.cpp)
 
 DISTRIBUTABLES += $(wildcard LICENSE*) res
 
-RACK_DIR ?= ../..
+RACK_DIR ?= ../RackSDK/
 include $(RACK_DIR)/plugin.mk
 
 win-dist: all
