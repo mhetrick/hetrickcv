@@ -39,6 +39,10 @@ Patch ideas:
 - Use a slow LFO as the input. The various outputs become semi-related gate streams. Use primitive waveforms (sine, triangle, etc.) for more predictable results. Use the Audible Instruments Wavetable Oscillator in LFO mode and morph the waveform for unpredictable patterns.
 - Use this in tandem with the Digital to Analog module to create custom waveshaping effects. You can wire the bits up "correctly" and simply change the various encoder, rectification, offset, and scaling parameters on both modules to come up with unusual permutations. You can wire the bits up more randomly to produce harsher effects. For a lot of fun, try placing the Rotator and/or the Gate Junction modules between the A-to-D and D-to-A converters.
 
+
+### Binary Gate
+This is a very simple module with a single gate output. There are three gate inputs with corresponding buttons. The first two buttons turn the output gate on or off, while the third toggles its current state.
+
 ### Bitshift
 This is a harsh waveshaping effect. It is particularly useful for taking a slow, smooth CV value and creating a lot of rapid discontinuities. The effect is produced by taking the internal floating-point representation of the signal and turning it into a 32-bit integer. The integer's bits are then shifted left (<<, which produces aggressive alterations to the signal) or right (>>, which is mostly just attenuation). Because the algorithm for this module has expected boundaries, you will need to select a range for the input signal. +/- 5V is the standard range for most audio generators in Rack. Some function generators will produce +/- 10V, though. Regardless, since this is a fairly harsh and experimental module, there's no need to select the "correct" range...
 
@@ -122,6 +126,9 @@ Patch Ideas:
 
 ### Gate Junction
 This is an eight-channel gate manipulator that was designed to work quickly with the Analog to Digital, Digital to Analog, and Rotator modules. This takes in up to eight gate signals. Each gate can be muted and/or inverted. The inversion behavior does not turn a positive gate negative. Rather, a positive gate will be changed to 0V, while a 0V signal will be changed to +5V. In more technical terms, it is a logic inverter. As an added convenience, the inputs are normalled together. If a cable is not plugged into an input, it will receive the value of the input above it.
+
+### Min-Max
+This module accepts up to four inputs. The Max output is the largest voltage found on the four inputs, while the Min output is the lowest voltage. The inputs feed each other from top-to-bottom as an easy way to avoid one of the jacks from being set to a constant 0V. However, if you want a constant 0V on one of the jacks (for instance, if you would like to use the Max output as a half-wave rectifier), simply patch the inputs from the bottom up and leave at least the top jack unplugged.
 
 ### OR Logic (Gate Combiner)
 This module can be used to combine many separate gate streams into one gate stream. The OR output is true if any of the inputs are above 1V, the NOR output is true if (and only if) all of the inputs are below 1V. The TRIGS output fires a 1ms trigger when any of the inputs go above 1V.
