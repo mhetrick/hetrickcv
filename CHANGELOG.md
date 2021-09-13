@@ -1,5 +1,8 @@
 # HetrickCV Changelog
 
+## Dev
+- Add Binary Gate module.
+
 ## 1.1.0
 - I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!
 - Added Min-Max module.
