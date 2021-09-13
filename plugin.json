@@ -28,6 +28,14 @@
       ]
     },
     {
+      "slug": "BinaryGate",
+      "name": "Binary Gate",
+      "description": "Manually turn a gate on or off, or toggle its current state.",
+      "tags": [
+        "Logic"
+      ]
+    },
+    {
       "slug": "Bitshift",
       "name": "Bitshift",
       "description": "Bitshifting distortion and waveshaping effect",

@@ -30,6 +30,7 @@ extern Plugin *pluginInstance;
 extern Model *modelTwoToFour;
 extern Model *modelAnalogToDigital;
 extern Model *modelASR;
+extern Model *modelBinaryGate;
 extern Model *modelBitshift;
 extern Model *modelBlankPanel;
 extern Model *modelBoolean3;
