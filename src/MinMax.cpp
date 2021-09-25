@@ -1,5 +1,25 @@
 #include "HetrickCV.hpp"
 
+/*            
+      ╱       
+     ╱        
+    ╱       min  
+   ╱        max  
+  ╱           
+ ▕      ╲     
+  ╲      ╲    
+   ╲      ╲   
+    ╲      ╲  
+     ╲      ╲ 
+      ╲      ╲
+             ╱
+            ╱ 
+           ╱  
+          ╱   
+         ╱    
+        ╱     
+*/            
+
 struct MinMax : Module
 {
 	enum ParamIds

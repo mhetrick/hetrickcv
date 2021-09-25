@@ -2,25 +2,26 @@
 
 #include "HetrickUtilities.hpp"
 
-/*                
-         Λ        
-        ╱░╲       
-       ╱░░░Λ      
-      ╱░░░╱▒╲     
-     ╱░░░╱▒▒▒Λ    
-    ╱░░░╱▒▒▒╱▓╲   
-   ╱░░░╱▒▒▒╱▓▓▓Λ  
-  ╱░░░╱▒▒▒╱▓▓▓╱█╲ 
- ▕░░░▕▒▒▒▕▓▓▓▕███▏
-  ╲░░░╲▒▒▒╲▓▓▓╲█╱ 
-   ╲░░░╲▒▒▒╲▓▓▓V  
-    ╲░░░╲▒▒▒╲▓╱   
-     ╲░░░╲▒▒▒V    
-      ╲░░░╲▒╱     
-       ╲░░░V      
-        ╲░╱       
-         V        
-*/                
+            
+/*                                                                
+ ╔ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ╗
+    M""MMMMM""MM            dP            oo          dP          
+ ║  M  MMMMM  MM            88                        88         ║
+    M         `M .d8888b. d8888P 88d888b. dP .d8888b. 88  .dP     
+ ║  M  MMMMM  MM 88ooood8   88   88'  `88 88 88'  `"" 88888"     ║
+    M  MMMMM  MM 88.  ...   88   88       88 88.  ... 88  `8b.    
+ ║  M  MMMMM  MM `88888P'   dP   dP       dP `88888P' dP   `YP   ║
+    MMMMMMMMMMMM                                                  
+ ║                                                               ║
+                      MM'""""'YMM M""MMMMM""M                     
+ ║                    M' .mmm. `M M  MMMMM  M                    ║
+                      M  MMMMMooM M  MMMMP  M                     
+ ║                    M  MMMMMMMM M  MMMM' .M                    ║
+                      M. `MMM' .M M  MMP' .MM                     
+ ║                    MM.     .dM M     .dMMM                    ║
+                      MMMMMMMMMMM MMMMMMMMMMM                     
+ ╚ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ═ ╝
+*/                                                                
 
 using namespace rack;
 

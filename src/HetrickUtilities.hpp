@@ -3,6 +3,26 @@
 #include "rack.hpp"
 #include "engine/Engine.hpp"
 
+/*                
+         Λ        
+        ╱░╲       
+       ╱░░░Λ      
+      ╱░░░╱▒╲     
+     ╱░░░╱▒▒▒Λ    
+    ╱░░░╱▒▒▒╱▓╲   
+   ╱░░░╱▒▒▒╱▓▓▓Λ  
+  ╱░░░╱▒▒▒╱▓▓▓╱█╲ 
+ ▕░░░▕▒▒▒▕▓▓▓▕███▏
+  ╲░░░╲▒▒▒╲▓▓▓╲█╱ 
+   ╲░░░╲▒▒▒╲▓▓▓V  
+    ╲░░░╲▒▒▒╲▓╱   
+     ╲░░░╲▒▒▒V    
+      ╲░░░╲▒╱     
+       ╲░░░V      
+        ╲░╱       
+         V        
+*/   
+
 float LERP(const float _amount, const float _inA, const float _inB);
 
 struct HCVTriggerGenerator

@@ -1,5 +1,16 @@
 #include "HetrickCV.hpp"
 
+/*                                                   
+                        ┌──────────────┐             
+                     ┌──┘  waveshaper  │             
+                  ┌──┘                 │             
+               ┌──┘                    │             
+            ┌──┘                       │             
+        ┌───┘                          │             
+    ┌───┘                              │             
+ ───┘                                  └─────────────
+*/                                                   
+
 struct Waveshape : Module
 {
 	enum ParamIds

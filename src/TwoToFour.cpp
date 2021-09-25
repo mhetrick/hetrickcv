@@ -1,6 +1,18 @@
 #include "HetrickCV.hpp"
 #include "dsp/digital.hpp"
 
+/*                         
+ ▶─────┐            ┌─────▶
+       │┌──────────┐│      
+       ││  2 to 4  │├─────▶
+       │└──────────┘│      
+       ├─────▶──────┤      
+       │            │      
+       │            ├─────▶
+       │            │      
+ ▶─────┘            └─────▶
+*/                         
+
 struct TwoToFour : Module
 {
 	enum ParamIds
