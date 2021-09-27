@@ -157,6 +157,14 @@
       ]
     },
     {
+      "slug": "MidSide",
+      "name": "Mid/Side",
+      "description": "Converts Left/Right signals to Mid/Side and vice versa.",
+      "tags": [
+        "Utility"
+      ]
+    },
+    {
       "slug": "MinMax",
       "name": "Min-Max",
       "description": "Outputs the greatest and least voltages from up to 4 inputs.",

@@ -1,24 +1,6 @@
 #include "HetrickCV.hpp"
 
-/*            
-      ╱       
-     ╱        
-    ╱       min  
-   ╱        max  
-  ╱           
- ▕      ╲     
-  ╲      ╲    
-   ╲      ╲   
-    ╲      ╲  
-     ╲      ╲ 
-      ╲      ╲
-             ╱
-            ╱ 
-           ╱  
-          ╱   
-         ╱    
-        ╱     
-*/            
+        
 
 struct XYToPolar : HCVModule
 {
