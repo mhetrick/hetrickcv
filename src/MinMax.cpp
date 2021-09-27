@@ -20,7 +20,7 @@
         ╱     
 */            
 
-struct MinMax : Module
+struct MinMax : HCVModule
 {
 	enum ParamIds
 	{
@@ -106,17 +106,12 @@ void MinMax::process(const ProcessArgs &args)
     
 }
 
-struct MinMaxWidget : ModuleWidget { MinMaxWidget(MinMax *module); };
+struct MinMaxWidget : HCVModuleWidget { MinMaxWidget(MinMax *module); };
 
 MinMaxWidget::MinMaxWidget(MinMax *module)
 {
-    setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MinMax.svg")));
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/MinMax.svg");
+    initializeWidget(module, true);
 
     //////PARAMS//////
 

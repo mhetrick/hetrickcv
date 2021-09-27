@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Rotator : Module
+struct Rotator : HCVModule
 {
 	enum ParamIds
 	{
@@ -106,24 +106,12 @@ void Rotator::process(const ProcessArgs &args)
 }
 
 
-struct RotatorWidget : ModuleWidget { RotatorWidget(Rotator *module); };
+struct RotatorWidget : HCVModuleWidget { RotatorWidget(Rotator *module); };
 
 RotatorWidget::RotatorWidget(Rotator *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rotator.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/Rotator.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
     addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM));

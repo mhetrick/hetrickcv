@@ -13,7 +13,7 @@
  ▶─────┘            └─────▶
 */                         
 
-struct TwoToFour : Module
+struct TwoToFour : HCVModule
 {
 	enum ParamIds
 	{
@@ -87,24 +87,12 @@ void TwoToFour::process(const ProcessArgs &args)
     lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[3] / 5.0), 10);
 }
 
-struct TwoToFourWidget : ModuleWidget { TwoToFourWidget(TwoToFour *module); };
+struct TwoToFourWidget : HCVModuleWidget { TwoToFourWidget(TwoToFour *module); };
 
 TwoToFourWidget::TwoToFourWidget(TwoToFour *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/2To4.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/2To4.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
 

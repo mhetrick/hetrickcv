@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct BinaryGate : Module
+struct BinaryGate : HCVModule
 {
 	enum ParamIds
 	{
@@ -71,17 +71,12 @@ void BinaryGate::process(const ProcessArgs &args)
     lights[GATE_LIGHT].setBrightness(gateState ? 1.0 : 0.0);
 }
 
-struct BinaryGateWidget : ModuleWidget { BinaryGateWidget(BinaryGate *module); };
+struct BinaryGateWidget : HCVModuleWidget { BinaryGateWidget(BinaryGate *module); };
 
 BinaryGateWidget::BinaryGateWidget(BinaryGate *module)
 {
-    setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/BinaryGate.svg")));
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/BinaryGate.svg");
+    initializeWidget(module, true);
 
     //////PARAMS//////
 

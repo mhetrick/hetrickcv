@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct FlipFlop : Module
+struct FlipFlop : HCVModule
 {
 	enum ParamIds
 	{
@@ -89,25 +89,13 @@ void FlipFlop::process(const ProcessArgs &args)
     lights[FFDNOT_LIGHT].value = outs[3];
 }
 
-struct FlipFlopWidget : ModuleWidget { FlipFlopWidget(FlipFlop *module); };
+struct FlipFlopWidget : HCVModuleWidget { FlipFlopWidget(FlipFlop *module); };
 
 FlipFlopWidget::FlipFlopWidget(FlipFlop *module)
 {
-    setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/FlipFlop.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
+    setSkinPath("res/FlipFlop.svg");
+    initializeWidget(module);
+    
     //////PARAMS//////
 
     //////INPUTS//////

@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct RandomGates : Module
+struct RandomGates : HCVModule
 {
 	enum ParamIds
 	{
@@ -180,26 +180,14 @@ void RandomGates::process(const ProcessArgs &args)
 }
 
 
-struct RandomGatesWidget : ModuleWidget { RandomGatesWidget(RandomGates *module); };
+struct RandomGatesWidget : HCVModuleWidget { RandomGatesWidget(RandomGates *module); };
 
 RandomGatesWidget::RandomGatesWidget(RandomGates *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/RandomGates.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
-    //const int inXPos = 10;
+    setSkinPath("res/RandomGates.svg");
+    initializeWidget(module);
+    
+    
     const int outXPos = 145;
     const int outLightX = 120;
     const int inLightX = 45;

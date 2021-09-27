@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Scanner : Module
+struct Scanner : HCVModule
 {
 	enum ParamIds
 	{
@@ -172,24 +172,12 @@ void Scanner::process(const ProcessArgs &args)
 }
 
 
-struct ScannerWidget : ModuleWidget { ScannerWidget(Scanner *module); };
+struct ScannerWidget : HCVModuleWidget { ScannerWidget(Scanner *module); };
 
 ScannerWidget::ScannerWidget(Scanner *module)
 {
-    setModule(module);
-	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Scanner.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/Scanner.svg");
+    initializeWidget(module);
 
     const int knobX = 75;
     const int jackX = 123;

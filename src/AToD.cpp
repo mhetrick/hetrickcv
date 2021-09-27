@@ -17,7 +17,7 @@
             └───┘                   │
                                     └─────►
  */
-struct AnalogToDigital : Module
+struct AnalogToDigital : HCVModule
 {
 	enum ParamIds
 	{
@@ -214,24 +214,12 @@ void AnalogToDigital::processBiSig(float _input)
 }
 
 
-struct AnalogToDigitalWidget : ModuleWidget { AnalogToDigitalWidget(AnalogToDigital *module); };
+struct AnalogToDigitalWidget : HCVModuleWidget { AnalogToDigitalWidget(AnalogToDigital *module); };
 
 AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/AToD.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/AToD.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
     addParam(createParam<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM));

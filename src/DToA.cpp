@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct DigitalToAnalog : Module
+struct DigitalToAnalog : HCVModule
 {
 	enum ParamIds
 	{
@@ -208,24 +208,12 @@ void DigitalToAnalog::processBiSig()
 }
 
 
-struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
+struct DigitalToAnalogWidget : HCVModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
 
 DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DToA.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/DToA.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
     addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM));

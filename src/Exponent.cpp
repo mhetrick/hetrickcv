@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Exponent : Module
+struct Exponent : HCVModule
 {
 	enum ParamIds
 	{
@@ -66,32 +66,12 @@ void Exponent::process(const ProcessArgs &args)
     outputs[MAIN_OUTPUT].setVoltage(output);
 }
 
-struct CKSSRot : SvgSwitch {
-	CKSSRot() {
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
-	}
-};
-
-
-struct ExponentWidget : ModuleWidget { ExponentWidget(Exponent *module); };
+struct ExponentWidget : HCVModuleWidget { ExponentWidget(Exponent *module); };
 
 ExponentWidget::ExponentWidget(Exponent *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Exponent.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Exponent.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
 	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM));

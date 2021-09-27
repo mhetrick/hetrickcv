@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Comparator : Module
+struct Comparator : HCVModule
 {
 	enum ParamIds
 	{
@@ -76,24 +76,12 @@ void Comparator::process(const ProcessArgs &args)
 }
 
 
-struct ComparatorWidget : ModuleWidget { ComparatorWidget(Comparator *module); };
+struct ComparatorWidget : HCVModuleWidget { ComparatorWidget(Comparator *module); };
 
 ComparatorWidget::ComparatorWidget(Comparator* module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Comparator.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Comparator.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
 	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM));
