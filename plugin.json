@@ -207,6 +207,15 @@
         "Waveshaper",
 		    "Polyphonic"
       ]
+    },
+    {
+      "slug": "XYToPolar",
+      "name": "XY<->Polar",
+      "description": "Converts XY coordinates to Polar and vice versa.",
+      "tags": [
+        "Utility",
+        "Waveshaper"
+      ]
     }
   ]
 }

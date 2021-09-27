@@ -51,3 +51,4 @@ extern Model *modelRandomGates;
 extern Model *modelRotator;
 extern Model *modelScanner;
 extern Model *modelWaveshape;
+extern Model *modelXYToPolar;

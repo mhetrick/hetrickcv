@@ -30,6 +30,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelRotator);
 	p->addModel(modelScanner);
 	p->addModel(modelWaveshape);
+	p->addModel(modelXYToPolar);
 	// Any other pluginInstance initialization may go here.
 	// As an alternative, consider lazy-loading assets and lookup tables within this file or the individual module files to reduce startup times of Rack.
 }
