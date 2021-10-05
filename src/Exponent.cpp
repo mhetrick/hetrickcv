@@ -74,8 +74,8 @@ ExponentWidget::ExponentWidget(Exponent *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Exponent::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Exponent::SCALE_PARAM));
+	createHCVKnob(27, 62, Exponent::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Exponent::SCALE_PARAM);
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Exponent::RANGE_PARAM));
 
 	//////INPUTS//////

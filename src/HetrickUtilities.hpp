@@ -82,7 +82,8 @@ struct HCVModuleWidget : ModuleWidget
 
 	void createHCVKnob(int _x, int _y, int _paramID)
     {
-        addParam(createParam<Davies1900hBlackKnob>(Vec(_x, _y), module, _paramID));
+        //addParam(createParam<Davies1900hBlackKnob>(Vec(_x, _y), module, _paramID));
+        addParam(createParam<Rogan1PRed>(Vec(_x + 2.5, _y), module, _paramID));
     }
 
     void createHCVTrimpot(int _x, int _y, int _paramID)

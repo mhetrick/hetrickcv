@@ -84,8 +84,8 @@ ComparatorWidget::ComparatorWidget(Comparator* module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM));
+	createHCVKnob(27, 62, Comparator::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Comparator::SCALE_PARAM);
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 195), module, Comparator::MAIN_INPUT));

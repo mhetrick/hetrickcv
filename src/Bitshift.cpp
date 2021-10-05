@@ -95,8 +95,8 @@ BitshiftWidget::BitshiftWidget(Bitshift *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Bitshift::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Bitshift::SCALE_PARAM));
+	createHCVKnob(27, 62, Bitshift::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Bitshift::SCALE_PARAM);
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Bitshift::RANGE_PARAM));
 
 	//////INPUTS//////

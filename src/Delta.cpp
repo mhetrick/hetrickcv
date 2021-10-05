@@ -107,8 +107,8 @@ DeltaWidget::DeltaWidget(Delta *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM));
+	createHCVKnob(27, 62, Delta::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Delta::SCALE_PARAM);
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(12, 195), module, Delta::MAIN_INPUT));

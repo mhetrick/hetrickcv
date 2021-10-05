@@ -91,8 +91,8 @@ ContrastWidget::ContrastWidget(Contrast *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Contrast::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Contrast::SCALE_PARAM));
+	createHCVKnob(27, 62, Contrast::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Contrast::SCALE_PARAM);
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Contrast::RANGE_PARAM));
 
 	//////INPUTS//////

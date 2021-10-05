@@ -116,7 +116,7 @@ CrackleWidget::CrackleWidget(Crackle *module)
 	initializeWidget(module);
 
     //////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM));
+	createHCVKnob(28, 87, Crackle::RATE_PARAM);
     addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM));
 
     //////INPUTS//////
