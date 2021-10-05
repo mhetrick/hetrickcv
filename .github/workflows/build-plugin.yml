@@ -44,7 +44,7 @@ jobs:
           unzip Rack-SDK.zip
       - name: Checkout Gamma
         run: |
-          gh repo clone LancePutnam/Gamma
+          git clone https://github.com/LancePutnam/Gamma.git
       - name: Patch plugin.mk, use 7zip on Windows
         if: runner.os == 'Windows'
         run: |
