@@ -43,7 +43,7 @@ jobs:
           curl -o Rack-SDK.zip https://vcvrack.com/downloads/Rack-SDK-${{ env.rack-sdk-version }}-${{ matrix.config.arch }}.zip
           unzip Rack-SDK.zip
       - name: Checkout Gamma
-          run: |
+        run: |
           gh repo clone LancePutnam/Gamma
       - name: Patch plugin.mk, use 7zip on Windows
         if: runner.os == 'Windows'
