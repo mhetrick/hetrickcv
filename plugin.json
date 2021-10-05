@@ -40,7 +40,8 @@
       "name": "Binary Noise",
       "description": "Generates a random gate or square wave signal.",
       "tags": [
-        "Noise"
+        "Noise",
+        "Random"
       ]
     },
     {
@@ -154,6 +155,15 @@
       "tags": [
         "Switch",
         "Logic"
+      ]
+    },
+    {
+      "slug": "Gingerbread",
+      "name": "Gingerbread Chaos",
+      "description": "Eight channel gate processor.",
+      "tags": [
+        "Noise",
+        "Random"
       ]
     },
     {

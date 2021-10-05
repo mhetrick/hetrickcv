@@ -114,9 +114,9 @@ BinaryNoiseWidget::BinaryNoiseWidget(BinaryNoise *module)
 	createHCVTrimpot(trimpotX + rightOffset, trimpotY, BinaryNoise::PROB_SCALE_PARAM);
     createInputPort(paramJackX + rightOffset, paramJackY, BinaryNoise::PROB_INPUT);
 
-    float switchX = 20.0f;
+    float switchX = 19.0f;
     float switchY = 240.0f;
-    float spacing = 47.0f;
+    float spacing = 48.0f;
     createHCVSwitchVert(switchX, switchY, BinaryNoise::RANGE_PARAM);
     createHCVSwitchVert(switchX + spacing, switchY, BinaryNoise::SLEW_PARAM);
     createHCVSwitchVert(switchX + spacing*2, switchY, BinaryNoise::POLAR_PARAM);

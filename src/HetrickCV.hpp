@@ -46,6 +46,7 @@ extern Model *modelExponent;
 extern Model *modelFlipFlop;
 extern Model *modelFlipPan;
 extern Model *modelGateJunction;
+extern Model *modelGingerbread;
 extern Model *modelLogicCombine;
 extern Model *modelMidSide;
 extern Model *modelMinMax;

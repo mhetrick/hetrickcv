@@ -2,7 +2,7 @@ name: Build VCV Rack Plugin
 on: [push, pull_request]
 
 env:
-  rack-sdk-version: 1.1.6
+  rack-sdk-version: 2.git.042a9ce0
 
 defaults:
   run:
@@ -18,16 +18,19 @@ jobs:
         - {
             name: Linux,
             os: ubuntu-latest,
+            arch: lin,
             prepare-os: sudo apt install -y libglu-dev
           }
         - {
             name: MacOS,
             os: macos-latest,
+            arch: mac,
             prepare-os: ""
           }
         - {
             name: Windows,
             os: windows-latest,
+            arch: win,
             prepare-os: export CC=gcc
           }
     steps:
@@ -37,8 +40,11 @@ jobs:
       - name: Get Rack-SDK
         run: |
           pushd $HOME
-          curl -o Rack-SDK.zip https://vcvrack.com/downloads/Rack-SDK-${{ env.rack-sdk-version }}.zip
+          curl -o Rack-SDK.zip https://vcvrack.com/downloads/Rack-SDK-${{ env.rack-sdk-version }}-${{ matrix.config.arch }}.zip
           unzip Rack-SDK.zip
+      - name: Checkout Gamma
+          run: |
+          gh repo clone LancePutnam/Gamma
       - name: Patch plugin.mk, use 7zip on Windows
         if: runner.os == 'Windows'
         run: |

@@ -31,6 +31,11 @@ public:
         return sampleRateFactor;
     }
 
+    void reset()
+    {
+        sampleRateCounter = 1.0f;
+    }
+
 private:
     float sampleRateCounter = 0.0f;
     float sampleRateFactor = 1.0f;

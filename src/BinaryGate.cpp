@@ -32,9 +32,9 @@ struct BinaryGate : HCVModule
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-        configParam(ON_PARAM, 0.0, 1.0, 0.0, "on button");
-        configParam(OFF_PARAM, 0.0, 1.0, 0.0, "off button");
-        configParam(TOGGLE_PARAM, 0.0, 1.0, 0.0, "toggle button");
+        configButton(ON_PARAM, "On Button");
+        configButton(OFF_PARAM, "Off Button");
+        configButton(TOGGLE_PARAM, "Toggle Button");
 	}
 
 	void process(const ProcessArgs &args) override;

@@ -3,8 +3,10 @@
 ## 2.0.0 Dev
 - Add Binary Gate module.
 - Add Binary Noise module.
+- Add Gingerbread Chaos module.
 - Add Mid/Side module.
 - Add XY<->Polar module.
+- Add Gamma DSP library requirement. This is an excellent DSP library by Lance Putnam, a former colleague from grad school. We use this library as the foundation for Unfiltered Audio's DSP.
 
 ## 1.1.0
 - I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!

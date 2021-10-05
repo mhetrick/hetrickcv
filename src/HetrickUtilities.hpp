@@ -3,6 +3,7 @@
 #include "rack.hpp"
 #include "engine/Engine.hpp"
 #include "DSP/HCVDSP.h"
+#include "Gamma/Domain.h"
 
 using namespace rack;
 extern Plugin *pluginInstance;
@@ -68,6 +69,11 @@ struct HCVModule : Module
         return finalSr;
     }
 
+    void onSampleRateChange() override
+    {
+        gam::sampleRate(APP->engine->getSampleRate());
+    }
+
 };
 
 struct HCVModuleWidget : ModuleWidget
@@ -113,6 +119,11 @@ struct HCVModuleWidget : ModuleWidget
     void createHCVSwitchHoriz(int _x, int _y, int _paramID)
     {
         addParam(createParam<CKSSRot>(Vec(_x, _y), module, _paramID));
+    }
+
+    void createHCVButtonSmall(int _x, int _y, int _paramID)
+    {
+        addParam(createParam<TL1105>(Vec(_x, _y), module, _paramID));
     }
 
     void createInputPort(int _x, int _y, int _paramID)
