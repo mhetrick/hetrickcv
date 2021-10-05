@@ -3,3 +3,4 @@ build/
 dist/
 plugin.dll
 plugin.dylib
+.idea/
