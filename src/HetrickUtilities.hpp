@@ -2,6 +2,7 @@
 
 #include "rack.hpp"
 #include "engine/Engine.hpp"
+#include "DSP/HCVDSP.h"
 
 using namespace rack;
 extern Plugin *pluginInstance;
@@ -54,6 +55,19 @@ struct HCVModule : Module
         return normalizeParameter(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex));
     }
 
+    float getSampleRateParameter(int mainSRateIndex, int sRateCVIndex, int cvScaleIndex, int rangeIndex)
+    {
+        float sr = params[mainSRateIndex].getValue() + (inputs[sRateCVIndex].getVoltage() * params[cvScaleIndex].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+
+        float finalSr = sr*sr*sr;
+        finalSr = clamp(finalSr, 0.0f, 1.0f);
+
+        if(params[rangeIndex].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+
+        return finalSr;
+    }
+
 };
 
 struct HCVModuleWidget : ModuleWidget
@@ -89,6 +103,16 @@ struct HCVModuleWidget : ModuleWidget
     void createHCVTrimpot(int _x, int _y, int _paramID)
     {
         addParam(createParam<Trimpot>(Vec(_x, _y), module, _paramID));
+    }
+
+    void createHCVSwitchVert(int _x, int _y, int _paramID)
+    {
+        addParam(createParam<CKSS>(Vec(_x, _y), module, _paramID));
+    }
+
+    void createHCVSwitchHoriz(int _x, int _y, int _paramID)
+    {
+        addParam(createParam<CKSSRot>(Vec(_x, _y), module, _paramID));
     }
 
     void createInputPort(int _x, int _y, int _paramID)

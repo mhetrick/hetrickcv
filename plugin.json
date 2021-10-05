@@ -36,6 +36,14 @@
       ]
     },
     {
+      "slug": "BinaryNoise",
+      "name": "Binary Noise",
+      "description": "Generates a random gate or square wave signal.",
+      "tags": [
+        "Noise"
+      ]
+    },
+    {
       "slug": "Bitshift",
       "name": "Bitshift",
       "description": "Bitshifting distortion and waveshaping effect",

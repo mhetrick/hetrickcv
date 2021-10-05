@@ -43,6 +43,9 @@ Patch ideas:
 ### Binary Gate
 This is a very simple module with a single gate output. There are three gate inputs with corresponding buttons. The first two buttons turn the output gate on or off, while the third toggles its current state.
 
+### Binary Noise
+This noise generator will randomly generate a value of +/- 5V (or +5V and 0V in unipolar mode). At audio rates, this generates very loud, digital noise, while at lower rates this can be used to generate unpredictable gates. With slew mode enabled, it will interpolate cleanly between the two states, making it useful as a modulation source as well.
+
 ### Bitshift
 This is a harsh waveshaping effect. It is particularly useful for taking a slow, smooth CV value and creating a lot of rapid discontinuities. The effect is produced by taking the internal floating-point representation of the signal and turning it into a 32-bit integer. The integer's bits are then shifted left (<<, which produces aggressive alterations to the signal) or right (>>, which is mostly just attenuation). Because the algorithm for this module has expected boundaries, you will need to select a range for the input signal. +/- 5V is the standard range for most audio generators in Rack. Some function generators will produce +/- 10V, though. Regardless, since this is a fairly harsh and experimental module, there's no need to select the "correct" range...
 

@@ -11,6 +11,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelAnalogToDigital);
 	p->addModel(modelASR);
 	p->addModel(modelBinaryGate);
+	p->addModel(modelBinaryNoise);
 	p->addModel(modelBitshift);
 	p->addModel(modelBlankPanel);
 	p->addModel(modelBoolean3);

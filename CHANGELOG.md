@@ -2,8 +2,9 @@
 
 ## 2.0.0 Dev
 - Add Binary Gate module.
-- Add XY<->Polar module.
+- Add Binary Noise module.
 - Add Mid/Side module.
+- Add XY<->Polar module.
 
 ## 1.1.0
 - I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!
