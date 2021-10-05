@@ -45,6 +45,7 @@ jobs:
       - name: Checkout Gamma
         run: |
           pushd $HOME
+          cd ../
           git clone https://github.com/LancePutnam/Gamma.git
       - name: Patch plugin.mk, use 7zip on Windows
         if: runner.os == 'Windows'
