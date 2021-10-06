@@ -1,5 +1,5 @@
 #include "HetrickCV.hpp"
-                                              
+#include "DSP/HCVSampleRate.h"
 
 struct BinaryNoise : HCVModule
 {

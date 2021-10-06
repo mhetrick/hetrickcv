@@ -2,7 +2,7 @@
 
 #include "rack.hpp"
 #include "engine/Engine.hpp"
-#include "DSP/HCVDSP.h"
+#include "DSP/HCVFunctions.h"
 #include "Gamma/Domain.h"
 
 using namespace rack;
@@ -27,8 +27,6 @@ extern Plugin *pluginInstance;
         ╲░╱       
          V        
 */   
-
-float LERP(const float _amount, const float _inA, const float _inB);
 
 struct CKSSRot : SvgSwitch 
 {

@@ -1,6 +1,7 @@
 #include "HetrickCV.hpp"
 #include "DSP/HCVChaos.h" 
 #include "DSP/HCVDCFilter.h"
+#include "DSP/HCVSampleRate.h"
 
 struct Gingerbread : HCVModule
 {
@@ -103,10 +104,8 @@ void Gingerbread::process(const ProcessArgs &args)
     }
 
     float filteredOut = lastOut;
-    if(params[DC_PARAM].getValue() == 1.0f)
-    {
-        filteredOut = dcFilter.process(filteredOut);
-    }
+    dcFilter.setFader(params[DC_PARAM].getValue());
+    filteredOut = dcFilter.process(filteredOut);
 
     outputs[MAIN_OUTPUT].setVoltage(filteredOut);
 }
