@@ -24,6 +24,9 @@ struct Exponent : HCVModule
 	Exponent()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+
+		configBypass(MAIN_INPUT, MAIN_OUTPUT);
+
 		configParam(Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Shape");
 		configParam(Exponent::SCALE_PARAM, -1.0, 1.0, 1.0, "Shape CV Depth");
 		configSwitch(Exponent::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});

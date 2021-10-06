@@ -9,6 +9,7 @@
 - Add Gamma DSP library requirement. This is an excellent DSP library by Lance Putnam, a former colleague from grad school. We use this library as the foundation for Unfiltered Audio's DSP.
 - Resaved all panels with Effra typeface instead of Gibson (very similar, but o and p rendering is fixed on export). Redid all panels in Affinity Designer instead of Adobe Illustrator.
 - Fixed missing knob parameter names.
+- Add bypass behavior to all effects.
 
 ## 1.1.0
 - I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!
