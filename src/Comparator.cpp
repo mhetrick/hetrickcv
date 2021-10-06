@@ -35,8 +35,8 @@ struct Comparator : HCVModule
 	Comparator()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
-		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Compare Threshold");
+		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "Compare CV Depth");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;

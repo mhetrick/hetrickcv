@@ -64,8 +64,8 @@ struct Rotator : HCVModule
 	Rotator()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "");
-        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "");
+        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "Rotate");
+        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "Number of Stages");
 	}
 
     void process(const ProcessArgs &args) override;

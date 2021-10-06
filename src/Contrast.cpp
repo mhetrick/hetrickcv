@@ -46,9 +46,9 @@ struct Contrast : HCVModule
 	Contrast()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "");
-		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "");
+		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "Contrast");
+		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "Contrast CV Depth");
+		configSwitch(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
 	}
 
 	void process(const ProcessArgs &args) override;

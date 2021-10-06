@@ -34,7 +34,7 @@ struct MidSide : HCVModule
 	MidSide()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(MidSide::WIDTH_PARAM, -5.0, 5.0, 0.0, "");
+        configParam(MidSide::WIDTH_PARAM, -5.0, 5.0, 0.0, "Width");
 	}
 
 	void process(const ProcessArgs &args) override;

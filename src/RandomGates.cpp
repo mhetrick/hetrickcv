@@ -53,9 +53,9 @@ struct RandomGates : HCVModule
 	RandomGates()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "");
-        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "");
-        configParam(RandomGates::MODE_PARAM, 0.0, 1.0, 0.0, "");
+        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "Minimum Output Channel");
+        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "Maximum Output Channel");
+        configButton(RandomGates::MODE_PARAM, "Output Mode");
 	}
 
     void process(const ProcessArgs &args) override;

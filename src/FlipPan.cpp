@@ -26,9 +26,9 @@ struct FlipPan : HCVModule
 	FlipPan()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(FlipPan::AMOUNT_PARAM, 0.0, 5.0, 2.5, "");
-		configParam(FlipPan::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0, "");
+		configParam(FlipPan::AMOUNT_PARAM, 0.0, 5.0, 2.5, "Pan");
+		configParam(FlipPan::SCALE_PARAM, -1.0, 1.0, 1.0, "Pan CV Depth");
+        configSwitch(FlipPan::STYLE_PARAM, 0.0, 1.0, 0.0, "Panning Style", {"Linear", "Equal"});
 	}
 
     void process(const ProcessArgs &args) override;

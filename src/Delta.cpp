@@ -49,8 +49,8 @@ struct Delta : HCVModule
 	Delta()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "");
-		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "Input Boost");
+		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "Boost CV Depth");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;

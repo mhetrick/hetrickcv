@@ -35,9 +35,9 @@ struct Waveshape : HCVModule
 	Waveshape()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Waveshape::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
-		configParam(Waveshape::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(Waveshape::RANGE_PARAM, 0.0, 1.0, 0.0, "");
+		configParam(Waveshape::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Waveshape Amount");
+		configParam(Waveshape::SCALE_PARAM, -1.0, 1.0, 1.0, "Waveshape CV Depth");
+		configSwitch(Waveshape::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
 	}
 
 	void process(const ProcessArgs &args) override;

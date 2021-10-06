@@ -40,9 +40,9 @@ struct Bitshift : HCVModule
 	Bitshift()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
-		configParam(Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0, "");
+		configParam(Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Bitshift");
+		configParam(Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0, "Bitshift CV Scale");
+		configSwitch(Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
 	}
 
 	void process(const ProcessArgs &args) override;

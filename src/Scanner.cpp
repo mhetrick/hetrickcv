@@ -74,12 +74,12 @@ struct Scanner : HCVModule
 	Scanner()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "");
-        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "");
+        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "Scan");
+        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "Number of Stages");
+        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "Width");
+        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "Slope");
+        configSwitch(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "Voltage Offset", {"None", "+5V"});
+        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "Mix Scale");
 	}
 
     void process(const ProcessArgs &args) override;

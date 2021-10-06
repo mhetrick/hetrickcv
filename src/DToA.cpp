@@ -69,10 +69,10 @@ struct DigitalToAnalog : HCVModule
 	DigitalToAnalog()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "");
-        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "");
+        configButton(DigitalToAnalog::MODE_PARAM, "Mode");
+        configButton(DigitalToAnalog::RECTIFY_PARAM, "Rectification Mode");
+        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "Scale");
+        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "Offset");
 	}
 
     void process(const ProcessArgs &args) override;

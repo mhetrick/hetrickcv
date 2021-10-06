@@ -95,8 +95,8 @@ struct GateJunction : HCVModule
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         for (int i = 0; i < 8; ++i)
         {
-            configParam(GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0, "");
-            configParam(GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0, "");
+            configButton(GateJunction::MUTE1_PARAM + i, "Mute");
+            configButton(GateJunction::INV1_PARAM + i, "Invert");
         }
 
 		onReset();
