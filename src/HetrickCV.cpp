@@ -31,6 +31,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelMinMax);
 	p->addModel(modelRandomGates);
 	p->addModel(modelRotator);
+	p->addModel(modelRungler);
 	p->addModel(modelScanner);
 	p->addModel(modelWaveshape);
 	p->addModel(modelXYToPolar);

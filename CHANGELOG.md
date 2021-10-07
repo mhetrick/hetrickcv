@@ -5,6 +5,7 @@
 - Add Binary Noise module.
 - Add Gingerbread Chaos module.
 - Add Mid/Side module.
+- Add Rungler module.
 - Add XY<->Polar module.
 - Add Gamma DSP library requirement. This is an excellent DSP library by Lance Putnam, a former colleague from grad school. We use this library as the foundation for Unfiltered Audio's DSP.
 - Resaved all panels with Effra typeface instead of Gibson (very similar, but o and p rendering is fixed on export). Redid all panels in Affinity Designer instead of Adobe Illustrator.

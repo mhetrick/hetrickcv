@@ -31,10 +31,10 @@ struct BinaryNoise : HCVModule
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(BinaryNoise::SRATE_PARAM, 0.01, 1.0, 0.5, "Sample Rate");
-		configParam(BinaryNoise::SRATE_SCALE_PARAM, -1.0, 1.0, 1.0, "Sample Rate CV Depth");
+		configParam(BinaryNoise::SRATE_SCALE_PARAM, -1.0, 1.0, 0.0, "Sample Rate CV Depth");
 
         configParam(BinaryNoise::PROB_PARAM, -5.0, 5.0, 0.0, "Probability");
-		configParam(BinaryNoise::PROB_SCALE_PARAM, -1.0, 1.0, 1.0, "Probability CV Depth");
+		configParam(BinaryNoise::PROB_SCALE_PARAM, -1.0, 1.0, 0.0, "Probability CV Depth");
 
         configSwitch(BinaryNoise::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
         configSwitch(BinaryNoise::SLEW_PARAM, 0.0, 1.0, 0.0, "Enable Slew", {"Stepped", "Slewed"});

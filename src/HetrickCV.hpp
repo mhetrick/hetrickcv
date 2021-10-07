@@ -52,6 +52,7 @@ extern Model *modelMidSide;
 extern Model *modelMinMax;
 extern Model *modelRandomGates;
 extern Model *modelRotator;
+extern Model *modelRungler;
 extern Model *modelScanner;
 extern Model *modelWaveshape;
 extern Model *modelXYToPolar;
