@@ -126,22 +126,12 @@ RunglerWidget::RunglerWidget(Rungler *module)
     
     //PARAMS
     const float knobY = 64.0f;
-    const float trimpotY = knobY + 58.0f;
-    const float paramJackY = knobY + 108.0f;
-
+    const float knobX = 12.0f;
     const float rightOffset = 57.0f;
-    float knobX = 12.0f;
-    float trimpotX = knobX + 9.0f;
-    float paramJackX = knobX + 6.0f;
-    
 
-	createHCVKnob(knobX, knobY, Rungler::COMPARE_PARAM);
-	createHCVTrimpot(trimpotX, trimpotY, Rungler::COMPARE_DEPTH_PARAM);
-    createInputPort(paramJackX, paramJackY, Rungler::COMPARE_INPUT);
+    createParamComboVertical(knobX, knobY, Rungler::COMPARE_PARAM, Rungler::COMPARE_DEPTH_PARAM, Rungler::COMPARE_INPUT);
+    createParamComboVertical(knobX + rightOffset, knobY, Rungler::SCALE_PARAM, Rungler::SCALE_DEPTH_PARAM, Rungler::SCALE_INPUT);
 
-    createHCVKnob(knobX + rightOffset, knobY, Rungler::SCALE_PARAM);
-	createHCVTrimpot(trimpotX + rightOffset, trimpotY, Rungler::SCALE_DEPTH_PARAM);
-    createInputPort(paramJackX + rightOffset, paramJackY, Rungler::SCALE_INPUT);
 
     //
     const float inputY = 230.0f;

@@ -51,7 +51,7 @@ protected:
 class HCVChaos1Op : public HCVChaosBase
 {
 public:
-    virtual void setChaos(const float _chaosAmount)
+    virtual void setChaosAmount(const float _chaosAmount)
     {
         chaosAmount = _chaosAmount;
     }
@@ -69,7 +69,7 @@ public:
 		reset();
 	}
 
-	void setChaos(const float _chaosAmount) override
+	void setChaosAmount(const float _chaosAmount) override
 	{
 		chaosAmount = 3.0f + _chaosAmount;
 	}
@@ -95,7 +95,7 @@ public:
         HCVIkedaMap::reset();
     }
 
-    void setChaos(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) override final
     {
         chaosAmount = gam::scl::mapLin(_chaosAmount, 0.0f, 1.0f, 0.79f, 0.87f);
     }
@@ -120,7 +120,7 @@ public:
         reset();
     }
 
-    void setChaos(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) override final
     {
         chaosAmount = gam::scl::mapLin(_chaosAmount, 0.0f, 1.0f, 1.0001f, 1.999f);
     }
@@ -144,7 +144,7 @@ public:
         reset();
     }
 
-    void setChaos(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) override final
     {
         chaosAmount = 8.0f * _chaosAmount;
     }

@@ -3,21 +3,22 @@
 #include "dsp/filter.hpp"
 #include "HCVSlewLimiter.h"
 
-class HCVSlewedCrossfader
+template <typename T = float>
+class HCVSlewedCrossfaderT
 {
 public:
-    HCVSlewedCrossfader(float _defaultValue = 0.0)
+    HCVSlewedCrossfaderT(float _defaultValue = 0.0)
     {
         slewValue = _defaultValue;
         slew.setRiseFall(100, 100);
     }
 
-    float operator()(float _inOff, float _inOn)
+    T operator()(T _inOff, T _inOn)
     {
         return process(_inOff, _inOn);
     }
 
-    float process(float _inOff, float _inOn)
+    T process(T _inOff, T _inOn)
     {
         float slewOut = slew.process(slewValue);
         return LERP(slewOut, _inOn, _inOff);
@@ -37,3 +38,5 @@ private:
     HCVSlewLimiter<> slew;
     float slewValue = 0.0;
 };
+
+typedef HCVSlewedCrossfaderT<float> HCVSlewedCrossfader;

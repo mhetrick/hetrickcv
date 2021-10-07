@@ -12,6 +12,15 @@
   "donateUrl": "https://paypal.me/MHetrick",
   "modules": [
     {
+      "slug": "Chaos1Op",
+      "name": "1-Op Chaos",
+      "description": "Multimode audio and modulation chaos generator.",
+      "tags": [
+        "Noise",
+        "Random"
+      ]
+    },
+    {
       "slug": "ASR",
       "name": "ASR",
       "description": "Analog shift register. Multi-stage sample and hold",

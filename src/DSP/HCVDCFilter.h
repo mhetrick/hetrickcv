@@ -3,21 +3,22 @@
 #include "Gamma/Filter.h"
 #include "HCVSlewedCrossfader.h"
 
-class HCVDCFilter
+template <typename T = float>
+class HCVDCFilterT
 {
 public:
 
-    HCVDCFilter()
+    HCVDCFilterT()
     {
 
     }
 
-    float operator()(float _input)
+    T operator()(T _input)
     {
         return process(_input);
     }
 
-    float process(float _input)
+    T process(T _input)
     {
         return crossfader(_input, dcFilter(_input));
     }
@@ -33,6 +34,8 @@ public:
     }
 
 private:
-    gam::BlockDC<> dcFilter;
-    HCVSlewedCrossfader crossfader;
+    gam::BlockDC<T> dcFilter;
+    HCVSlewedCrossfaderT<T> crossfader;
 };
+
+typedef HCVDCFilterT<float> HCVDCFilter;

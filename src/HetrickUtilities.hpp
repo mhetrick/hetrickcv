@@ -134,6 +134,36 @@ struct HCVModuleWidget : ModuleWidget
         addOutput(createOutput<PJ301MPort>(Vec(_x, _y), module, _paramID));
     }
 
+    void createParamComboVertical(int _x, int _y, int _paramID, int _trimpotID, int _inputID)
+    {
+        const float knobY = _y;
+        const float trimpotY = knobY + 58.0f;
+        const float paramJackY = knobY + 108.0f;
+
+        const float knobX = _x;
+        const float trimpotX = knobX + 9.0f;
+        const float paramJackX = knobX + 6.0f;
+
+        createHCVKnob(knobX, knobY, _paramID);
+	    createHCVTrimpot(trimpotX, trimpotY, _trimpotID);
+        createInputPort(paramJackX, paramJackY, _inputID);
+    }
+
+    void createParamComboHorizontal(int _x, int _y, int _paramID, int _trimpotID, int _inputID)
+    {
+        const float knobY = _y;
+        const float trimpotY = knobY + 4.0f;
+        const float paramJackY = knobY + 3.0f;
+
+        const float knobX = _x;
+        const float trimpotX = knobX + 70.0f;
+        const float paramJackX = knobX + 130.0f;
+
+        createHCVKnob(knobX, knobY, _paramID);
+        createHCVTrimpot(trimpotX, trimpotY, _trimpotID);
+        createInputPort(paramJackX, paramJackY, _inputID);
+    }
+
 };
 
 struct HCVTriggerGenerator
