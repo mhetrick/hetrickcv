@@ -318,3 +318,94 @@ public:
 private:
     float lastX = 0.0f;
 };
+
+//////////////////////////
+//////3 op Chaos
+//////////////////////////
+
+class HCVChaos3Op : public HCVChaosBase
+{
+public:
+    virtual void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC)
+    {
+        chaosAmountA = _chaosAmountA;
+        chaosAmountB = _chaosAmountB;
+        chaosAmountC = _chaosAmountC;
+    }
+    float out = 0.0f;
+
+protected:
+    float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f;
+};
+
+class HCVLCCMap : public HCVChaos3Op
+{
+public:
+    HCVLCCMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) override final
+    {
+        chaosAmountA = (_chaosAmountA * _chaosAmountA) + 0.9f;
+        chaosAmountB = _chaosAmountB * 0.3f;
+        chaosAmountC = 0.0001f + (_chaosAmountC * 0.9999f);
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastOut = randomGen.nextFloat();
+    }
+
+private:
+    float lastOut = 0.5f;
+};
+
+class HCVQuadraticMap : public HCVChaos3Op
+{
+public:
+    HCVQuadraticMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) override final
+    {
+        chaosAmountA = -3.4f - (_chaosAmountA * 0.6f);
+        chaosAmountB = 3.4f + (_chaosAmountB * 0.6f);
+        chaosAmountC = (_chaosAmountC * 0.6f) - 0.1f;
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastOut = randomGen.nextFloat();
+    }
+
+private:
+    float lastOut = 0.5f;
+};
+
+//////////////////////////
+//////4 op Chaos
+//////////////////////////
+
+class HCVChaos4Op : public HCVChaosBase
+{
+public:
+    virtual void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD)
+    {
+        chaosAmountA = _chaosA;
+        chaosAmountB = _chaosA;
+        chaosAmountC = _chaosA;
+        chaosAmountD = _chaosD;
+    }
+    float outX = 0.0f, outY = 0.0f, outZ = 0.0f;
+
+protected:
+    float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f, chaosAmountD = 0.0f;
+};
