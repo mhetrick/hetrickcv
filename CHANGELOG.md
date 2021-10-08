@@ -2,6 +2,7 @@
 
 ## 2.0.0 Dev
 - Add 1-Op Chaos module.
+- Add 2-Op Chaos module.
 - Add Binary Gate module.
 - Add Binary Noise module.
 - Add Gingerbread Chaos module.

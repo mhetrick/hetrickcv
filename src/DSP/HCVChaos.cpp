@@ -86,8 +86,8 @@ void HCVGaussMap::generate()
     float nextX = rack::math::clamp(std::exp(base), -1.0f, 1.0f);
 
     lastX = nextX;
-    out1 = lastX;
-    out2 = lastX * -1.0f;
+    out1 = uniToBi(lastX);
+    out2 = out1 * -1.0f;
 }
 
 void HCVMouseMap::generate()

@@ -37,6 +37,7 @@ extern Model *modelBitshift;
 extern Model *modelBlankPanel;
 extern Model *modelBoolean3;
 extern Model *modelChaos1Op;
+extern Model *modelChaos2Op;
 extern Model *modelComparator;
 extern Model *modelContrast;
 extern Model *modelCrackle;

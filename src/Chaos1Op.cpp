@@ -47,8 +47,8 @@ struct Chaos1Op : HCVModule
         configParam(Chaos1Op::CHAOS_PARAM, -5.0, 5.0, 0.0, "Chaos");
 		configParam(Chaos1Op::CHAOS_SCALE_PARAM, -1.0, 1.0, 1.0, "Chaos CV Depth");
 
-        configParam(Chaos1Op::MODE_PARAM, 0.0, 5.0, 0.0, "Chaos");
-		configParam(Chaos1Op::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Chaos CV Depth");
+        configParam(Chaos1Op::MODE_PARAM, 0.0, 5.0, 0.0, "Mode");
+		configParam(Chaos1Op::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
         configSwitch(Chaos1Op::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
         configSwitch(Chaos1Op::SLEW_PARAM, 0.0, 1.0, 0.0, "Enable Slew", {"Stepped", "Slewed"});
