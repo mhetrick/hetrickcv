@@ -48,6 +48,10 @@ protected:
     HCVRandom randomGen;
 };
 
+//////////////////////////
+//////1 op Chaos
+//////////////////////////
+
 class HCVChaos1Op : public HCVChaosBase
 {
 public:
@@ -168,4 +172,149 @@ private:
     }
 
     float lastP = 0.0, lastO = 0.0;
+};
+
+//////////////////////////
+//////2 op Chaos
+//////////////////////////
+
+class HCVChaos2Op : public HCVChaosBase
+{
+public:
+    virtual void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB)
+    {
+        chaosAmountA = _chaosAmountA;
+        chaosAmountB = _chaosAmountB;
+    }
+    float out1 = 0.0f, out2 = 0.0f;
+
+protected:
+    float chaosAmountA = 0.0f, chaosAmountB = 0.0f;
+};
+
+class HCVHenonMap : public HCVChaos2Op
+{
+public:
+    HCVHenonMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    {
+        chaosAmountA = _chaosAmountA * 2.0f;
+        chaosAmountB = _chaosAmountB;
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+        lastY = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f, lastY = 0.0f;
+};
+
+class HCVHetrickMap : public HCVChaos2Op
+{
+public:
+    HCVHetrickMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    {
+        chaosAmountA = _chaosAmountA + 1.0f;
+        chaosAmountB = _chaosAmountB * 0.5f;
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+        lastX2 = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f, lastX2 = 0.0f;
+};
+
+class HCVCuspMap : public HCVChaos2Op
+{
+public:
+    HCVCuspMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    {
+        chaosAmountA = _chaosAmountA + 1.0f;
+        chaosAmountB = _chaosAmountB + 1.0f;
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f;
+};
+
+class HCVGaussMap : public HCVChaos2Op
+{
+public:
+    HCVGaussMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    {
+        chaosAmountA = _chaosAmountA * 0.4f;
+        chaosAmountB = gam::scl::mapLin(_chaosAmountB, 0.0f, 1.0f, 0.001f, 0.5f);
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f;
+};
+
+class HCVMouseMap : public HCVChaos2Op
+{
+public:
+    HCVMouseMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    {
+        chaosAmountA = 2.0 + (_chaosAmountA * 6.0);
+        chaosAmountB = _chaosAmountB * -0.7;
+    }
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f;
 };
