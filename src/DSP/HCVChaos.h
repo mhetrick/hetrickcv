@@ -34,6 +34,58 @@ private:
     HCVRandom randomGen;
 };
 
+//////////////////
+//////////////////
+
+class HCVFBSineChaos
+{
+public:
+    HCVFBSineChaos()
+    {
+
+    }
+
+    void generate();
+
+    float outX = 0.0f, outY = 0.0f;
+    bool brokenMode = false;
+
+    void setIndexX(double _indexX)
+    {
+        indexX = 5.0 * _indexX;
+    }
+
+    void setPhaseInc(double _phaseInc)
+    {
+        phaseInc = uniToBi(_phaseInc);
+    }
+
+    void setPhaseX(double _phaseX)
+    {
+        phaseX = (_phaseX * _phaseX * _phaseX * 2.0f) + 1.0f;
+    }
+
+    void setFeedback(double _feedback)
+    {
+        feedback = uniToBi(_feedback);
+    }
+
+private:
+    float lastX = 0.0f, lastY = 0.0f;
+    float indexX = 0.0f, phaseInc = 0.0f, phaseX = 0.0f, feedback = 0.0f;
+
+    float reaktorDivMod(float _in, float _mod)
+    {
+        float baseDiv = std::floor(_in/_mod) * _mod;
+
+        if(_in > 0.0f) return (_in - baseDiv);
+        return (_in - baseDiv) * -1.0f;
+    }
+};
+
+//////////////////
+//////////////////
+
 class HCVChaosBase
 {
 public:

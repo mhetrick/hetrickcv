@@ -26,6 +26,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelDigitalToAnalog);
 	p->addModel(modelDust);
 	p->addModel(modelExponent);
+	p->addModel(modelFBSineChaos);
 	p->addModel(modelFlipFlop);
 	p->addModel(modelFlipPan);
 	p->addModel(modelGateJunction);

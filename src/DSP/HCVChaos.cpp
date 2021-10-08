@@ -2,6 +2,28 @@
 #include "HCVChaos.h"
 #include "math.hpp"
 
+void HCVFBSineChaos::generate()
+{
+    float nextX = std::sin((indexX * lastY) + (feedback * lastX));
+    float nextY = (phaseX * lastY + phaseInc);
+    if(brokenMode)
+    {
+        nextY = reaktorDivMod(nextY, TWO_PI);
+    }
+    else
+    {
+        nextY = std::fmod(nextY, TWO_PI);
+    }
+    lastX = nextX;
+    lastY = nextY;
+
+    outX = lastX;
+    outY = lastY * M_1_2PI;
+}
+
+////////////////////
+///////////////////
+
 void HCVLogisticMap::generate()
 {
     lastValue = chaosAmount * lastValue * (1.0f - lastValue);

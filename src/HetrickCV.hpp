@@ -47,6 +47,7 @@ extern Model *modelDelta;
 extern Model *modelDigitalToAnalog;
 extern Model *modelDust;
 extern Model *modelExponent;
+extern Model *modelFBSineChaos;
 extern Model *modelFlipFlop;
 extern Model *modelFlipPan;
 extern Model *modelGateJunction;

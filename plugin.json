@@ -167,6 +167,16 @@
       ]
     },
     {
+      "slug": "FBSineChaos",
+      "name": "Feedback Sine Chaos",
+      "description": "A chaotic oscillator and LFO created through phase distortion and feedback.",
+      "tags": [
+        "Noise",
+        "Oscillator",
+        "Random"
+      ]
+    },
+    {
       "slug": "FlipFlop",
       "name": "Flip-Flop",
       "description": "A flexible toggle switch",
