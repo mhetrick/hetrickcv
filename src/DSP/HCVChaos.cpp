@@ -7,8 +7,8 @@ void HCVLogisticMap::generate()
     lastValue = chaosAmount * lastValue * (1.0f - lastValue);
     lastValue = rack::math::clamp(lastValue, lowLimit, upperLimit);
 
-    out1 = lastValue;
-    out2 = lastValue * -1.0f;
+    out1 = (lastValue - 0.6) * 1.6;
+    out2 = out1 * -1.0f;
 }
 
 void HCVIkedaMap::generate()
@@ -23,15 +23,15 @@ void HCVIkedaMap::generate()
     lastX = nextX;
     lastY = nextY;
 
-    out1 = lastX * 0.4f;
-    out2 = lastY * 0.4f;
+    out1 = lastX * 0.3f;
+    out2 = lastY * 0.3f;
 }
 
 void HCVTentMap::generate()
 {
     out = chaosAmount * std::min(out, 1.0f-out);
-    out1 = out;
-    out2 = out*-1.0f;
+    out1 = (out - 0.5f) * 2.0f;
+    out2 = out1*-1.0f;
 }
 
 void HCVStandardMap::generate()
