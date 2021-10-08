@@ -233,13 +233,14 @@ Chaos2OpWidget::Chaos2OpWidget(Chaos2Op *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-    const float knobY = 34.0f;
+    const float knobY = 35.0f;
     const float knobX = 10.0f;
+    const float spacing = 45.0f;
 
     createParamComboHorizontal(knobX, knobY, Chaos2Op::SRATE_PARAM, Chaos2Op::SRATE_SCALE_PARAM, Chaos2Op::SRATE_INPUT);
-    createParamComboHorizontal(knobX, knobY + 50, Chaos2Op::CHAOSA_PARAM, Chaos2Op::CHAOSA_SCALE_PARAM, Chaos2Op::CHAOSA_INPUT);
-    createParamComboHorizontal(knobX, knobY + 100, Chaos2Op::CHAOSB_PARAM, Chaos2Op::CHAOSB_SCALE_PARAM, Chaos2Op::CHAOSB_INPUT);
-    createParamComboHorizontal(knobX, knobY + 150, Chaos2Op::MODE_PARAM, Chaos2Op::MODE_SCALE_PARAM, Chaos2Op::MODE_INPUT);
+    createParamComboHorizontal(knobX, knobY + spacing, Chaos2Op::CHAOSA_PARAM, Chaos2Op::CHAOSA_SCALE_PARAM, Chaos2Op::CHAOSA_INPUT);
+    createParamComboHorizontal(knobX, knobY + spacing*2.0, Chaos2Op::CHAOSB_PARAM, Chaos2Op::CHAOSB_SCALE_PARAM, Chaos2Op::CHAOSB_INPUT);
+    createParamComboHorizontal(knobX, knobY + spacing*3.0, Chaos2Op::MODE_PARAM, Chaos2Op::MODE_SCALE_PARAM, Chaos2Op::MODE_INPUT);
 
 
     const float switchY = 238.0f;
@@ -260,7 +261,7 @@ Chaos2OpWidget::Chaos2OpWidget(Chaos2Op *module)
 
     for (int i = 0; i < 5; i++)
     {
-        addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 223 + (i*9.5)), module, i));
+        addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 227 + (i*9.5)), module, i));
     }
     
 }
