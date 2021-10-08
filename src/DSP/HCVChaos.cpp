@@ -46,6 +46,9 @@ void HCVStandardMap::generate()
     out2 = scaleOutput(lastO);
 }
 
+////////////////////
+///////////////////
+
 void HCVHenonMap::generate()
 {
     float nextX = 1.0f - (lastX*lastX*chaosAmountA) + lastY;
@@ -101,10 +104,13 @@ void HCVMouseMap::generate()
     out2 = lastX * -1.0f;
 }
 
+//////////////////
+//////////////////
+
 void HCVLCCMap::generate()
 {
     float base = (lastOut * chaosAmountA) + chaosAmountB;
-    float unscaled = fmodf(base, chaosAmountC);
+    float unscaled = fmod(base, chaosAmountC);
     lastOut = unscaled;
 
     float nextOut = ((2.0f/chaosAmountC) * unscaled) - 1.0f;
@@ -118,4 +124,128 @@ void HCVQuadraticMap::generate()
     float nextOut = rack::math::clamp(bFactor + chaosAmountC, -1.0f, 1.0f);
     lastOut = nextOut;
     out = uniToBi(lastOut);
+}
+
+///////////////////
+///////////////////
+
+void HCVDeJongMap::generate()
+{
+    float nextX = std::sin(lastX * chaosAmountC) - std::cos(lastY * chaosAmountD);
+    float nextY = std::sin(lastY * chaosAmountA) - std::cos(lastX * chaosAmountB);
+
+    lastX = nextX;
+    lastY = nextY;
+
+    outX = rack::math::clamp(lastX * 0.5f, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastY * 0.5f, -1.0f, 1.0f);
+    outZ = outX * outY;
+}
+
+void HCVLatoocarfianMap::generate()
+{
+    float nextX = (std::sin(lastX * chaosAmountB) * chaosAmountC) + std::cos(lastY * chaosAmountB);
+    float nextY = (std::sin(lastY * chaosAmountA) * chaosAmountD) + std::sin(lastX * chaosAmountA);
+
+    lastX = nextX;
+    lastY = nextY;
+
+    outX = rack::math::clamp(lastX * 0.5f, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastY * 0.5f, -1.0f, 1.0f);
+    outZ = outX * outY;
+}
+
+void HCVCliffordMap::generate()
+{
+    float nextX = (std::cos(lastX * chaosAmountA) * chaosAmountC) + std::sin(lastY * chaosAmountA);
+    float nextY = (std::cos(lastY * chaosAmountB) * chaosAmountD) + std::sin(lastX * chaosAmountB);
+
+    lastX = nextX;
+    lastY = nextY;
+
+    outX = rack::math::clamp(lastX * 0.5f, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastY * 0.5f, -1.0f, 1.0f);
+    outZ = outX * outY;
+}
+
+void HCVPickoverMap::generate()
+{
+    float nextX = std::sin(lastY * chaosAmountA) - (std::cos(lastX * chaosAmountB) * lastZ);
+    float nextY = (std::sin(lastX * chaosAmountC) * lastZ) - std::cos(lastY * chaosAmountD);
+    float nextZ = std::sin(lastX) * 0.5f;
+
+    lastX = nextX;
+    lastY = nextY;
+    lastZ = nextZ;
+
+    outX = rack::math::clamp(lastX * 0.5f, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastY * 0.5f, -1.0f, 1.0f);
+    outZ = rack::math::clamp(lastZ, -1.0f, 1.0f);
+}
+
+void HCVLorenzMap::generate()
+{
+    double nextX = ((lastY - lastX) * chaosAmountB) * chaosAmountA + lastX;
+    double nextY = (((chaosAmountC - lastZ) * lastX) - lastY) * chaosAmountA + lastY;
+    double nextZ = ((lastX * lastY) - (lastZ * chaosAmountD)) * chaosAmountA + lastZ;
+
+    lastX = nextX;
+    lastY = nextY;
+    lastZ = nextZ;
+
+    outX = rack::math::clamp(lastX * 0.02f, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastY * 0.02f, -1.0f, 1.0f);
+    outZ = rack::math::clamp(lastZ * 0.02f, -1.0f, 1.0f);
+}
+
+void HCVRosslerMap::generate()
+{
+    float nextX = (-lastY - lastZ) * chaosAmountA + lastX;
+    float nextY = ((lastY * chaosAmountB) + lastX) * chaosAmountA + lastY;
+    float nextZ = ((lastX - chaosAmountD) * lastZ + chaosAmountC) * chaosAmountA + lastZ;
+
+    lastX = rack::math::clamp(nextX, -20.0f, 20.0f);
+    lastY = rack::math::clamp(nextY, -20.0f, 20.0f);
+    lastZ = rack::math::clamp(nextZ, -20.0f, 20.0f);
+
+    outX = lastX * 0.05f;
+    outY = lastY * 0.05f;
+    outZ = lastZ * 0.05f;
+}
+
+void HCVTinkerbellMap::generate()
+{
+    float nextX = ((lastX * lastX) - (lastY * lastY)) + ((chaosAmountA * lastX) + (chaosAmountB * lastY));
+    float nextY = (2.0f * lastX * lastY) + ((chaosAmountC * lastX) + (chaosAmountD * lastY));
+
+    if(immortal)
+    {
+        if(nextX == 0.0f) nextX = randomGen.whiteNoise();
+        if(nextY == 0.0f) nextY = randomGen.whiteNoise();
+    }
+
+    lastX = rack::math::clamp(nextX, -1.0f, 1.0f);
+    lastY = rack::math::clamp(nextY, -1.0f, 1.0f);
+
+    outX = lastX;
+    outY = lastY;
+    outZ = outX * outY;
+}
+
+void HCVFitzhughNagumoMap::generate()
+{
+    float nextU = ((lastU - (lastU * lastU * lastU * 0.33333f)) - lastW) * chaosAmountA + lastU;
+    if(std::abs(nextU) > 1.0f)
+    {
+        float mod = std::fmod(nextU - 1.0f, 4.0f);
+        nextU = std::abs(mod - 2.0f) - 1.0f;
+    }
+    float nextW = (((lastU * chaosAmountD) + chaosAmountC) - lastW) * chaosAmountB;
+
+    lastU = nextU;
+    lastW = nextW;
+
+    outX = rack::math::clamp(lastU, -1.0f, 1.0f);
+    outY = rack::math::clamp(lastW, -1.0f, 1.0f);
+    outZ = outX * outY;
 }

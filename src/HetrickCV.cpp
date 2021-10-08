@@ -17,6 +17,8 @@ void init(rack::Plugin *p) {
 	p->addModel(modelBoolean3);
 	p->addModel(modelChaos1Op);
 	p->addModel(modelChaos2Op);
+	p->addModel(modelChaos3Op);
+	p->addModel(modelChaoticAttractors);
 	p->addModel(modelComparator);
 	p->addModel(modelContrast);
 	p->addModel(modelCrackle);

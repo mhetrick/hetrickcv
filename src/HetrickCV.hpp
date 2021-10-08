@@ -38,6 +38,8 @@ extern Model *modelBlankPanel;
 extern Model *modelBoolean3;
 extern Model *modelChaos1Op;
 extern Model *modelChaos2Op;
+extern Model *modelChaos3Op;
+extern Model *modelChaoticAttractors;
 extern Model *modelComparator;
 extern Model *modelContrast;
 extern Model *modelCrackle;

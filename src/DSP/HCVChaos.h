@@ -409,3 +409,247 @@ public:
 protected:
     float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f, chaosAmountD = 0.0f;
 };
+
+class HCVDeJongMap : public HCVChaos4Op
+{
+public:
+
+    HCVDeJongMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = (_chaosA * TWO_PI) - PI;
+        chaosAmountB = (_chaosB * TWO_PI) - PI;
+        chaosAmountC = (_chaosC * TWO_PI) - PI;
+        chaosAmountD = (_chaosD * TWO_PI) - PI;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f;
+};
+
+class HCVLatoocarfianMap : public HCVChaos4Op
+{
+public:
+
+    HCVLatoocarfianMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = (_chaosA * TWO_PI) - PI;
+        chaosAmountB = (_chaosB * TWO_PI) - PI;
+        chaosAmountC = _chaosC + 0.5f;
+        chaosAmountD = _chaosD + 0.5f;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f;
+};
+
+class HCVCliffordMap : public HCVChaos4Op
+{
+public:
+
+    HCVCliffordMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = (_chaosA * TWO_PI) - PI;
+        chaosAmountB = (_chaosB * TWO_PI) - PI;
+        chaosAmountC = _chaosC + 0.5f;
+        chaosAmountD = _chaosD + 0.5f;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f;
+};
+
+class HCVPickoverMap : public HCVChaos4Op
+{
+public:
+
+    HCVPickoverMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = _chaosA * 5.0f;
+        chaosAmountB = _chaosB * 5.0f;
+        chaosAmountC = _chaosC * 5.0f;
+        chaosAmountD = _chaosD * 5.0f;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+        lastZ = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f, lastZ = 0.0f;
+};
+
+class HCVLorenzMap : public HCVChaos4Op
+{
+public:
+
+    HCVLorenzMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = gam::scl::mapLin(_chaosA, 0.0f, 1.0f, 0.001f, 0.01f);
+        chaosAmountB = 4.0f + (_chaosB * 51.0f);
+        chaosAmountC = 10.0f + (_chaosC * 40.0f);
+        chaosAmountD = 0.4f + (_chaosD * 4.6f);
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+        lastZ = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f, lastZ = 0.0f;
+};
+
+class HCVRosslerMap : public HCVChaos4Op
+{
+public:
+
+    HCVRosslerMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = gam::scl::mapLin(_chaosA, 0.0f, 1.0f, 0.001f, 0.015f);
+        chaosAmountB = _chaosB * 0.35f;
+        chaosAmountC = 0.5f + (_chaosC * 0.5f);
+        chaosAmountD = 1.0f + (_chaosD * 9.0f);
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.nextFloat();
+        lastY = randomGen.nextFloat();
+        lastZ = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastX = 0.0f, lastY = 0.0f, lastZ = 0.0f;
+};
+
+class HCVTinkerbellMap : public HCVChaos4Op
+{
+public:
+
+    HCVTinkerbellMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = _chaosA;
+        chaosAmountB = uniToBi(_chaosB);
+        chaosAmountC = _chaosC * 4.0f;
+        chaosAmountD = _chaosD;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastX = randomGen.whiteNoise();
+        lastY = randomGen.whiteNoise();
+    }
+
+    bool immortal = true;
+
+private:
+    double lastX = 0.0f, lastY = 0.0f;
+};
+
+class HCVFitzhughNagumoMap : public HCVChaos4Op
+{
+public:
+
+    HCVFitzhughNagumoMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    {
+        chaosAmountA = _chaosA;
+        chaosAmountB = _chaosA;
+        chaosAmountC = _chaosA;
+        chaosAmountD = _chaosD;
+    } 
+
+    void generate() override final;
+
+    void reset() override final
+    {
+        lastU = randomGen.nextFloat();
+        lastW = randomGen.nextFloat();
+    }
+
+
+private:
+    double lastU = 0.0f, lastW = 0.0f;
+};

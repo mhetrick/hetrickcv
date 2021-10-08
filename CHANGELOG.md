@@ -3,8 +3,10 @@
 ## 2.0.0 Dev
 - Add 1-Op Chaos module.
 - Add 2-Op Chaos module.
+- Add 3-Op Chaos module.
 - Add Binary Gate module.
 - Add Binary Noise module.
+- Add Chaotic Attractors module.
 - Add Gingerbread Chaos module.
 - Add Mid/Side module.
 - Add Rungler module.

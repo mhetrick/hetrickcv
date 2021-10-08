@@ -30,6 +30,15 @@
       ]
     },
     {
+      "slug": "Chaos3Op",
+      "name": "3-Op Chaos",
+      "description": "Multimode audio and modulation chaos generator.",
+      "tags": [
+        "Noise",
+        "Random"
+      ]
+    },
+    {
       "slug": "ASR",
       "name": "ASR",
       "description": "Analog shift register. Multi-stage sample and hold",
@@ -86,6 +95,15 @@
       "description": "Six way boolean logic processor",
       "tags": [
         "Logic"
+      ]
+    },
+    {
+      "slug": "ChaoticAttractors",
+      "name": "Chaotic Attractors",
+      "description": "Multimode audio and modulation chaos generator.",
+      "tags": [
+        "Noise",
+        "Random"
       ]
     },
     {
