@@ -9,3 +9,9 @@ inline T LERP(const float _amountOfA, const T _inA, const T _inB)
 {
     return ((_amountOfA*_inA)+((1.0f-_amountOfA)*_inB));
 }
+
+template <typename T = float>
+inline T uniToBi(const T _in)
+{
+    return (_in - T(0.5)) * 2.0;
+}

@@ -100,3 +100,22 @@ void HCVMouseMap::generate()
     out1 = lastX;
     out2 = lastX * -1.0f;
 }
+
+void HCVLCCMap::generate()
+{
+    float base = (lastOut * chaosAmountA) + chaosAmountB;
+    float unscaled = fmodf(base, chaosAmountC);
+    lastOut = unscaled;
+
+    float nextOut = ((2.0f/chaosAmountC) * unscaled) - 1.0f;
+    out = rack::math::clamp(nextOut, -1.0f, 1.0f);
+}
+
+void HCVQuadraticMap::generate()
+{
+    float aFactor = lastOut*lastOut*chaosAmountA;
+    float bFactor = (lastOut * chaosAmountB) + aFactor;
+    float nextOut = rack::math::clamp(bFactor + chaosAmountC, -1.0f, 1.0f);
+    lastOut = nextOut;
+    out = uniToBi(lastOut);
+}
