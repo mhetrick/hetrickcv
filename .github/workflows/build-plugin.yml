@@ -19,7 +19,7 @@ jobs:
             name: Linux,
             os: ubuntu-latest,
             arch: lin,
-            prepare-os: sudo apt-get update && apt install -y libglu-dev
+            prepare-os: sudo apt-get update && sudo apt install -y libglu-dev
           }
         - {
             name: MacOS,
