@@ -76,6 +76,19 @@ struct ChaoticAttractors : HCVModule
 
         configButton(ChaoticAttractors::RESEED_PARAM, "Reseed Button");
 
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(RESEED_INPUT, "Reseed");
+        configInput(SRATE_INPUT, "Sample Rate CV");
+
+        configInput(CHAOSA_INPUT, "Chaos A CV");
+        configInput(CHAOSB_INPUT, "Chaos B CV");
+        configInput(CHAOSC_INPUT, "Chaos C CV");
+        configInput(CHAOSD_INPUT, "Chaos D CV");
+
+        configOutput(X_OUTPUT, "X");
+        configOutput(Y_OUTPUT, "Y");
+        configOutput(Z_OUTPUT, "Z");
+
         random::init();
 	}
 

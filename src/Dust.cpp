@@ -28,6 +28,9 @@ struct Dust : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
 		configParam(Dust::RATE_PARAM, 0, 4.0, 0.0, "Rate");
 		configSwitch(Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0, "Output Mode", {"Bipolar", "Unipolar"});
+
+		configInput(RATE_INPUT, "Rate CV");
+		configOutput(MAIN_OUTPUT, "Dust");
 	}
 
 	void process(const ProcessArgs &args) override;

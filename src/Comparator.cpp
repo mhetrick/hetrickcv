@@ -37,6 +37,14 @@ struct Comparator : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Compare Threshold");
 		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "Compare CV Depth");
+
+		configInput(AMOUNT_INPUT, "Compare CV");
+
+		configOutput(GT_GATE_OUTPUT, "Greater Than Gate");
+		configOutput(GT_TRIG_OUTPUT, "Greater Than Trigger");
+		configOutput(LT_GATE_OUTPUT, "Less Than Gate");
+		configOutput(LT_TRIG_OUTPUT, "Less Than Trigger");
+		configOutput(ZEROX_OUTPUT, "Crossing Trigger");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;

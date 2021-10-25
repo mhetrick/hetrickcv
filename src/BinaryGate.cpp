@@ -35,6 +35,12 @@ struct BinaryGate : HCVModule
         configButton(ON_PARAM, "On Button");
         configButton(OFF_PARAM, "Off Button");
         configButton(TOGGLE_PARAM, "Toggle Button");
+
+        configInput(ON_INPUT, "On Gate");
+        configInput(OFF_INPUT, "Off Gate");
+        configInput(TOGGLE_INPUT, "Toggle Gate");
+        
+        configOutput(GATE_OUTPUT, "Main Gate");
 	}
 
 	void process(const ProcessArgs &args) override;

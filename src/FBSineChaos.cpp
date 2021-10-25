@@ -68,6 +68,17 @@ struct FBSineChaos : HCVModule
         configSwitch(FBSineChaos::DC_PARAM, 0.0, 1.0, 0.0, "DC Filtering", {"DC", "AC"});
         configSwitch(FBSineChaos::MODE_PARAM, 0.0, 1.0, 0.0, "Negative Phase Mode", {"Normal", "Broken"});
 
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(SRATE_INPUT, "Sample Rate CV");
+
+        configInput(CHAOSA_INPUT, "Index Multiplier CV");
+        configInput(CHAOSB_INPUT, "Phase Increment CV");
+        configInput(CHAOSC_INPUT, "Phase Multiplier CV");
+        configInput(CHAOSD_INPUT, "Feedback CV CV");
+
+        configOutput(X_OUTPUT, "X");
+        configOutput(Y_OUTPUT, "Y (Phase)");
+
         random::init();
 	}
 

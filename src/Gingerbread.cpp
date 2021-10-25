@@ -46,6 +46,13 @@ struct Gingerbread : HCVModule
 
         configButton(Gingerbread::RESEED_PARAM, "Reseed Button");
 
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(RESEED_INPUT, "Reseed");
+        configInput(SRATE_INPUT, "Sample Rate CV");
+        configInput(FB_INPUT, "Feedback FM CV");
+
+        configOutput(MAIN_OUTPUT, "Chaos");
+
         random::init();
 	}
 

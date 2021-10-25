@@ -87,6 +87,14 @@ struct AnalogToDigital : HCVModule
 
         configParam(AnalogToDigital::SCALE_PARAM, -1.0, 1.0, 0.2, "Scale");
         configParam(AnalogToDigital::OFFSET_PARAM, -5.0, 5.0, 0.0, "Offset");
+
+        for (int i = 0; i < 8; i++)
+        {
+            configOutput(OUT1_OUTPUT + i, "Bit " + std::to_string(i + 1));
+        }
+        
+        configInput(MAIN_INPUT, "Main");
+        configInput(SYNC_INPUT, "Sync");
 	}
 
     void process(const ProcessArgs &args) override;

@@ -56,6 +56,15 @@ struct RandomGates : HCVModule
         configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "Minimum Output Channel");
         configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "Maximum Output Channel");
         configButton(RandomGates::MODE_PARAM, "Output Mode");
+
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(MINI_INPUT, "Minimum Output Channel CV");
+        configInput(MAXI_INPUT, "Maximum Output Channel CV");
+
+        for (int i = 0; i < 8; i++)
+        {
+            configOutput(OUT1_OUTPUT + i, "Gate " + std::to_string(i + 1));
+        }
 	}
 
     void process(const ProcessArgs &args) override;
@@ -191,15 +200,16 @@ RandomGatesWidget::RandomGatesWidget(RandomGates *module)
     const int outXPos = 145;
     const int outLightX = 120;
     const int inLightX = 45;
+    const int inJackX = 58;
 
+    createInputPort(inJackX, 90, RandomGates::CLOCK_INPUT);
+    createInputPort(inJackX, 150, RandomGates::MINI_INPUT);
+    createInputPort(inJackX, 210, RandomGates::MAXI_INPUT);
+    
+    createHCVKnob(10, 145, RandomGates::MIN_PARAM);
+    createHCVKnob(10, 205, RandomGates::MAX_PARAM);
 
-    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
-
-    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM));
+    createHCVButtonLarge(56, 270, RandomGates::MODE_PARAM);
 
     //////BLINKENLIGHTS//////
     addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));

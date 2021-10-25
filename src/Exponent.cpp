@@ -30,6 +30,10 @@ struct Exponent : HCVModule
 		configParam(Exponent::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Shape");
 		configParam(Exponent::SCALE_PARAM, -1.0, 1.0, 1.0, "Shape CV Depth");
 		configSwitch(Exponent::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
+
+		configInput(AMOUNT_INPUT, "Shape CV");
+		configInput(MAIN_INPUT, "Main");
+		configOutput(MAIN_OUTPUT, "Main");
 	}
 
 	void process(const ProcessArgs &args) override;

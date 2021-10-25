@@ -55,6 +55,9 @@ struct Crackle : HCVModule
 		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "Chaos Depth");
 		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "Broken Mode");
 
+		configInput(RATE_INPUT, "Chaos CV");
+		configOutput(MAIN_OUTPUT, "Crackle");
+
 		y1 = random::uniform();
 		y2 = 0.0f;
 		lasty1 = 0.0f;

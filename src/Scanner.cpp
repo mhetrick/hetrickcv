@@ -183,23 +183,24 @@ ScannerWidget::ScannerWidget(Scanner *module)
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
+    createHCVKnob(knobX, 65, Scanner::SCAN_PARAM);
+    createInputPort(jackX, 70, Scanner::SCAN_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
+    createHCVKnob(knobX, 125, Scanner::STAGES_PARAM);
+    createInputPort(jackX, 130, Scanner::STAGES_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
+    createHCVKnob(knobX, 185, Scanner::WIDTH_PARAM);
+    createInputPort(jackX, 190, Scanner::WIDTH_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
+    createHCVKnob(knobX, 245, Scanner::SLOPE_PARAM);
+    createInputPort(jackX, 250, Scanner::SLOPE_INPUT);
 
-    addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
+    createInputPort(96, 310, Scanner::ALLIN_INPUT);
+    createOutputPort(141, 310, Scanner::MIX_OUTPUT);
 
-    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM));
-    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM));
+    createHCVSwitchVert(75, 312, Scanner::OFFSET_PARAM);
+
+    createHCVTrimpot(180, 313, Scanner::MIXSCALE_PARAM);
 
     const int inXPos = 10;
     const int inLightX = 50;

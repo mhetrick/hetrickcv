@@ -41,6 +41,10 @@ struct Waveshape : HCVModule
 		configParam(Waveshape::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Waveshape Amount");
 		configParam(Waveshape::SCALE_PARAM, -1.0, 1.0, 1.0, "Waveshape CV Depth");
 		configSwitch(Waveshape::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
+
+		configInput(AMOUNT_INPUT, "Waveshape CV");
+		configInput(MAIN_INPUT, "Main");
+		configOutput(MAIN_OUTPUT, "Main");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -95,7 +99,7 @@ WaveshapeWidget::WaveshapeWidget(Waveshape *module)
 	//////PARAMS//////
 	createHCVKnob(27, 62, Waveshape::AMOUNT_PARAM);
 	createHCVTrimpot(36, 112, Waveshape::SCALE_PARAM);
-    addParam(createParam<CKSSRot>(Vec(35, 200), module, Waveshape::RANGE_PARAM));
+	createHCVSwitchHoriz(35, 200, Waveshape::RANGE_PARAM);
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 235), module, Waveshape::MAIN_INPUT));

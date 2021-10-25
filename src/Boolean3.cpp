@@ -47,6 +47,17 @@ struct Boolean3 : HCVModule
 	Boolean3()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+
+        configInput(INA_INPUT, "A");
+        configInput(INB_INPUT, "B");
+        configInput(INC_INPUT, "C");
+
+        configOutput(OR_OUTPUT, "OR");
+        configOutput(AND_OUTPUT, "AND");
+        configOutput(XOR_OUTPUT, "XOR");
+        configOutput(NOR_OUTPUT, "NOR");
+        configOutput(NAND_OUTPUT, "NAND");
+        configOutput(XNOR_OUTPUT, "XNOR");
 	}
 
 	void process(const ProcessArgs &args) override;

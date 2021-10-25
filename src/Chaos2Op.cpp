@@ -63,6 +63,16 @@ struct Chaos2Op : HCVModule
 
         configButton(Chaos2Op::RESEED_PARAM, "Reseed Button");
 
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(RESEED_INPUT, "Reseed");
+        configInput(SRATE_INPUT, "Sample Rate CV");
+
+        configInput(CHAOSA_INPUT, "Chaos A CV");
+        configInput(CHAOSB_INPUT, "Chaos B CV");
+
+        configOutput(X_OUTPUT, "X");
+        configOutput(Y_OUTPUT, "Y");
+
         random::init();
 	}
 

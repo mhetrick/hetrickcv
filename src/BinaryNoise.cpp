@@ -11,7 +11,7 @@ struct BinaryNoise : HCVModule
         PROB_SCALE_PARAM,
         RANGE_PARAM,
         SLEW_PARAM,
-        POLAR_PARAM,
+        POLARITY_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -38,7 +38,13 @@ struct BinaryNoise : HCVModule
 
         configSwitch(BinaryNoise::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
         configSwitch(BinaryNoise::SLEW_PARAM, 0.0, 1.0, 0.0, "Enable Slew", {"Stepped", "Slewed"});
-        configSwitch(BinaryNoise::POLAR_PARAM, 0.0, 1.0, 0.0, "Polarity", {"Bipolar", "Unipolar"});
+        configSwitch(BinaryNoise::POLARITY_PARAM, 0.0, 1.0, 0.0, "Polarity", {"Bipolar", "Unipolar"});
+
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(SRATE_INPUT, "Sample Rate CV");
+        configInput(PROB_INPUT, "Probability CV");
+
+        configOutput(MAIN_OUTPUT, "Main");
 
         random::init();
 	}
@@ -69,7 +75,7 @@ void BinaryNoise::process(const ProcessArgs &args)
 
    if(isReady)
    {
-       bipolar = params[POLAR_PARAM].getValue() == 0.0f;
+       bipolar = params[POLARITY_PARAM].getValue() == 0.0f;
 
        float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM);
        bool on = random::uniform() < prob;
@@ -119,7 +125,7 @@ BinaryNoiseWidget::BinaryNoiseWidget(BinaryNoise *module)
     float spacing = 48.0f;
     createHCVSwitchVert(switchX, switchY, BinaryNoise::RANGE_PARAM);
     createHCVSwitchVert(switchX + spacing, switchY, BinaryNoise::SLEW_PARAM);
-    createHCVSwitchVert(switchX + spacing*2, switchY, BinaryNoise::POLAR_PARAM);
+    createHCVSwitchVert(switchX + spacing*2, switchY, BinaryNoise::POLARITY_PARAM);
 
 
     const float jackY = 312.0f;

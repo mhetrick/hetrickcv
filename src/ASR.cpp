@@ -50,6 +50,12 @@ struct ASR : HCVModule
 	ASR()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configInput(MAIN_INPUT, "Data");
+        configInput(CLK_INPUT, "Clock");
+        configOutput(STAGE1_OUTPUT, "Register Stage 1");
+        configOutput(STAGE2_OUTPUT, "Register Stage 2");
+        configOutput(STAGE3_OUTPUT, "Register Stage 3");
+        configOutput(STAGE4_OUTPUT, "Register Stage 4");
 	}
 
 	void process(const ProcessArgs &args) override;

@@ -124,6 +124,11 @@ struct HCVModuleWidget : ModuleWidget
         addParam(createParam<TL1105>(Vec(_x, _y), module, _paramID));
     }
 
+    void createHCVButtonLarge(int _x, int _y, int _paramID)
+    {
+        addParam(createParam<CKD6>(Vec(_x, _y), module, _paramID));
+    }
+
     void createInputPort(int _x, int _y, int _paramID)
     {
         addInput(createInput<PJ301MPort>(Vec(_x, _y), module, _paramID));

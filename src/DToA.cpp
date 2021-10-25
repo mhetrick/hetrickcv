@@ -73,6 +73,13 @@ struct DigitalToAnalog : HCVModule
         configButton(DigitalToAnalog::RECTIFY_PARAM, "Rectification Mode");
         configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "Scale");
         configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "Offset");
+
+        for (int i = 0; i < 8; i++)
+        {
+            configInput(IN1_INPUT + i, "Bit " + std::to_string(i + 1));
+        }
+
+        configOutput(MAIN_OUTPUT, "Main");
 	}
 
     void process(const ProcessArgs &args) override;

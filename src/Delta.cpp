@@ -51,6 +51,16 @@ struct Delta : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "Input Boost");
 		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "Boost CV Depth");
+
+		configInput(MAIN_INPUT, "Main");
+		configInput(AMOUNT_INPUT, "Boost CV");
+
+		configOutput(GT_GATE_OUTPUT, "Rising Gate");
+		configOutput(GT_TRIG_OUTPUT, "Rising Trigger");
+		configOutput(LT_GATE_OUTPUT, "Falling Gate");
+		configOutput(LT_TRIG_OUTPUT, "Falling Trigger");
+		configOutput(CHANGE_OUTPUT, "Direction Change Trigger");
+		configOutput(DELTA_OUTPUT, "Delta");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
