@@ -15,6 +15,13 @@ I welcome Issues and Pull Requests to this repository if you have suggestions fo
 
 # HetrickCV User Manual
 
+### 1/2/3-Op Chaos and Chaos Attractors
+These four modules cover a wide variety of chaotic equations, many of which have multidimensional outputs. These can run at audio or modulation rates, or they can be manually clocked. Additionally, the Slewed mode linearly interpolates between values. This mode is perfect for smooth modulation, but it is also useful as a low-pass filter when running at audio rates. The intensity of the slew is connected to the Sample Rate control, so if you are manually clocking this module make sure that you tweak the Sample Rate if you are in Slewed mode.
+The Sample Rate control is present instead of a Frequency control, since these chaotic maps are typically not periodic (Yes, some of the maps, like the 1-Op Logistic map, oscillate at low Chaos values, but these are exceptions more than the norm). As such, it's important to note that changing the sampling rate of your patch will greatly affect these modules.
+The 3-Op Chaos module has only one output, while the rest of the modules are multi-dimensional. On the 1-Op and 2-Op Chaos modules, some of the maps (like Logistic) are one-dimensional. For these maps, the Y output is simply -X. On Chaotic Attractors, there are X, Y, and Z outputs. For the two-dimensional maps on this module, the Z output is X*Y.
+Additionally, two of the maps have been modified from their original descriptions. On the Latoocarfian map, I replaced a Sine call with a Cosine call to help it stay away from values that kill it (i.e. set all the outputs to zero and prevent new values from being generated). On the Tinkerbell map, if all values reach 0.0, all values will be updated with a random value. This can produce fun, periodic noise bursts.
+Speaking of which, if any of these maps seem to get stuck, be sure to try the Reseed button/input. This will "restart" the map by inserting new, random values into it.
+
 ### 2-to-4 Mix Matrix
 This simple module takes in two inputs (CV or Audio). It produces four outputs that are various combinations of the two inputs. It is based on [Julius O. Smith's description of a mix matrix for Schroeder Reverberators](https://ccrma.stanford.edu/~jos/pasp/Schroeder_Reverberators.html). Despite its original use for spatializing audio, this can be a great module for creating CV permutations.
 
@@ -43,8 +50,15 @@ Patch ideas:
 ### Binary Gate
 This is a very simple module with a single gate output. There are three gate inputs with corresponding buttons. The first two buttons turn the output gate on or off, while the third toggles its current state.
 
+Patch ideas:
+- Connect MIDI note gates to the gate inputs. Use your MIDI keyboard to launch and stop other sequencers with Binary Gate's main output.
+
 ### Binary Noise
 This noise generator will randomly generate a value of +/- 5V (or +5V and 0V in unipolar mode). At audio rates, this generates very loud, digital noise, while at lower rates this can be used to generate unpredictable gates. With slew mode enabled, it will interpolate cleanly between the two states, making it useful as a modulation source as well.
+
+Patch ideas:
+- Plug a different gate source into the Clock input. Use the probability control to shape how many gates reach the output.
+- Run at audio rate and bipolar mode for really harsh square wave noise.
 
 ### Bitshift
 This is a harsh waveshaping effect. It is particularly useful for taking a slow, smooth CV value and creating a lot of rapid discontinuities. The effect is produced by taking the internal floating-point representation of the signal and turning it into a 32-bit integer. The integer's bits are then shifted left (<<, which produces aggressive alterations to the signal) or right (>>, which is mostly just attenuation). Because the algorithm for this module has expected boundaries, you will need to select a range for the input signal. +/- 5V is the standard range for most audio generators in Rack. Some function generators will produce +/- 10V, though. Regardless, since this is a fairly harsh and experimental module, there's no need to select the "correct" range...
@@ -111,6 +125,9 @@ Patch Ideas:
 ### Exponent
 This is a simple waveshaper that will raise the input voltage to a power specified by the Amount knob. Turning the knob clockwise will make the output signal more exponential, while turning the knob counter-clockwise will make the output signal more logarithmic. This will have a mild effect on audio signals, but it is extremely useful for shaping LFOs and envelopes.
 
+### Feedback Sine Chaos
+This is an algorithm ported over from Supercollider. This shares a similar set of controls with the Chaos modules described above. However, instead of a traditional chaos map, it uses a sine wave oscillator. The chaotic behavior occurs when manipulating the underlying phasor in unusual ways, including self feedback.
+
 ### Flip Flop
 "Flip Flop" is an engineering/electronics term to describe what is typically a toggle switch with potential conditional behavior. There are two types of Flip Flops on this module: a Flip Flop T (toggle) and Flip Flop D (data).
 The Flip Flop T can be thought of as a gate controlled light switch (or, in more modular thinking, a /2 clock divider). A positive gate on the IN T input will turn the FFT output on, and the next gate will turn it off.
@@ -129,6 +146,12 @@ Patch Ideas:
 
 ### Gate Junction
 This is an eight-channel gate manipulator that was designed to work quickly with the Analog to Digital, Digital to Analog, and Rotator modules. This takes in up to eight gate signals. Each gate can be muted and/or inverted. The inversion behavior does not turn a positive gate negative. Rather, a positive gate will be changed to 0V, while a 0V signal will be changed to +5V. In more technical terms, it is a logic inverter. As an added convenience, the inputs are normalled together. If a cable is not plugged into an input, it will receive the value of the input above it.
+
+### Gingerbread Chaos
+This is a simpler chaos module than the ones described above. Instead of having a dedicated Chaos control, the sound/shape of the map is determined by its initial conditions. The initial conditions can be rerolled using the Reseed gate input or button.
+
+### Mid-Side Converter
+When I made this, I pretty much forgot that VCV's built-in (and polyphonic) Mid-Side module existed, but hey, here's another variation on that.
 
 ### Min-Max
 This module accepts up to four inputs. The Max output is the largest voltage found on the four inputs, while the Min output is the lowest voltage. The inputs feed each other from top-to-bottom as an easy way to avoid one of the jacks from being set to a constant 0V. However, if you want a constant 0V on one of the jacks (for instance, if you would like to use the Max output as a half-wave rectifier), simply patch the inputs from the bottom up and leave at least the top jack unplugged.
@@ -160,6 +183,9 @@ The SCAN control determines which input is active. The STAGES control determines
 - 8-channel crossfader/mixer: Use up to eight different inputs. Monitor the Mix Out. Use the SCAN control to smoothly crossfade between the eight inputs.
 - 8-channel distributor: Plug a modulation signal into the All In input. Manipulate the SCAN control to send that signal to up to eight destinations.
 - 8 VCAs: Use up to eight different inputs. Manipulate the SCAN control and monitor the individual outputs.
+
+### XY to Polar
+This is a very simple two-way converter. This takes in two voltages (X and Y) and treats them as cartesian coordinates. It then converts these to Polar coordinates. The Polar outputs are normalled to Polar inputs, which are then converted back into X, Y Cartesian coordinates.
 
 ### Waveshaper
 This is a hyperbolic waveshaper, the exact same one used on [Unfiltered Audio's Dent](https://unfilteredaudio.com/products/dent) (the SHAPE control in the top-row distortion). At 12 o'clock, the input signal is unaffected. As you turn the control clockwise, the signal is turned into a square wave. As you turn the contol counter-clockwise, signals are turned into needles. This is easiest to hear by using a sine wave input (you can see it by using the Fundamental Scope module).
