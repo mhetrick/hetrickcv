@@ -107,6 +107,15 @@
       ]
     },
     {
+      "slug": "ClockedNoise",
+      "name": "Clocked Noise",
+      "description": "Multimode audio and modulation noise generator.",
+      "tags": [
+        "Noise",
+        "Random"
+      ]
+    },
+    {
       "slug": "Comparator",
       "name": "Comparator",
       "description": "Determine whether a signal is above or below a threshold.",

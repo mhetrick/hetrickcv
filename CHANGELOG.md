@@ -7,6 +7,7 @@
 - Add Binary Gate module.
 - Add Binary Noise module.
 - Add Chaotic Attractors module.
+- Add Clocked Noise module.
 - Add Feedback Sine Chaos module.
 - Add Gingerbread Chaos module.
 - Add Mid/Side module.

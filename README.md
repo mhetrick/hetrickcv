@@ -79,6 +79,9 @@ Patch Ideas:
 - These are some of the best modules for creating unusual, generative rhythms. Try connecting various outputs of a clock divider into these inputs. Alternatively, connect two clocks or square wave LFOs with different frequencies (for more fun, modulate the pulse widths of the clocks if possible).
 - The AND output can be useful to manually toggle rhythm streams. Connect the gate stream that you want to toggle to one input. Connect a MIDI note gate to the other input. Now, the AND output will be the first rhythm as long as you hold down a MIDI note.
 
+### Clocked Noise
+This is similar to the Chaos modules above, but it uses traditional noise modes. The Flux knob sets a random modulation amount to the Sample Rate parameter whenever a new sample is generated.
+
 ### Comparator
 This is a tool for comparing one signal against a specific voltage. It can be used for many purposes, including clock extraction or distortion. The Threshold knob sets the voltage that is used for comparison against the main Input. If the Input is greater than the Threshold voltage, the `>` outputs will fire. If the Input is less than the Threshold voltage, then the `<` outputs will fire.
 
