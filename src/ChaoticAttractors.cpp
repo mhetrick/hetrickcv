@@ -260,16 +260,16 @@ void ChaoticAttractors::process(const ProcessArgs &args)
         sRate.reset();
     }
 
+    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
+    modeValue = clamp(modeValue, 0.0, 7.0);
+    mode = (int) std::round(modeValue);
+
     if(isReady)
     {   
         chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
         chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
         chaosAmountC = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM);
         chaosAmountD = getNormalizedModulatedValue(CHAOSD_PARAM, CHAOSD_INPUT, CHAOSD_SCALE_PARAM);
-
-        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
-        modeValue = clamp(modeValue, 0.0, 7.0);
-        mode = (int) std::round(modeValue);
 
         renderChaos();
         slewX.setTargetValue(xVal);

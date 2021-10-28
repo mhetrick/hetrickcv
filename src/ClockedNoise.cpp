@@ -143,13 +143,13 @@ void ClockedNoise::process(const ProcessArgs &args)
     bool isReady = sRate.readyForNextSample();
     if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
 
+    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
+    modeValue = clamp(modeValue, 0.0, 5.0);
+    mode = (int) std::round(modeValue);
+
     if(isReady)
     {   
         fluxNoise = randGen.whiteNoise();
-
-        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
-        modeValue = clamp(modeValue, 0.0, 5.0);
-        mode = (int) std::round(modeValue);
 
         renderNoise();
         slew.setTargetValue(outVal);

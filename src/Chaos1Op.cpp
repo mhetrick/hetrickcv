@@ -197,6 +197,10 @@ void Chaos1Op::process(const ProcessArgs &args)
     bool isReady = sRate.readyForNextSample();
     if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
 
+    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
+    modeValue = clamp(modeValue, 0.0, 5.0);
+    mode = (int) std::round(modeValue);
+
     if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
     {
         resetChaos();
@@ -206,10 +210,6 @@ void Chaos1Op::process(const ProcessArgs &args)
     if(isReady)
     {   
         chaosAmount = getNormalizedModulatedValue(CHAOS_PARAM, CHAOS_INPUT, CHAOS_SCALE_PARAM);
-
-        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
-        modeValue = clamp(modeValue, 0.0, 5.0);
-        mode = (int) std::round(modeValue);
 
         renderChaos();
         slewX.setTargetValue(xVal);

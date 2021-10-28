@@ -198,14 +198,14 @@ void Chaos2Op::process(const ProcessArgs &args)
         sRate.reset();
     }
 
+    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
+    modeValue = clamp(modeValue, 0.0, 4.0);
+    mode = (int) std::round(modeValue);
+
     if(isReady)
     {   
         chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
         chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
-
-        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
-        modeValue = clamp(modeValue, 0.0, 4.0);
-        mode = (int) std::round(modeValue);
 
         renderChaos();
         slewX.setTargetValue(xVal);
