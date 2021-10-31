@@ -60,33 +60,58 @@ struct Contrast : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+	float upscale = 5.0f;
+	float downscale = 0.2f;
+
+	template <typename T = float>
+	T contrastAlgo(T _input, T _contrast)
+	{
+		const T factor1 = _input * 1.57143;
+    	const T factor2 = sin(_input * 6.28571) * _contrast;
+
+    	return sin(factor1 + factor2);
+	}
 };
 
 
 void Contrast::process(const ProcessArgs &args)
 {
-    float input = inputs[MAIN_INPUT].getVoltage();
+	const float amount = params[AMOUNT_PARAM].getValue();
+	const float scale = params[SCALE_PARAM].getValue();
 
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-    else input = clamp(input, -10.0f, 10.0f) * 0.1f;
+	if (params[RANGE_PARAM].getValue() == 0.0f)
+	{
+		upscale = 5.0f;
+		downscale = 0.2f;
+	}
+	else
+	{
+		upscale = 10.0f;
+		downscale = 0.1f;
+	}
 
-    float contrast = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    contrast = clamp(contrast, 0.0f, 5.0f) * 0.2f;
+	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
+	simd::float_4 ins[4], contrasts[4];
 
-    const float factor1 = input * 1.57143;
-    const float factor2 = sinf(input * 6.28571) * contrast;
+	for (int c = 0; c < channels; c += 4) 
+	{
+		ins[c / 4] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		contrasts[c / 4] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		contrasts[c / 4] = (contrasts[c / 4] * scale) + amount;
 
-    float output = sinf(factor1 + factor2);
+		ins[c / 4] = clamp(ins[c / 4], -upscale, upscale) * downscale;
 
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+		contrasts[c / 4] = clamp(contrasts[c / 4], 0.0f, 5.0f) * 0.2f;
 
-    outputs[MAIN_OUTPUT].setVoltage(output);
+		ins[c / 4] = contrastAlgo(ins[c / 4], contrasts[c / 4]);
+		ins[c / 4] *= upscale;
+	}
+
+	outputs[MAIN_OUTPUT].setChannels(channels);
+	for (int c = 0; c < channels; c += 4) 
+	{
+		ins[c / 4].store(outputs[MAIN_OUTPUT].getVoltages(c));
+	}
 }
 
 
