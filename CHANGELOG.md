@@ -21,6 +21,8 @@
 - Add bypass behavior to all effects.
 - Waveshaper's polyphony is now SIMD optimized.
 - Contrast is now polyphonic and SIMD optimized.
+- Knobs on Rotator and Random Gates are now snapped and display the correct stage number.
+- PATCH BREAKING CHANGE: Rotator's Rotate knob now rotates channels in a more intuitive order. This will affect existing patches.
 
 ## 1.1.0
 - I suppose that I forgot to update this CHANGELOG for 1.0.0. Whoops!

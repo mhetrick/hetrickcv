@@ -53,8 +53,12 @@ struct RandomGates : HCVModule
 	RandomGates()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "Minimum Output Channel");
-        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "Maximum Output Channel");
+
+        configSwitch(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "Minimum Output Channel", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        configSwitch(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "Maximum Output Channel", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        paramQuantities[MIN_PARAM]->snapEnabled = true;
+        paramQuantities[MAX_PARAM]->snapEnabled = true;
+        
         configButton(RandomGates::MODE_PARAM, "Output Mode");
 
         configInput(CLOCK_INPUT, "Clock");
