@@ -64,12 +64,15 @@ struct Rotator : HCVModule
 	Rotator()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "Rotate");
-        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "Number of Stages");
+        configSwitch(Rotator::ROTATE_PARAM, 0.0, 7.0, 0.0, "Rotate", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        configSwitch(Rotator::STAGES_PARAM, 0.0, 7.0, 7.0, "Number of Stages", {"1", "2", "3", "4", "5", "6", "7", "8"} );
+
+        paramQuantities[ROTATE_PARAM]->snapEnabled = true;
+        paramQuantities[STAGES_PARAM]->snapEnabled = true;
 
         configInput(ROTATE_INPUT, "Rotate CV");
         configInput(STAGES_INPUT, "Stages CV");
-
+        
         for (int i = 0; i < 8; i++)
         {
             configInput(IN1_INPUT + i, std::to_string(i + 1));
@@ -103,7 +106,7 @@ void Rotator::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        const int input = (rotation + i) % stages;
+        const int input = (stages - rotation + i) % stages;
         outputs[i].setVoltage(inputs[input].getVoltage());
 
         lights[IN1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / 5.0), 10);
