@@ -243,7 +243,8 @@
       "name": "Min-Max",
       "description": "Outputs the greatest and least voltages from up to 4 inputs.",
       "tags": [
-        "Utility"
+        "Utility",
+        "Polyphonic"
       ]
     },
     {

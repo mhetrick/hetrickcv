@@ -23,6 +23,7 @@
     - Waveshaper
     - Contrast
     - 2-to-4 Mix Matrix
+    - Min-Max
 - Knobs on Rotator and Random Gates are now snapped and display the correct stage number.
 - PATCH BREAKING CHANGE: Rotator's Rotate knob now rotates channels in a more intuitive order. This will affect existing patches.
 
