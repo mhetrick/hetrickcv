@@ -43,12 +43,12 @@ struct TwoToFour : HCVModule
         NUM_LIGHTS
 	};
 
-    float outs[4] = {};
-
 	TwoToFour()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
+
+    simd::float_4 insA[4], insB[4], outs1[4], outs2[4], outs3[4], outs4[4];
 
 	void process(const ProcessArgs &args) override;
 
@@ -61,30 +61,44 @@ struct TwoToFour : HCVModule
 
 void TwoToFour::process(const ProcessArgs &args)
 {
-    const float inA = inputs[INA_INPUT].getVoltage();
-    const float inB = inputs[INB_INPUT].getVoltage();
 
-    outs[0] = inA + inB;
-    outs[1] = outs[0] * -1.0f;
-    outs[3] = inA - inB;
-    outs[2] = outs[3] * -1.0f;
+    int channels = std::max(1, inputs[INA_INPUT].getChannels());
+    channels = std::max(channels, inputs[INB_INPUT].getChannels());
 
-    outputs[OUT1_OUTPUT].setVoltage(outs[0]);
-    outputs[OUT2_OUTPUT].setVoltage(outs[1]);
-    outputs[OUT3_OUTPUT].setVoltage(outs[2]);
-	outputs[OUT4_OUTPUT].setVoltage(outs[3]);
+	for (int c = 0; c < channels; c += 4) 
+	{
+        const int vectorIndex = c/4;
+		insA[vectorIndex] = simd::float_4::load(inputs[INA_INPUT].getVoltages(c));
+        insB[vectorIndex] = simd::float_4::load(inputs[INB_INPUT].getVoltages(c));
+		outs1[vectorIndex] = insA[vectorIndex] + insB[vectorIndex];
+        outs2[vectorIndex] = outs1[vectorIndex] * -1.0f;
+        outs4[vectorIndex] = insA[vectorIndex] + insB[vectorIndex];
+        outs3[vectorIndex] = outs4[vectorIndex] * -1.0f;
+	}
 
-	lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[0] / 5.0), 10);
-    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[0] / 5.0), 10);
+	outputs[OUT1_OUTPUT].setChannels(channels);
+    outputs[OUT2_OUTPUT].setChannels(channels);
+    outputs[OUT3_OUTPUT].setChannels(channels);
+    outputs[OUT4_OUTPUT].setChannels(channels);
+	for (int c = 0; c < channels; c += 4) 
+	{
+		outs1[c / 4].store(outputs[OUT1_OUTPUT].getVoltages(c));
+        outs2[c / 4].store(outputs[OUT2_OUTPUT].getVoltages(c));
+        outs3[c / 4].store(outputs[OUT3_OUTPUT].getVoltages(c));
+        outs4[c / 4].store(outputs[OUT4_OUTPUT].getVoltages(c));
+	}
 
-    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[1] / 5.0), 10);
-    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[1] / 5.0), 10);
+	lights[OUT1_POS_LIGHT].setSmoothBrightness(fmax(0.0f,  outs1[0][0] / 5.0f), args.sampleTime);
+    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmax(0.0f, -outs1[0][0] / 5.0f), args.sampleTime);
 
-    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[2] / 5.0), 10);
-    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[2] / 5.0), 10);
+    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmax(0.0f,  outs2[0][0] / 5.0f), args.sampleTime);
+    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmax(0.0f, -outs2[0][0] / 5.0f), args.sampleTime);
 
-    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, outs[3] / 5.0), 10);
-    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -outs[3] / 5.0), 10);
+    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmax(0.0f,  outs3[0][0] / 5.0f), args.sampleTime);
+    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmax(0.0f, -outs3[0][0] / 5.0f), args.sampleTime);
+
+    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmax(0.0f,  outs4[0][0] / 5.0f), args.sampleTime);
+    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmax(0.0f, -outs4[0][0] / 5.0f), args.sampleTime);
 }
 
 struct TwoToFourWidget : HCVModuleWidget { TwoToFourWidget(TwoToFour *module); };
