@@ -130,7 +130,8 @@
       "description": "A mild distortion that brightens up a signal.",
       "tags": [
         "Effect",
-        "Distortion"
+        "Distortion",
+        "Polyphonic"
       ]
     },
     {
