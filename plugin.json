@@ -285,7 +285,8 @@
       "name": "2 To 4 Mix Matrix",
       "description": "Takes two signals and generates four variations.",
       "tags": [
-        "Mixer"
+        "Mixer",
+        "Polyphonic"
       ]
     },
     {

@@ -19,8 +19,10 @@
 - Fixed missing knob parameter names.
 - Add port labels to in and out jacks.
 - Add bypass behavior to all effects.
-- Waveshaper's polyphony is now SIMD optimized.
-- Contrast is now polyphonic and SIMD optimized.
+- The following modules are now polyphonic and SIMD optimized:
+    - Waveshaper
+    - Contrast
+    - 2-to-4 Mix Matrix
 - Knobs on Rotator and Random Gates are now snapped and display the correct stage number.
 - PATCH BREAKING CHANGE: Rotator's Rotate knob now rotates channels in a more intuitive order. This will affect existing patches.
 
