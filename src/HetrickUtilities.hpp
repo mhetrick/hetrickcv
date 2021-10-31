@@ -72,6 +72,16 @@ struct HCVModule : Module
         gam::sampleRate(APP->engine->getSampleRate());
     }
 
+    int getMaxInputPolyphony()
+    {
+        int channels = 1;
+        for (auto input : inputs)
+        {
+            channels = std::max(channels, input.getChannels());
+        }
+        return channels;
+    }
+
 };
 
 struct HCVModuleWidget : ModuleWidget

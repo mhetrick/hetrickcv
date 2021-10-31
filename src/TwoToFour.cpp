@@ -48,7 +48,12 @@ struct TwoToFour : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 	}
 
-    simd::float_4 insA[4], insB[4], outs1[4], outs2[4], outs3[4], outs4[4];
+    simd::float_4   insA[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    insB[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outs1[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outs2[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outs3[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outs4[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	void process(const ProcessArgs &args) override;
 
@@ -62,8 +67,7 @@ struct TwoToFour : HCVModule
 void TwoToFour::process(const ProcessArgs &args)
 {
 
-    int channels = std::max(1, inputs[INA_INPUT].getChannels());
-    channels = std::max(channels, inputs[INB_INPUT].getChannels());
+    int channels = getMaxInputPolyphony();
 
 	for (int c = 0; c < channels; c += 4) 
 	{
@@ -82,10 +86,11 @@ void TwoToFour::process(const ProcessArgs &args)
     outputs[OUT4_OUTPUT].setChannels(channels);
 	for (int c = 0; c < channels; c += 4) 
 	{
-		outs1[c / 4].store(outputs[OUT1_OUTPUT].getVoltages(c));
-        outs2[c / 4].store(outputs[OUT2_OUTPUT].getVoltages(c));
-        outs3[c / 4].store(outputs[OUT3_OUTPUT].getVoltages(c));
-        outs4[c / 4].store(outputs[OUT4_OUTPUT].getVoltages(c));
+        const int vectorIndex = c/4;
+		outs1[vectorIndex].store(outputs[OUT1_OUTPUT].getVoltages(c));
+        outs2[vectorIndex].store(outputs[OUT2_OUTPUT].getVoltages(c));
+        outs3[vectorIndex].store(outputs[OUT3_OUTPUT].getVoltages(c));
+        outs4[vectorIndex].store(outputs[OUT4_OUTPUT].getVoltages(c));
 	}
 
 	lights[OUT1_POS_LIGHT].setSmoothBrightness(fmax(0.0f,  outs1[0][0] / 5.0f), args.sampleTime);

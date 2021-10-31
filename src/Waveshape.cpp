@@ -52,14 +52,16 @@ struct Waveshape : HCVModule
 	template <typename T = float>
 	T hyperbolicWaveshaper(T _input, T _shape)
 	{
-		const T shapeB = (1.0 - _shape) / (1.0 + _shape);
-		const T shapeA = (4.0 * _shape) / ((1.0 - _shape) * (1.0 + _shape));
+		const T shapeB = (1.0f - _shape) / (1.0f + _shape);
+		const T shapeA = (4.0f * _shape) / ((1.0f - _shape) * (1.0f + _shape));
 
 		T output = _input * (shapeA + shapeB);
 		output = output / ((abs(_input) * shapeA) + shapeB);
 
 		return output;
 	}
+
+	simd::float_4 ins[4] = {0.0f, 0.0f, 0.0f, 0.0f}, shapes[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	float upscale = 5.0f;
 	float downscale = 0.2f;
@@ -82,22 +84,22 @@ void Waveshape::process(const ProcessArgs &args)
 		downscale = 0.1f;
 	}
 
-	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
-	simd::float_4 ins[4], shapes[4];
+	int channels = getMaxInputPolyphony();
 
 	for (int c = 0; c < channels; c += 4) 
 	{
-		ins[c / 4] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
-		shapes[c / 4] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
-		shapes[c / 4] = (shapes[c / 4] * scale) + amount;
+		const int vectorIndex = c/4;
+		ins[vectorIndex] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		shapes[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		shapes[vectorIndex] = (shapes[vectorIndex] * scale) + amount;
 
-		ins[c / 4] = clamp(ins[c / 4], -upscale, upscale) * downscale;
+		ins[vectorIndex] = clamp(ins[vectorIndex], -upscale, upscale) * downscale;
 
-		shapes[c / 4] = clamp(shapes[c / 4], -5.0f, 5.0f) * 0.2f;
-		shapes[c / 4] *= 0.99f;
+		shapes[vectorIndex] = clamp(shapes[vectorIndex], -5.0f, 5.0f) * 0.2f;
+		shapes[vectorIndex] *= 0.99f;
 
-		ins[c / 4] = hyperbolicWaveshaper(ins[c / 4], shapes[c / 4]);
-		ins[c / 4] *= upscale;
+		ins[vectorIndex] = hyperbolicWaveshaper(ins[vectorIndex], shapes[vectorIndex]);
+		ins[vectorIndex] *= upscale;
 	}
 
 	outputs[MAIN_OUTPUT].setChannels(channels);

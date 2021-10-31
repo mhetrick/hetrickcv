@@ -53,6 +53,9 @@ struct Bitshift : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
+	float upscale = 5.0f;
+	float downscale = 0.2f;
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
@@ -62,11 +65,19 @@ struct Bitshift : HCVModule
 
 void Bitshift::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
+	if (params[RANGE_PARAM].getValue() == 0.0f)
+	{
+		upscale = 5.0f;
+		downscale = 0.2f;
+	}
+	else
+	{
+		upscale = 10.0f;
+		downscale = 0.1f;
+	}
 
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
+	float input = inputs[MAIN_INPUT].getVoltage();
+	input = clamp(input, -upscale, upscale) * downscale;
 
 	float shift = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
 	shift = clamp(shift, -5.0f, 5.0f) * 0.2f;
@@ -84,10 +95,7 @@ void Bitshift::process(const ProcessArgs &args)
 	}
 
 	float output = shiftedInput/2147483647.0f;
-	output = clamp(output, -1.0f, 1.0f);
-
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+	output = clamp(output, -1.0f, 1.0f) * upscale;
 
     outputs[MAIN_OUTPUT].setVoltage(output);
 }

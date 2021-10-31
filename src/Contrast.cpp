@@ -63,6 +63,8 @@ struct Contrast : HCVModule
 	float upscale = 5.0f;
 	float downscale = 0.2f;
 
+	simd::float_4 ins[4] = {0.0f, 0.0f, 0.0f, 0.0f}, contrasts[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 	template <typename T = float>
 	T contrastAlgo(T _input, T _contrast)
 	{
@@ -90,8 +92,7 @@ void Contrast::process(const ProcessArgs &args)
 		downscale = 0.1f;
 	}
 
-	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
-	simd::float_4 ins[4], contrasts[4];
+	int channels = getMaxInputPolyphony();
 
 	for (int c = 0; c < channels; c += 4) 
 	{
