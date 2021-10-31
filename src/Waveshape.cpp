@@ -49,43 +49,62 @@ struct Waveshape : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+	template <typename T = float>
+	T hyperbolicWaveshaper(T _input, T _shape)
+	{
+		const T shapeB = (1.0 - _shape) / (1.0 + _shape);
+		const T shapeA = (4.0 * _shape) / ((1.0 - _shape) * (1.0 + _shape));
+
+		T output = _input * (shapeA + shapeB);
+		output = output / ((abs(_input) * shapeA) + shapeB);
+
+		return output;
+	}
+
+	float upscale = 5.0f;
+	float downscale = 0.2f;
 };
 
 
 void Waveshape::process(const ProcessArgs &args)
 {
-	const bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
 	const float amount = params[AMOUNT_PARAM].getValue();
 	const float scale = params[SCALE_PARAM].getValue();
 
-	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
-	for (int c = 0; c < channels; c ++)
+	if (params[RANGE_PARAM].getValue() == 0.0f)
 	{
-		float input = inputs[MAIN_INPUT].getPolyVoltage(c);
-
-		if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-		else input = clamp(input, -10.0f, 10.0f) * 0.1f;
-
-		float shape = amount + (inputs[AMOUNT_INPUT].getPolyVoltage(c) * scale);
-		shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
-		shape *= 0.99f;
-
-		const float shapeB = (1.0 - shape) / (1.0 + shape);
-		const float shapeA = (4.0 * shape) / ((1.0 - shape) * (1.0 + shape));
-
-		float output = input * (shapeA + shapeB);
-		output = output / ((std::abs(input) * shapeA) + shapeB);
-
-		if(mode5V) output *= 5.0f;
-		else output *= 10.0f;
-
-		outputs[MAIN_OUTPUT].setVoltage(output, c);
+		upscale = 5.0f;
+		downscale = 0.2f;
 	}
+	else
+	{
+		upscale = 10.0f;
+		downscale = 0.1f;
+	}
+
+	int channels = std::max(1, inputs[MAIN_INPUT].getChannels());
+	simd::float_4 ins[4], shapes[4];
+
+	for (int c = 0; c < channels; c += 4) 
+	{
+		ins[c / 4] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		shapes[c / 4] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		shapes[c / 4] = (shapes[c / 4] * scale) + amount;
+
+		ins[c / 4] = clamp(ins[c / 4], -upscale, upscale) * downscale;
+
+		shapes[c / 4] = clamp(shapes[c / 4], -5.0f, 5.0f) * 0.2f;
+		shapes[c / 4] *= 0.99f;
+
+		ins[c / 4] = hyperbolicWaveshaper(ins[c / 4], shapes[c / 4]);
+		ins[c / 4] *= upscale;
+	}
+
 	outputs[MAIN_OUTPUT].setChannels(channels);
+	for (int c = 0; c < channels; c += 4) 
+	{
+		ins[c / 4].store(outputs[MAIN_OUTPUT].getVoltages(c));
+	}
 }
 
 
