@@ -311,7 +311,8 @@
       "description": "Converts XY coordinates to Polar and vice versa.",
       "tags": [
         "Utility",
-        "Waveshaper"
+        "Waveshaper",
+        "Polyphonic"
       ]
     }
   ]
