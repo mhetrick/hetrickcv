@@ -85,6 +85,7 @@ void Waveshape::process(const ProcessArgs &args)
 	}
 
 	int channels = getMaxInputPolyphony();
+	outputs[MAIN_OUTPUT].setChannels(channels);
 
 	for (int c = 0; c < channels; c += 4) 
 	{
@@ -100,12 +101,8 @@ void Waveshape::process(const ProcessArgs &args)
 
 		ins[vectorIndex] = hyperbolicWaveshaper(ins[vectorIndex], shapes[vectorIndex]);
 		ins[vectorIndex] *= upscale;
-	}
 
-	outputs[MAIN_OUTPUT].setChannels(channels);
-	for (int c = 0; c < channels; c += 4) 
-	{
-		ins[c / 4].store(outputs[MAIN_OUTPUT].getVoltages(c));
+		ins[vectorIndex].store(outputs[MAIN_OUTPUT].getVoltages(c));
 	}
 }
 

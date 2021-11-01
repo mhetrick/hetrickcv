@@ -15,3 +15,9 @@ inline T uniToBi(const T _in)
 {
     return (_in - T(0.5)) * 2.0;
 }
+
+template <typename T = float>
+inline T SIMDLERP(const T _amountOfA, const T _inA, const T _inB)
+{
+    return ((_amountOfA*_inA)+((1.0f-_amountOfA)*_inB));
+}

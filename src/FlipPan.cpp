@@ -36,42 +36,58 @@ struct FlipPan : HCVModule
 
     void process(const ProcessArgs &args) override;
 
-    float paraPanShape(const float _input) const
+    template <typename T>
+    T paraPanShape(const T _input) const
     {
         return (4.0f - _input) * _input * 0.3333333f;
     }
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+	simd::float_4   insL[4] = {0.0f, 0.0f, 0.0f, 0.0f}, insR[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    outsL[4] = {0.0f, 0.0f, 0.0f, 0.0f}, outsR[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    pansL[4] = {0.0f, 0.0f, 0.0f, 0.0f}, pansR[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    pans[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 };
 
 
 void FlipPan::process(const ProcessArgs &args)
 {
-	float inL = inputs[LEFT_INPUT].getVoltage();
-	float inR = inputs[RIGHT_INPUT].getVoltage();
+    int channels = getMaxInputPolyphony();
+    outputs[LEFT_OUTPUT].setChannels(channels);
+    outputs[RIGHT_OUTPUT].setChannels(channels);
 
-    bool linear = (params[STYLE_PARAM].getValue() == 0.0f);
+    auto panAmount = params[AMOUNT_PARAM].getValue();
+    auto panScale = params[SCALE_PARAM].getValue();
 
-    float pan = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    pan = clamp(pan, 0.0f, 5.0f) * 0.2f;
+    bool linear = params[STYLE_PARAM].getValue() == 0.0f;
 
-    if(linear)
-    {
-        outputs[LEFT_OUTPUT].setVoltage(LERP(pan, inR, inL));
-        outputs[RIGHT_OUTPUT].setVoltage(LERP(pan, inL, inR));
-    }
-    else
-    {
-        pan = (pan * 2.0f) - 1.0f;
-        const float panL = paraPanShape(1.0f - pan);
-        const float panR = paraPanShape(1.0f + pan);
+	for (int c = 0; c < channels; c += 4) 
+	{
+        const int vectorIndex = c / 4;
+		insL[vectorIndex] = simd::float_4::load(inputs[LEFT_INPUT].getVoltages(c));
+        insR[vectorIndex] = simd::float_4::load(inputs[RIGHT_INPUT].getVoltages(c));
 
-        outputs[LEFT_OUTPUT].setVoltage((inL * panL) + (inR * panR));
-        outputs[RIGHT_OUTPUT].setVoltage((inL * panR) + (inR * panL));
-    }
+        pans[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+        pans[vectorIndex] = (pans[vectorIndex] * panScale) + panAmount;
+        pans[vectorIndex] = clamp(pans[vectorIndex], 0.0f, 5.0f) * 0.2f;
+
+        if(linear)
+        {
+            outsL[vectorIndex] = SIMDLERP(pans[vectorIndex], insR[vectorIndex], insL[vectorIndex]);
+            outsR[vectorIndex] = SIMDLERP(pans[vectorIndex], insL[vectorIndex], insR[vectorIndex]);
+        }
+        else
+        {
+            pans[vectorIndex] = (pans[vectorIndex] * 2.0f) - 1.0f;
+            pansL[vectorIndex] = paraPanShape(1.0f - pans[vectorIndex]);
+            pansR[vectorIndex] = paraPanShape(1.0f + pans[vectorIndex]);
+
+            outsL[vectorIndex] = ((insL[vectorIndex] * pansL[vectorIndex]) + (insR[vectorIndex] * pansR[vectorIndex]));
+            outsR[vectorIndex] = ((insL[vectorIndex] * pansR[vectorIndex]) + (insR[vectorIndex] * pansL[vectorIndex]));
+        }
+
+        outsL[vectorIndex].store(outputs[LEFT_OUTPUT].getVoltages(c));
+        outsR[vectorIndex].store(outputs[RIGHT_OUTPUT].getVoltages(c));
+	}
 }
 
 

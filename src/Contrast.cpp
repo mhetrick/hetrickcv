@@ -93,24 +93,22 @@ void Contrast::process(const ProcessArgs &args)
 	}
 
 	int channels = getMaxInputPolyphony();
-
-	for (int c = 0; c < channels; c += 4) 
-	{
-		ins[c / 4] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
-		contrasts[c / 4] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
-		contrasts[c / 4] = (contrasts[c / 4] * scale) + amount;
-
-		ins[c / 4] = clamp(ins[c / 4], -upscale, upscale) * downscale;
-
-		contrasts[c / 4] = clamp(contrasts[c / 4], 0.0f, 5.0f) * 0.2f;
-
-		ins[c / 4] = contrastAlgo(ins[c / 4], contrasts[c / 4]);
-		ins[c / 4] *= upscale;
-	}
-
 	outputs[MAIN_OUTPUT].setChannels(channels);
+
 	for (int c = 0; c < channels; c += 4) 
 	{
+		const int vectorIndex = c / 4;
+		ins[vectorIndex] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		contrasts[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		contrasts[vectorIndex] = (contrasts[vectorIndex] * scale) + amount;
+
+		ins[vectorIndex] = clamp(ins[vectorIndex], -upscale, upscale) * downscale;
+
+		contrasts[vectorIndex] = clamp(contrasts[vectorIndex], 0.0f, 5.0f) * 0.2f;
+
+		ins[vectorIndex] = contrastAlgo(ins[vectorIndex], contrasts[vectorIndex]);
+		ins[vectorIndex] *= upscale;
+
 		ins[c / 4].store(outputs[MAIN_OUTPUT].getVoltages(c));
 	}
 }
