@@ -71,7 +71,7 @@ void XYToPolar::process(const ProcessArgs &args)
 
         for (int i = 0; i < 4; i++)
         {
-            if(!isnormal(outsTheta[vectorIndex][i])) outsTheta[vectorIndex][i] = 0.0f;
+            if(!std::isnormal(outsTheta[vectorIndex][i])) outsTheta[vectorIndex][i] = 0.0f;
         }
 
         insR[vectorIndex] = rConnected ? simd::float_4::load(inputs[INR_INPUT].getVoltages(c)) : outsR[vectorIndex];
