@@ -173,7 +173,8 @@
       "name": "Exponent",
       "description": "Raise a signal to a power",
       "tags": [
-        "Waveshaper"
+        "Waveshaper",
+        "Polyphonic"
       ]
     },
     {

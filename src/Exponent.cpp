@@ -38,6 +38,13 @@ struct Exponent : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
+	float upscale = 5.0f;
+	float downscale = 0.2f;
+
+	simd::float_4 ins[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+					outs[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+					expos[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
@@ -47,30 +54,48 @@ struct Exponent : HCVModule
 
 void Exponent::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
-	const bool negativeInput = input < 0.0f;
-
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
-	input = std::abs(input);
-
-    float exponent = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    exponent = clamp(exponent, -5.0f, 5.0f) * 0.2f;
-
-	if(exponent < 0)
+	if (params[RANGE_PARAM].getValue() == 0.0f)
 	{
-		exponent = 1.0f - (exponent * -0.5f);
+		upscale = 5.0f;
+		downscale = 0.2f;
 	}
-	else exponent += 1.0f;
+	else
+	{
+		upscale = 10.0f;
+		downscale = 0.1f;
+	}
 
-    float output = powf(input, exponent);
+	const float amount = params[AMOUNT_PARAM].getValue();
+	const float scale = params[SCALE_PARAM].getValue();
 
-	if (negativeInput) output *= -1.0f;
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+	int channels = getMaxInputPolyphony();
+	outputs[MAIN_OUTPUT].setChannels(channels);
 
-    outputs[MAIN_OUTPUT].setVoltage(output);
+	for (int c = 0; c < channels; c += 4) 
+	{
+		const int vectorIndex = c/4;
+		ins[vectorIndex] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		ins[vectorIndex] = clamp(ins[vectorIndex], -upscale, upscale) * downscale;
+
+		expos[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		expos[vectorIndex] = (expos[vectorIndex] * scale) + amount;
+		expos[vectorIndex] = clamp(expos[vectorIndex], -5.0f, 5.0f) * 0.2f;
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (expos[vectorIndex][i] < 0.0f)
+			{
+				expos[vectorIndex][i] = 1.0f - (expos[vectorIndex][i] * -0.5f);
+			}
+			else expos[vectorIndex][i] += 1.0f;
+		}
+
+		outs[vectorIndex] = pow(abs(ins[vectorIndex]), expos[vectorIndex]);
+		outs[vectorIndex] *= sgn(ins[vectorIndex]);
+		outs[vectorIndex] *= upscale;
+
+		outs[vectorIndex].store(outputs[MAIN_OUTPUT].getVoltages(c));
+	}
 }
 
 struct ExponentWidget : HCVModuleWidget { ExponentWidget(Exponent *module); };
