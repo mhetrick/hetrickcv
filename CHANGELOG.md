@@ -10,7 +10,7 @@
 - Add Clocked Noise module.
 - Add Feedback Sine Chaos module.
 - Add Gingerbread Chaos module.
-- Add Mid/Side module.
+- Add polyphonic Mid/Side module.
 - Add Rungler module.
 - Add XY<->Polar module.
 - Add Gamma DSP library requirement. This is an excellent DSP library by Lance Putnam, a former colleague from grad school. We use this library as the foundation for Unfiltered Audio's DSP.

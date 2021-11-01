@@ -236,7 +236,8 @@
       "name": "Mid/Side",
       "description": "Converts Left/Right signals to Mid/Side and vice versa.",
       "tags": [
-        "Utility"
+        "Utility",
+        "Polyphonic"
       ]
     },
     {

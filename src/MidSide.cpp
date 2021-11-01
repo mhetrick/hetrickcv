@@ -39,6 +39,12 @@ struct MidSide : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
+    simd::float_4   insL[4] = {0.0f, 0.0f, 0.0f, 0.0f}, insR[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    insM[4] = {0.0f, 0.0f, 0.0f, 0.0f}, insS[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    outsL[4] = {0.0f, 0.0f, 0.0f, 0.0f}, outsR[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    outsM[4] = {0.0f, 0.0f, 0.0f, 0.0f}, outsS[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    widths[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
@@ -48,22 +54,40 @@ struct MidSide : HCVModule
 
 void MidSide::process(const ProcessArgs &args)
 {
-    auto l = inputs[INL_INPUT].getVoltage();
-    auto r = inputs[INR_INPUT].getVoltage();
+    int channels = getMaxInputPolyphony();
+    outputs[OUTL_OUTPUT].setChannels(channels);
+    outputs[OUTR_OUTPUT].setChannels(channels);
+    outputs[OUTM_OUTPUT].setChannels(channels);
+    outputs[OUTS_OUTPUT].setChannels(channels);
 
-    double width = normalizeParameter(inputs[WIDTH_INPUT].getVoltage() + params[WIDTH_PARAM].getValue());
+    auto widthAmount = params[WIDTH_PARAM].getValue();
 
-    double mid = (l+r) * 0.5;
-    double side = (r - l) * width;
+    bool midConnected = inputs[INM_INPUT].isConnected();
+    bool sideConnected = inputs[INS_INPUT].isConnected();
 
-    outputs[OUTM_OUTPUT].setVoltage(mid);
-    outputs[OUTS_OUTPUT].setVoltage(side);
+	for (int c = 0; c < channels; c += 4) 
+	{
+        const int vectorIndex = c / 4;
+		insL[vectorIndex] = simd::float_4::load(inputs[INL_INPUT].getVoltages(c));
+        insR[vectorIndex] = simd::float_4::load(inputs[INR_INPUT].getVoltages(c));
 
-    if(inputs[INM_INPUT].isConnected()) mid = inputs[INM_INPUT].getVoltage();
-    if(inputs[INS_INPUT].isConnected()) side = inputs[INS_INPUT].getVoltage();
+        widths[vectorIndex] = simd::float_4::load(inputs[WIDTH_INPUT].getVoltages(c)) + widthAmount;
+        widths[vectorIndex] = clamp((widths[vectorIndex] * 0.1f) + 0.5f, 0.0f, 1.0f);
 
-    outputs[OUTL_OUTPUT].setVoltage(mid - side);
-    outputs[OUTR_OUTPUT].setVoltage(mid + side);
+        outsM[vectorIndex] = (insL[vectorIndex] + insR[vectorIndex]) * 0.5f;
+        outsS[vectorIndex] = (insR[vectorIndex] - insL[vectorIndex]) * widths[vectorIndex];
+
+        insM[vectorIndex] = midConnected ? simd::float_4::load(inputs[INM_INPUT].getVoltages(c)) : outsM[vectorIndex];
+        insS[vectorIndex] = sideConnected ? simd::float_4::load(inputs[INS_INPUT].getVoltages(c)) : outsS[vectorIndex];
+
+        outsL[vectorIndex] = insM[vectorIndex] - insS[vectorIndex];
+        outsR[vectorIndex] = insM[vectorIndex] + insS[vectorIndex];
+
+        outsL[vectorIndex].store(outputs[OUTL_OUTPUT].getVoltages(c));
+        outsR[vectorIndex].store(outputs[OUTR_OUTPUT].getVoltages(c));
+        outsM[vectorIndex].store(outputs[OUTM_OUTPUT].getVoltages(c));
+        outsS[vectorIndex].store(outputs[OUTS_OUTPUT].getVoltages(c));
+	}
 }
 
 struct MidSideWidget : HCVModuleWidget { MidSideWidget(MidSide *module); };
