@@ -229,7 +229,7 @@
     {
       "slug": "Gingerbread",
       "name": "Gingerbread Chaos",
-      "description": "Eight channel gate processor.",
+      "description": "Self-modulating audio and modulation chaos generator.",
       "tags": [
         "Noise",
         "Random"
