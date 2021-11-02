@@ -23,6 +23,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelComparator);
 	p->addModel(modelContrast);
 	p->addModel(modelCrackle);
+	p->addModel(modelDataCompander);
 	p->addModel(modelDelta);
 	p->addModel(modelDigitalToAnalog);
 	p->addModel(modelDust);

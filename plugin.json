@@ -144,6 +144,16 @@
       ]
     },
     {
+      "slug": "DataCompander",
+      "name": "Data Compander",
+      "description": "Compresses and expands signals with a-law or mu-law compansion.",
+      "tags": [
+        "Utility",
+        "Waveshaper",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Delta",
       "name": "Delta",
       "description": "Determine which direction a signal is heading.",

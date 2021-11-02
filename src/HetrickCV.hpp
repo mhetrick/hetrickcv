@@ -44,6 +44,7 @@ extern Model *modelClockedNoise;
 extern Model *modelComparator;
 extern Model *modelContrast;
 extern Model *modelCrackle;
+extern Model *modelDataCompander;
 extern Model *modelDelta;
 extern Model *modelDigitalToAnalog;
 extern Model *modelDust;

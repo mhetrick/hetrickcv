@@ -8,6 +8,7 @@
 - Add Binary Noise module.
 - Add Chaotic Attractors module.
 - Add Clocked Noise module.
+- Add polyphonic Data Compander module.
 - Add Feedback Sine Chaos module.
 - Add Gingerbread Chaos module.
 - Add polyphonic Mid/Side module.

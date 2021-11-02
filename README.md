@@ -103,6 +103,9 @@ This is a chaotic system that generates a vinyl-like hiss with occasional pops. 
 Patch Ideas:
 - Surprising things can happen if you modulate this with an audio signal... 
 
+### Data Compander
+Not to be confused with a dynamics compander, this module is based on mu-law (https://en.wikipedia.org/wiki/%CE%9C-law_algorithm) and A-law (https://en.wikipedia.org/wiki/A-law_algorithm) compansion. These algorithms were used to reduce noise on transmitted signals. Here you can mix-and-match which laws are active along with their expected voltage ranges.
+
 ### Delta
 This is a tool that extracts a signal's rate of change. It compares a signal's current value against its previous value. The amount of change is multiplied by the Delta Boost parameter and sent to the Delta output. Slow moving signals will have very small rates of change and will need a lot of Boost. Fast, audio-rate signals will need very little boost.
 
