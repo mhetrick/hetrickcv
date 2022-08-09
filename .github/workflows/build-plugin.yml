@@ -35,7 +35,7 @@ jobs:
             prepare-os: export CC=gcc
           }
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
         with:
           submodules: recursive
       - name: Get Rack-SDK
@@ -62,7 +62,7 @@ jobs:
           make -j dep
           make -j dist
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@master
         with:
           path: dist
           name: ${{ matrix.config.name }}
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@master
       - uses: FranzDiebold/github-env-vars-action@v1.2.1
       - name: Check if plugin version matches tag
         run: |
@@ -95,11 +95,11 @@ jobs:
             ${{ env.GITHUB_REPOSITORY_NAME }} VCV Rack Plugin ${{ env.GITHUB_REF_NAME }}
           draft: false
           prerelease: false
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@master
         with:
           path: _artifacts
       - name: Upload release assets
-        uses: svenstaro/upload-release-action@v2
+        uses: svenstaro/upload-release-action@master
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: _artifacts/**/*.zip
