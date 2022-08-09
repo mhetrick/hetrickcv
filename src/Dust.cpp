@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Dust : Module
+struct Dust : HCVModule
 {
 	enum ParamIds
 	{
@@ -26,8 +26,11 @@ struct Dust : Module
 	Dust()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Dust::RATE_PARAM, 0, 4.0, 0.0, "");
-		configParam(Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0, "");
+		configParam(Dust::RATE_PARAM, 0, 4.0, 0.0, "Rate");
+		configSwitch(Dust::BIPOLAR_PARAM, 0.0, 1.0, 0.0, "Output Mode", {"Bipolar", "Unipolar"});
+
+		configInput(RATE_INPUT, "Rate CV");
+		configOutput(DUST_OUTPUT, "Dust");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -74,34 +77,22 @@ void Dust::process(const ProcessArgs &args)
 	}
 }
 
-struct DustWidget : ModuleWidget { DustWidget(Dust *module); };
+struct DustWidget : HCVModuleWidget { DustWidget(Dust *module); };
 
 DustWidget::DustWidget(Dust *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dust.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Dust.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Dust::RATE_PARAM));
+	createHCVKnob(28, 87, Dust::RATE_PARAM);
 	addParam(createParam<CKSS>(Vec(37, 220), module, Dust::BIPOLAR_PARAM));
 
 	//////INPUTS//////
-	addInput(createInput<PJ301MPort>(Vec(33, 146), module, Dust::RATE_INPUT));
+	createInputPort(33, 146, Dust::RATE_INPUT);
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 285), module, Dust::DUST_OUTPUT));
+	createOutputPort(33, 285, Dust::DUST_OUTPUT);
 }
 
 Model *modelDust = createModel<Dust, DustWidget>("Dust");

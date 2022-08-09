@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Comparator : Module
+struct Comparator : HCVModule
 {
 	enum ParamIds
 	{
@@ -35,8 +35,16 @@ struct Comparator : Module
 	Comparator()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
-		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Comparator::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Compare Threshold");
+		configParam(Comparator::SCALE_PARAM, -1.0, 1.0, 1.0, "Compare CV Depth");
+
+		configInput(AMOUNT_INPUT, "Compare CV");
+
+		configOutput(GT_GATE_OUTPUT, "Greater Than Gate");
+		configOutput(GT_TRIG_OUTPUT, "Greater Than Trigger");
+		configOutput(LT_GATE_OUTPUT, "Less Than Gate");
+		configOutput(LT_TRIG_OUTPUT, "Less Than Trigger");
+		configOutput(ZEROX_OUTPUT, "Crossing Trigger");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
@@ -76,28 +84,16 @@ void Comparator::process(const ProcessArgs &args)
 }
 
 
-struct ComparatorWidget : ModuleWidget { ComparatorWidget(Comparator *module); };
+struct ComparatorWidget : HCVModuleWidget { ComparatorWidget(Comparator *module); };
 
 ComparatorWidget::ComparatorWidget(Comparator* module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Comparator.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Comparator.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Comparator::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Comparator::SCALE_PARAM));
+	createHCVKnob(27, 62, Comparator::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Comparator::SCALE_PARAM);
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(33, 195), module, Comparator::MAIN_INPUT));

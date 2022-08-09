@@ -22,7 +22,7 @@
  └─────────────────┴──────────────────┘ 
 */                                      
 
-struct Contrast : Module
+struct Contrast : HCVModule
 {
 	enum ParamIds
 	{
@@ -46,72 +46,84 @@ struct Contrast : Module
 	Contrast()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "");
-		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "");
+
+		configBypass(MAIN_INPUT, MAIN_OUTPUT);
+
+		configParam(Contrast::AMOUNT_PARAM, 0, 5.0, 0.0, "Contrast");
+		configParam(Contrast::SCALE_PARAM, -1.0, 1.0, 1.0, "Contrast CV Depth");
+		configSwitch(Contrast::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
+
+		configInput(AMOUNT_INPUT, "Contrast CV");
+		configInput(MAIN_INPUT, "Main");
+		configOutput(MAIN_OUTPUT, "Main");
 	}
 
 	void process(const ProcessArgs &args) override;
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+	float upscale = 5.0f;
+	float downscale = 0.2f;
+
+	simd::float_4 ins[4] = {0.0f, 0.0f, 0.0f, 0.0f}, contrasts[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+	template <typename T = float>
+	T contrastAlgo(T _input, T _contrast)
+	{
+		const T factor1 = _input * 1.57143;
+    	const T factor2 = sin(_input * 6.28571) * _contrast;
+
+    	return sin(factor1 + factor2);
+	}
 };
 
 
 void Contrast::process(const ProcessArgs &args)
 {
-    float input = inputs[MAIN_INPUT].getVoltage();
+	const float amount = params[AMOUNT_PARAM].getValue();
+	const float scale = params[SCALE_PARAM].getValue();
 
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-    else input = clamp(input, -10.0f, 10.0f) * 0.1f;
+	if (params[RANGE_PARAM].getValue() == 0.0f)
+	{
+		upscale = 5.0f;
+		downscale = 0.2f;
+	}
+	else
+	{
+		upscale = 10.0f;
+		downscale = 0.1f;
+	}
 
-    float contrast = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-    contrast = clamp(contrast, 0.0f, 5.0f) * 0.2f;
+	int channels = getMaxInputPolyphony();
+	outputs[MAIN_OUTPUT].setChannels(channels);
 
-    const float factor1 = input * 1.57143;
-    const float factor2 = sinf(input * 6.28571) * contrast;
+	for (int c = 0; c < channels; c += 4) 
+	{
+		const int vectorIndex = c / 4;
+		ins[vectorIndex] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		contrasts[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		contrasts[vectorIndex] = (contrasts[vectorIndex] * scale) + amount;
 
-    float output = sinf(factor1 + factor2);
+		ins[vectorIndex] = clamp(ins[vectorIndex], -upscale, upscale) * downscale;
 
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+		contrasts[vectorIndex] = clamp(contrasts[vectorIndex], 0.0f, 5.0f) * 0.2f;
 
-    outputs[MAIN_OUTPUT].setVoltage(output);
+		ins[vectorIndex] = contrastAlgo(ins[vectorIndex], contrasts[vectorIndex]);
+		ins[vectorIndex] *= upscale;
+
+		ins[c / 4].store(outputs[MAIN_OUTPUT].getVoltages(c));
+	}
 }
 
-struct CKSSRot : SvgSwitch {
-	CKSSRot() {
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
-	}
-};
 
-
-struct ContrastWidget : ModuleWidget { ContrastWidget(Contrast *module); };
+struct ContrastWidget : HCVModuleWidget { ContrastWidget(Contrast *module); };
 
 ContrastWidget::ContrastWidget(Contrast *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Contrast.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Contrast.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Contrast::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Contrast::SCALE_PARAM));
+	createHCVKnob(27, 62, Contrast::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Contrast::SCALE_PARAM);
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Contrast::RANGE_PARAM));
 
 	//////INPUTS//////

@@ -15,7 +15,7 @@
                            └────────►
  */
 
-struct ASR : Module
+struct ASR : HCVModule
 {
 	enum ParamIds
 	{
@@ -50,6 +50,12 @@ struct ASR : Module
 	ASR()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configInput(MAIN_INPUT, "Data");
+        configInput(CLK_INPUT, "Clock");
+        configOutput(STAGE1_OUTPUT, "Register Stage 1");
+        configOutput(STAGE2_OUTPUT, "Register Stage 2");
+        configOutput(STAGE3_OUTPUT, "Register Stage 3");
+        configOutput(STAGE4_OUTPUT, "Register Stage 4");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -89,25 +95,13 @@ void ASR::process(const ProcessArgs &args)
     lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[3] / 5.0), 10);
 }
 
-struct ASRWidget : ModuleWidget { ASRWidget(ASR *module); };
+struct ASRWidget : HCVModuleWidget { ASRWidget(ASR *module); };
 
 ASRWidget::ASRWidget(ASR *module)
 {
-    setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/ASR.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
+    setSkinPath("res/ASR.svg");
+    initializeWidget(module);
+    
     //////PARAMS//////
 
     //////INPUTS//////

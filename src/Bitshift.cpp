@@ -16,7 +16,7 @@
  └──────────────────────────────────────────────────────────────┘
 */                                                               
 
-struct Bitshift : Module
+struct Bitshift : HCVModule
 {
 	enum ParamIds
 	{
@@ -40,12 +40,29 @@ struct Bitshift : Module
 	Bitshift()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0, "");
-		configParam(Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0, "");
-		configParam(Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0, "");
+		configBypass(MAIN_INPUT, MAIN_OUTPUT);
+
+		configParam(Bitshift::AMOUNT_PARAM, -5.0, 5.0, 0.0, "Bitshift");
+		configParam(Bitshift::SCALE_PARAM, -1.0, 1.0, 1.0, "Bitshift CV Scale");
+		configSwitch(Bitshift::RANGE_PARAM, 0.0, 1.0, 0.0, "Input Voltage Range", {"5V", "10V"});
+
+		configInput(AMOUNT_INPUT, "Bitshift CV");
+		configInput(MAIN_INPUT, "Main");
+		configOutput(MAIN_OUTPUT, "Main");
 	}
 
 	void process(const ProcessArgs &args) override;
+
+	float upscale = 5.0f;
+	float downscale = 0.2f;
+
+	simd::float_4 ins[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+					outs[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+					shifts[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+	simd::int32_4 intShifts[4] = {0, 0, 0, 0},
+					intIns[4] = {0, 0, 0, 0},
+					shiftedIns[4] = {0, 0, 0, 0};
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -56,66 +73,67 @@ struct Bitshift : Module
 
 void Bitshift::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
-
-    bool mode5V = (params[RANGE_PARAM].getValue() == 0.0f);
-    if(mode5V) input = clamp(input, -5.0f, 5.0f) * 0.2f;
-	else input = clamp(input, -10.0f, 10.0f) * 0.1f;
-
-	float shift = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	shift = clamp(shift, -5.0f, 5.0f) * 0.2f;
-	shift *= 31.0f;
-
-	int finalShift = round(shift);
-	int intInput = round(input * 2147483647.0f);
-	int shiftedInput;
-
-	if(finalShift > 0) shiftedInput = intInput >> finalShift;
+	if (params[RANGE_PARAM].getValue() == 0.0f)
+	{
+		upscale = 5.0f;
+		downscale = 0.2f;
+	}
 	else
 	{
-		finalShift *= -1;
-		shiftedInput = intInput << finalShift;
+		upscale = 10.0f;
+		downscale = 0.1f;
 	}
 
-	float output = shiftedInput/2147483647.0f;
-	output = clamp(output, -1.0f, 1.0f);
+	const float amount = params[AMOUNT_PARAM].getValue();
+	const float scale = params[SCALE_PARAM].getValue();
 
-    if(mode5V) output *= 5.0f;
-    else output *= 10.0f;
+	int channels = getMaxInputPolyphony();
+	outputs[MAIN_OUTPUT].setChannels(channels);
 
-    outputs[MAIN_OUTPUT].setVoltage(output);
+	for (int c = 0; c < channels; c += 4) 
+	{
+		const int vectorIndex = c/4;
+		ins[vectorIndex] = simd::float_4::load(inputs[MAIN_INPUT].getVoltages(c));
+		ins[vectorIndex] = clamp(ins[vectorIndex], -upscale, upscale) * downscale;
+
+		shifts[vectorIndex] = simd::float_4::load(inputs[AMOUNT_INPUT].getVoltages(c));
+		shifts[vectorIndex] = (shifts[vectorIndex] * scale) + amount;
+		shifts[vectorIndex] = clamp(shifts[vectorIndex], -5.0f, 5.0f) * 0.2f * 31.0f;
+
+		intShifts[vectorIndex] = round(shifts[vectorIndex]);
+		intIns[vectorIndex] = round(ins[vectorIndex] * 2147483647.0f);
+
+		for (int i = 0; i < 4; i++)
+		{
+			if (intShifts[vectorIndex][i] > 0)
+			{
+				shiftedIns[vectorIndex][i] = intIns[vectorIndex][i] >> intShifts[vectorIndex][i];
+			}
+			else
+			{
+				intShifts[vectorIndex][i] *= -1;
+				shiftedIns[vectorIndex][i] = intIns[vectorIndex][i] << intShifts[vectorIndex][i];
+			}
+		}
+
+		outs[vectorIndex] = shiftedIns[vectorIndex]/2147483647.0f;
+		outs[vectorIndex] = clamp(outs[vectorIndex], -1.0f, 1.0f) * upscale;
+
+		outs[vectorIndex].store(outputs[MAIN_OUTPUT].getVoltages(c));
+	}
 }
 
-struct CKSSRot : SvgSwitch {
-	CKSSRot() {
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_0.svg")));
-		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/CKSS_rot_1.svg")));
-	}
-};
 
-
-struct BitshiftWidget : ModuleWidget { BitshiftWidget(Bitshift *module); };
+struct BitshiftWidget : HCVModuleWidget { BitshiftWidget(Bitshift *module); };
 
 BitshiftWidget::BitshiftWidget(Bitshift *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Bitshift.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Bitshift.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Bitshift::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Bitshift::SCALE_PARAM));
+	createHCVKnob(27, 62, Bitshift::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Bitshift::SCALE_PARAM);
     addParam(createParam<CKSSRot>(Vec(35, 200), module, Bitshift::RANGE_PARAM));
 
 	//////INPUTS//////

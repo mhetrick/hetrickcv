@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Boolean3 : Module
+struct Boolean3 : HCVModule
 {
 	enum ParamIds
 	{
@@ -47,6 +47,17 @@ struct Boolean3 : Module
 	Boolean3()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+
+        configInput(INA_INPUT, "A");
+        configInput(INB_INPUT, "B");
+        configInput(INC_INPUT, "C");
+
+        configOutput(OR_OUTPUT, "OR");
+        configOutput(AND_OUTPUT, "AND");
+        configOutput(XOR_OUTPUT, "XOR");
+        configOutput(NOR_OUTPUT, "NOR");
+        configOutput(NAND_OUTPUT, "NAND");
+        configOutput(XNOR_OUTPUT, "XNOR");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -103,24 +114,12 @@ void Boolean3::process(const ProcessArgs &args)
     lights[XNOR_LIGHT].value = outs[5];
 }
 
-struct Boolean3Widget : ModuleWidget { Boolean3Widget(Boolean3 *module); };
+struct Boolean3Widget : HCVModuleWidget { Boolean3Widget(Boolean3 *module); };
 
 Boolean3Widget::Boolean3Widget(Boolean3 *module)
 {
-    setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Boolean3.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/Boolean3.svg");
+    initializeWidget(module);
 
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(10, 105), module, Boolean3::INA_INPUT));

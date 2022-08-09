@@ -1,22 +1,16 @@
+# FLAGS will be passed to both the C and C++ compiler
+FLAGS += -I Gamma
+CFLAGS +=
+CXXFLAGS +=
+
 SOURCES += $(wildcard src/*.cpp)
+SOURCES += $(wildcard src/DSP/*.cpp)
+SOURCES += Gamma/src/arr.cpp
+SOURCES += Gamma/src/Domain.cpp
+SOURCES += Gamma/src/scl.cpp
 
 DISTRIBUTABLES += $(wildcard LICENSE*) res
 
-RACK_DIR ?= ../RackSDK/
+RACK_DIR ?= ../Rack-SDK
 include $(RACK_DIR)/plugin.mk
 
-win-dist: all
-	rm -rf dist
-	mkdir -p dist/$(SLUG)
-	@# Strip and copy plugin binary
-	cp $(TARGET) dist/$(SLUG)/
-ifdef ARCH_MAC
-	$(STRIP) -S dist/$(SLUG)/$(TARGET)
-else
-	$(STRIP) -s dist/$(SLUG)/$(TARGET)
-endif
-	@# Copy distributables
-	cp -R $(DISTRIBUTABLES) dist/$(SLUG)/
-	@# Create ZIP package
-	echo "cd dist && 7z.exe a $(SLUG)-$(VERSION)-$(ARCH).zip -r $(SLUG)"
-	cd dist && 7z.exe a $(SLUG)-$(VERSION)-$(ARCH).zip -r $(SLUG)

@@ -20,7 +20,7 @@
         ╱     
 */            
 
-struct MinMax : Module
+struct MinMax : HCVModule
 {
 	enum ParamIds
 	{
@@ -57,6 +57,13 @@ struct MinMax : Module
 
 	void process(const ProcessArgs &args) override;
 
+    simd::float_4   ins1[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    ins2[4] = {0.0f, 0.0f, 0.0f, 0.0f},
+                    ins3[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    ins4[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outsMax[4] = {0.0f, 0.0f, 0.0f, 0.0f}, 
+                    outsMin[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
@@ -66,21 +73,39 @@ struct MinMax : Module
 
 void MinMax::process(const ProcessArgs &args)
 {
-    auto in1 = inputs[IN1_INPUT].getVoltage();
-    auto in2 = inputs[IN2_INPUT].isConnected() ? inputs[IN2_INPUT].getVoltage() : in1;
-    auto in3 = inputs[IN3_INPUT].isConnected() ? inputs[IN3_INPUT].getVoltage() : in2;
-    auto in4 = inputs[IN4_INPUT].isConnected() ? inputs[IN4_INPUT].getVoltage() : in3;
+    int channels = getMaxInputPolyphony();
+    bool in2Connected = inputs[IN2_INPUT].isConnected();
+    bool in3Connected = inputs[IN3_INPUT].isConnected();
+    bool in4Connected = inputs[IN4_INPUT].isConnected();
 
-    auto max1 = std::max(in1, in2);
-    auto max2 = std::max(in3, in4);
-    auto totalMax = std::max(max1, max2);
+    outputs[MIN_OUTPUT].setChannels(channels);
+    outputs[MAX_OUTPUT].setChannels(channels);
 
-    auto min1 = std::min(in1, in2);
-    auto min2 = std::min(in3, in4);
-    auto totalMin = std::min(min1, min2);
+    for (int c = 0; c < channels; c += 4) 
+	{
+        const int vectorIndex = c/4;
+		ins1[vectorIndex] = simd::float_4::load(inputs[IN1_INPUT].getVoltages(c));
+        ins2[vectorIndex] = in2Connected ? simd::float_4::load(inputs[IN2_INPUT].getVoltages(c)) : ins1[vectorIndex];
+        ins3[vectorIndex] = in3Connected ? simd::float_4::load(inputs[IN3_INPUT].getVoltages(c)) : ins2[vectorIndex];
+        ins4[vectorIndex] = in4Connected ? simd::float_4::load(inputs[IN4_INPUT].getVoltages(c)) : ins3[vectorIndex];
 
-    outputs[MIN_OUTPUT].setVoltage(totalMin);
-    outputs[MAX_OUTPUT].setVoltage(totalMax);
+        auto max1 = fmax(ins1[vectorIndex], ins2[vectorIndex]);
+        auto max2 = fmax(ins3[vectorIndex], ins4[vectorIndex]);
+        auto totalMax = fmax(max1, max2);
+
+        auto min1 = fmin(ins1[vectorIndex], ins2[vectorIndex]);
+        auto min2 = fmin(ins3[vectorIndex], ins4[vectorIndex]);
+        auto totalMin = fmin(min1, min2);
+
+        outsMax[vectorIndex] = totalMax;
+        outsMin[vectorIndex] = totalMin;
+
+        outsMax[c / 4].store(outputs[MAX_OUTPUT].getVoltages(c));
+        outsMin[c / 4].store(outputs[MIN_OUTPUT].getVoltages(c));
+	}
+
+    auto totalMin = outsMin[0][0];
+    auto totalMax = outsMax[0][0];
 
     if (totalMin > 0.0)
     {
@@ -106,17 +131,12 @@ void MinMax::process(const ProcessArgs &args)
     
 }
 
-struct MinMaxWidget : ModuleWidget { MinMaxWidget(MinMax *module); };
+struct MinMaxWidget : HCVModuleWidget { MinMaxWidget(MinMax *module); };
 
 MinMaxWidget::MinMaxWidget(MinMax *module)
 {
-    setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MinMax.svg")));
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/MinMax.svg");
+    initializeWidget(module, true);
 
     //////PARAMS//////
 

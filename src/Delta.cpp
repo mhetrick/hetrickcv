@@ -13,7 +13,7 @@
  ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 */                   
 
-struct Delta : Module
+struct Delta : HCVModule
 {
 	enum ParamIds
 	{
@@ -49,8 +49,18 @@ struct Delta : Module
 	Delta()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "");
-		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "");
+		configParam(Delta::AMOUNT_PARAM, 0.0, 5.0, 0.0, "Input Boost");
+		configParam(Delta::SCALE_PARAM, -1.0, 1.0, 1.0, "Boost CV Depth");
+
+		configInput(MAIN_INPUT, "Main");
+		configInput(AMOUNT_INPUT, "Boost CV");
+
+		configOutput(GT_GATE_OUTPUT, "Rising Gate");
+		configOutput(GT_TRIG_OUTPUT, "Rising Trigger");
+		configOutput(LT_GATE_OUTPUT, "Falling Gate");
+		configOutput(LT_TRIG_OUTPUT, "Falling Trigger");
+		configOutput(CHANGE_OUTPUT, "Direction Change Trigger");
+		configOutput(DELTA_OUTPUT, "Delta");
 	}
 
 	TriggerGenWithSchmitt ltTrig, gtTrig;
@@ -99,28 +109,16 @@ void Delta::process(const ProcessArgs &args)
 }
 
 
-struct DeltaWidget : ModuleWidget { DeltaWidget(Delta *module); };
+struct DeltaWidget : HCVModuleWidget { DeltaWidget(Delta *module); };
 
 DeltaWidget::DeltaWidget(Delta *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Delta.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Delta.svg");
+	initializeWidget(module);
 
 	//////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(27, 62), module, Delta::AMOUNT_PARAM));
-    addParam(createParam<Trimpot>(Vec(36, 112), module, Delta::SCALE_PARAM));
+	createHCVKnob(27, 62, Delta::AMOUNT_PARAM);
+	createHCVTrimpot(36, 112, Delta::SCALE_PARAM);
 
 	//////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(12, 195), module, Delta::MAIN_INPUT));

@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct LogicCombine : Module
+struct LogicCombine : HCVModule
 {
 	enum ParamIds
 	{
@@ -96,24 +96,12 @@ void LogicCombine::process(const ProcessArgs &args)
     lights[TRIG_LIGHT].setSmoothBrightness(outs[2], 10);
 }
 
-struct LogicCombineWidget : ModuleWidget { LogicCombineWidget(LogicCombine *module); };
+struct LogicCombineWidget : HCVModuleWidget { LogicCombineWidget(LogicCombine *module); };
 
 LogicCombineWidget::LogicCombineWidget(LogicCombine *module)
 {
-    setModule(module);
-	box.size = Vec(8 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/LogicCombiner.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/LogicCombiner.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
 

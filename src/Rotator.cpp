@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Rotator : Module
+struct Rotator : HCVModule
 {
 	enum ParamIds
 	{
@@ -64,8 +64,20 @@ struct Rotator : Module
 	Rotator()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Rotator::ROTATE_PARAM, 0, 7.0, 0.0, "");
-        configParam(Rotator::STAGES_PARAM, 0, 7.0, 7.0, "");
+        configSwitch(Rotator::ROTATE_PARAM, 0.0, 7.0, 0.0, "Rotate", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        configSwitch(Rotator::STAGES_PARAM, 0.0, 7.0, 7.0, "Number of Stages", {"1", "2", "3", "4", "5", "6", "7", "8"} );
+
+        paramQuantities[ROTATE_PARAM]->snapEnabled = true;
+        paramQuantities[STAGES_PARAM]->snapEnabled = true;
+
+        configInput(ROTATE_INPUT, "Rotate CV");
+        configInput(STAGES_INPUT, "Stages CV");
+        
+        for (int i = 0; i < 8; i++)
+        {
+            configInput(IN1_INPUT + i, std::to_string(i + 1));
+            configOutput(OUT1_OUTPUT + i, std::to_string(i + 1));
+        }
 	}
 
     void process(const ProcessArgs &args) override;
@@ -94,7 +106,7 @@ void Rotator::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        const int input = (rotation + i) % stages;
+        const int input = (stages - rotation + i) % stages;
         outputs[i].setVoltage(inputs[input].getVoltage());
 
         lights[IN1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / 5.0), 10);
@@ -106,28 +118,16 @@ void Rotator::process(const ProcessArgs &args)
 }
 
 
-struct RotatorWidget : ModuleWidget { RotatorWidget(Rotator *module); };
+struct RotatorWidget : HCVModuleWidget { RotatorWidget(Rotator *module); };
 
 RotatorWidget::RotatorWidget(Rotator *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Rotator.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/Rotator.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 85), module, Rotator::ROTATE_PARAM));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(70, 245), module, Rotator::STAGES_PARAM));
+    createHCVKnob(70, 85, Rotator::ROTATE_PARAM);
+    createHCVKnob(70, 245, Rotator::STAGES_PARAM);
 
     addInput(createInput<PJ301MPort>(Vec(75, 150), module, Rotator::ROTATE_INPUT));
     addInput(createInput<PJ301MPort>(Vec(75, 310), module, Rotator::STAGES_INPUT));

@@ -23,7 +23,7 @@
                 └─────────────▶
 */                             
 
-struct Crackle : Module
+struct Crackle : HCVModule
 {
 	enum ParamIds
 	{
@@ -52,8 +52,11 @@ struct Crackle : Module
 	Crackle()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
-		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "");
-		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "");
+		configParam(Crackle::RATE_PARAM, 0.0, 2.0, 1.7, "Chaos Depth");
+		configParam(Crackle::BROKEN_PARAM, 0.0, 1.0, 1.0, "Broken Mode");
+
+		configInput(RATE_INPUT, "Chaos CV");
+		configOutput(MAIN_OUTPUT, "Crackle");
 
 		y1 = random::uniform();
 		y2 = 0.0f;
@@ -108,27 +111,15 @@ void Crackle::process(const ProcessArgs &args)
 }
 
 
-struct CrackleWidget : ModuleWidget { CrackleWidget(Crackle *module); };
+struct CrackleWidget : HCVModuleWidget { CrackleWidget(Crackle *module); };
 
 CrackleWidget::CrackleWidget(Crackle *module)
 {
-	setModule(module);
-	box.size = Vec(6 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Crackle.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	setSkinPath("res/Crackle.svg");
+	initializeWidget(module);
 
     //////PARAMS//////
-	addParam(createParam<Davies1900hBlackKnob>(Vec(28, 87), module, Crackle::RATE_PARAM));
+	createHCVKnob(28, 87, Crackle::RATE_PARAM);
     addParam(createParam<CKSS>(Vec(37, 220), module, Crackle::BROKEN_PARAM));
 
     //////INPUTS//////

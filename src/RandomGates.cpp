@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct RandomGates : Module
+struct RandomGates : HCVModule
 {
 	enum ParamIds
 	{
@@ -53,9 +53,22 @@ struct RandomGates : Module
 	RandomGates()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "");
-        configParam(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "");
-        configParam(RandomGates::MODE_PARAM, 0.0, 1.0, 0.0, "");
+
+        configSwitch(RandomGates::MIN_PARAM, 0, 7.0, 0.0, "Minimum Output Channel", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        configSwitch(RandomGates::MAX_PARAM, 0, 7.0, 7.0, "Maximum Output Channel", {"1", "2", "3", "4", "5", "6", "7", "8"});
+        paramQuantities[MIN_PARAM]->snapEnabled = true;
+        paramQuantities[MAX_PARAM]->snapEnabled = true;
+        
+        configButton(RandomGates::MODE_PARAM, "Output Mode");
+
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(MINI_INPUT, "Minimum Output Channel CV");
+        configInput(MAXI_INPUT, "Maximum Output Channel CV");
+
+        for (int i = 0; i < 8; i++)
+        {
+            configOutput(OUT1_OUTPUT + i, "Gate " + std::to_string(i + 1));
+        }
 	}
 
     void process(const ProcessArgs &args) override;
@@ -158,7 +171,7 @@ void RandomGates::process(const ProcessArgs &args)
         case 1: //hold mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].setVoltage((active[i] ? 10.0f : 0.0f));
+            outputs[i].setVoltage((active[i] ? 5.0f : 0.0f));
         }
         break;
 
@@ -180,38 +193,27 @@ void RandomGates::process(const ProcessArgs &args)
 }
 
 
-struct RandomGatesWidget : ModuleWidget { RandomGatesWidget(RandomGates *module); };
+struct RandomGatesWidget : HCVModuleWidget { RandomGatesWidget(RandomGates *module); };
 
 RandomGatesWidget::RandomGatesWidget(RandomGates *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/RandomGates.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
-
-    //const int inXPos = 10;
+    setSkinPath("res/RandomGates.svg");
+    initializeWidget(module);
+    
+    
     const int outXPos = 145;
     const int outLightX = 120;
     const int inLightX = 45;
+    const int inJackX = 58;
 
+    createInputPort(inJackX, 90, RandomGates::CLOCK_INPUT);
+    createInputPort(inJackX, 150, RandomGates::MINI_INPUT);
+    createInputPort(inJackX, 210, RandomGates::MAXI_INPUT);
+    
+    createHCVKnob(10, 145, RandomGates::MIN_PARAM);
+    createHCVKnob(10, 205, RandomGates::MAX_PARAM);
 
-    addInput(createInput<PJ301MPort>(Vec(58, 90), module, RandomGates::CLOCK_INPUT));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 145), module, RandomGates::MIN_PARAM));
-    addParam(createParam<Davies1900hBlackKnob>(Vec(10, 205), module, RandomGates::MAX_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(58, 150), module, RandomGates::MINI_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(58, 210), module, RandomGates::MAXI_INPUT));
-
-    addParam(createParam<CKD6>(Vec(56, 270), module, RandomGates::MODE_PARAM));
+    createHCVButtonLarge(56, 270, RandomGates::MODE_PARAM);
 
     //////BLINKENLIGHTS//////
     addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, 306), module, RandomGates::MODE_TRIG_LIGHT));

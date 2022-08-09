@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct DigitalToAnalog : Module
+struct DigitalToAnalog : HCVModule
 {
 	enum ParamIds
 	{
@@ -23,6 +23,8 @@ struct DigitalToAnalog : Module
         IN8_INPUT,
 
         SYNC_INPUT,
+
+        POLY_INPUT,
 
 		NUM_INPUTS
 	};
@@ -69,10 +71,20 @@ struct DigitalToAnalog : Module
 	DigitalToAnalog()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(DigitalToAnalog::MODE_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(DigitalToAnalog::RECTIFY_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "");
-        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "");
+        configButton(DigitalToAnalog::MODE_PARAM, "Mode");
+        configButton(DigitalToAnalog::RECTIFY_PARAM, "Rectification Mode");
+        configParam(DigitalToAnalog::SCALE_PARAM, -1.0, 1.0, 0.2, "Scale");
+        configParam(DigitalToAnalog::OFFSET_PARAM, -5.0, 5.0, 0.0, "Offset");
+
+        for (int i = 0; i < 8; i++)
+        {
+            configInput(IN1_INPUT + i, "Bit " + std::to_string(i + 1));
+        }
+
+        configInput(SYNC_INPUT, "Sync");
+        configInput(POLY_INPUT, "Poly");
+
+        configOutput(MAIN_OUTPUT, "Main");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -135,11 +147,14 @@ void DigitalToAnalog::process(const ProcessArgs &args)
 
     if(readyForProcess)
     {
+        inputs[POLY_INPUT].setChannels(8);
+
         mainOutput = 0.0f;
 
         for(int i = 0; i < 8; i++)
         {
-            ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
+            ins[i] = inputs[POLY_INPUT].getVoltage(i) > 1.0f;
+            if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
             lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         }
 
@@ -208,47 +223,33 @@ void DigitalToAnalog::processBiSig()
 }
 
 
-struct DigitalToAnalogWidget : ModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
+struct DigitalToAnalogWidget : HCVModuleWidget { DigitalToAnalogWidget(DigitalToAnalog *module); };
 
 DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DToA.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/DToAPoly.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
-    addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM));
-    addParam(createParam<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM));
+    addParam(createParam<CKD6>(Vec(85, 180), module, DigitalToAnalog::MODE_PARAM));
+    addParam(createParam<CKD6>(Vec(135, 180), module, DigitalToAnalog::RECTIFY_PARAM));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 82;
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, DigitalToAnalog::MODE_UNI8_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, DigitalToAnalog::MODE_BOFF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, DigitalToAnalog::MODE_BSIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 216), module, DigitalToAnalog::MODE_UNI8_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 229), module, DigitalToAnalog::MODE_BOFF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 242), module, DigitalToAnalog::MODE_BSIG_LIGHT));
 
     int rectLightX = 134;
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, DigitalToAnalog::RECT_NONE_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, DigitalToAnalog::RECT_HALF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, DigitalToAnalog::RECT_FULL_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 216), module, DigitalToAnalog::RECT_NONE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 229), module, DigitalToAnalog::RECT_HALF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 242), module, DigitalToAnalog::RECT_FULL_LIGHT));
 
 
     addOutput(createOutput<PJ301MPort>(Vec(78, 70), module, DigitalToAnalog::MAIN_OUTPUT));
     addChild(createLight<SmallLight<GreenRedLight>>(Vec(87, 111), module, DigitalToAnalog::OUT_POS_LIGHT));
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(112, 152), module, DigitalToAnalog::SYNC_INPUT));
-
     addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM));
     addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM));
 
@@ -265,6 +266,9 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, DigitalToAnalog::IN1_LIGHT + i));
     }
+
+    addInput(createInput<PJ301MPort>(Vec(88, 310), module, DigitalToAnalog::POLY_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(139, 310), module, DigitalToAnalog::SYNC_INPUT));
 }
 
 Model *modelDigitalToAnalog = createModel<DigitalToAnalog, DigitalToAnalogWidget>("DigitalToAnalog");

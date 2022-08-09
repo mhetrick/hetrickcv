@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct BinaryGate : Module
+struct BinaryGate : HCVModule
 {
 	enum ParamIds
 	{
@@ -32,9 +32,15 @@ struct BinaryGate : Module
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-        configParam(ON_PARAM, 0.0, 1.0, 0.0, "on button");
-        configParam(OFF_PARAM, 0.0, 1.0, 0.0, "off button");
-        configParam(TOGGLE_PARAM, 0.0, 1.0, 0.0, "toggle button");
+        configButton(ON_PARAM, "On Button");
+        configButton(OFF_PARAM, "Off Button");
+        configButton(TOGGLE_PARAM, "Toggle Button");
+
+        configInput(ON_INPUT, "On Gate");
+        configInput(OFF_INPUT, "Off Gate");
+        configInput(TOGGLE_INPUT, "Toggle Gate");
+        
+        configOutput(GATE_OUTPUT, "Main Gate");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -71,17 +77,12 @@ void BinaryGate::process(const ProcessArgs &args)
     lights[GATE_LIGHT].setBrightness(gateState ? 1.0 : 0.0);
 }
 
-struct BinaryGateWidget : ModuleWidget { BinaryGateWidget(BinaryGate *module); };
+struct BinaryGateWidget : HCVModuleWidget { BinaryGateWidget(BinaryGate *module); };
 
 BinaryGateWidget::BinaryGateWidget(BinaryGate *module)
 {
-    setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/BinaryGate.svg")));
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	//addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/BinaryGate.svg");
+    initializeWidget(module, true);
 
     //////PARAMS//////
 

@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct GateJunction : Module
+struct GateJunction : HCVModule
 {
 	enum ParamIds
 	{
@@ -95,8 +95,9 @@ struct GateJunction : Module
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         for (int i = 0; i < 8; ++i)
         {
-            configParam(GateJunction::MUTE1_PARAM + i, 0.0, 1.0, 0.0, "");
-            configParam(GateJunction::INV1_PARAM + i, 0.0, 1.0, 0.0, "");
+            configBypass(GateJunction::IN1_INPUT + i, GateJunction::OUT1_OUTPUT + i);
+            configButton(GateJunction::MUTE1_PARAM + i, "Mute");
+            configButton(GateJunction::INV1_PARAM + i, "Invert");
         }
 
 		onReset();
@@ -210,24 +211,12 @@ struct MuteLight : BASE {
 	}
 };
 
-struct GateJunctionWidget : ModuleWidget { GateJunctionWidget(GateJunction *module); };
+struct GateJunctionWidget : HCVModuleWidget { GateJunctionWidget(GateJunction *module); };
 
 GateJunctionWidget::GateJunctionWidget(GateJunction *module)
 {
-    setModule(module);
-	box.size = Vec(12 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/GateJunction.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/GateJunction.svg");
+    initializeWidget(module);
 
     //////PARAMS//////
 

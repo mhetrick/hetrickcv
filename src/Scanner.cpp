@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-struct Scanner : Module
+struct Scanner : HCVModule
 {
 	enum ParamIds
 	{
@@ -74,12 +74,12 @@ struct Scanner : Module
 	Scanner()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "");
-        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "");
-        configParam(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "");
-        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "");
+        configParam(Scanner::SCAN_PARAM, 0, 5.0, 0.0, "Scan");
+        configParam(Scanner::STAGES_PARAM, 0, 6.0, 6.0, "Number of Stages");
+        configParam(Scanner::WIDTH_PARAM, 0, 5.0, 0.0, "Width");
+        configParam(Scanner::SLOPE_PARAM, 0, 5.0, 0.0, "Slope");
+        configSwitch(Scanner::OFFSET_PARAM, 0.0, 1.0, 0.0, "Voltage Offset", {"None", "+5V"});
+        configParam(Scanner::MIXSCALE_PARAM, 0.0, 1.0, 0.125, "Mix Scale");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -172,46 +172,35 @@ void Scanner::process(const ProcessArgs &args)
 }
 
 
-struct ScannerWidget : ModuleWidget { ScannerWidget(Scanner *module); };
+struct ScannerWidget : HCVModuleWidget { ScannerWidget(Scanner *module); };
 
 ScannerWidget::ScannerWidget(Scanner *module)
 {
-    setModule(module);
-	box.size = Vec(18 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
-
-	{
-		auto *panel = new SvgPanel();
-		panel->box.size = box.size;
-		panel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Scanner.svg")));
-		addChild(panel);
-	}
-
-	addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-	addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+    setSkinPath("res/Scanner.svg");
+    initializeWidget(module);
 
     const int knobX = 75;
     const int jackX = 123;
 
     //////PARAMS//////
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 65), module, Scanner::SCAN_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 70), module, Scanner::SCAN_INPUT));
+    createHCVKnob(knobX, 65, Scanner::SCAN_PARAM);
+    createInputPort(jackX, 70, Scanner::SCAN_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 125), module, Scanner::STAGES_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 130), module, Scanner::STAGES_INPUT));
+    createHCVKnob(knobX, 125, Scanner::STAGES_PARAM);
+    createInputPort(jackX, 130, Scanner::STAGES_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 185), module, Scanner::WIDTH_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 190), module, Scanner::WIDTH_INPUT));
+    createHCVKnob(knobX, 185, Scanner::WIDTH_PARAM);
+    createInputPort(jackX, 190, Scanner::WIDTH_INPUT);
 
-    addParam(createParam<Davies1900hBlackKnob>(Vec(knobX, 245), module, Scanner::SLOPE_PARAM));
-    addInput(createInput<PJ301MPort>(Vec(jackX, 250), module, Scanner::SLOPE_INPUT));
+    createHCVKnob(knobX, 245, Scanner::SLOPE_PARAM);
+    createInputPort(jackX, 250, Scanner::SLOPE_INPUT);
 
-    addInput(createInput<PJ301MPort>(Vec(96, 310), module, Scanner::ALLIN_INPUT));
-    addOutput(createOutput<PJ301MPort>(Vec(141, 310), module, Scanner::MIX_OUTPUT));
+    createInputPort(96, 310, Scanner::ALLIN_INPUT);
+    createOutputPort(141, 310, Scanner::MIX_OUTPUT);
 
-    addParam(createParam<CKSS>(Vec(75, 312), module, Scanner::OFFSET_PARAM));
-    addParam(createParam<Trimpot>(Vec(180, 313), module, Scanner::MIXSCALE_PARAM));
+    createHCVSwitchVert(75, 312, Scanner::OFFSET_PARAM);
+
+    createHCVTrimpot(180, 313, Scanner::MIXSCALE_PARAM);
 
     const int inXPos = 10;
     const int inLightX = 50;
