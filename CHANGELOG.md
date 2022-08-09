@@ -1,5 +1,8 @@
 # HetrickCV Changelog
 
+## 2.1.0
+- Add poly jacks to Analog<->Digital converters for easier patching.
+
 ## 2.0.0 Dev
 - Add 1-Op Chaos module.
 - Add 2-Op Chaos module.
