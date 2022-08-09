@@ -45,6 +45,7 @@ struct AnalogToDigital : HCVModule
         OUT6_OUTPUT,
         OUT7_OUTPUT,
         OUT8_OUTPUT,
+        POLY_OUTPUT,
 		NUM_OUTPUTS
     };
     enum LightIds
@@ -95,6 +96,8 @@ struct AnalogToDigital : HCVModule
         
         configInput(MAIN_INPUT, "Main");
         configInput(SYNC_INPUT, "Sync");
+
+        configOutput(POLY_OUTPUT, "Poly");
 	}
 
     void process(const ProcessArgs &args) override;
@@ -171,8 +174,11 @@ void AnalogToDigital::process(const ProcessArgs &args)
     for(int i = 0; i < 8; i++)
     {
         outputs[OUT1_OUTPUT + i].setVoltage(outs[i]);
+        outputs[POLY_OUTPUT].setVoltage(outs[i], i);
         lights[OUT1_LIGHT + i].value = outs[i];
     }
+
+    outputs[POLY_OUTPUT].setChannels(8);
 }
 
 void AnalogToDigital::processUni8(float _input)
@@ -228,27 +234,27 @@ struct AnalogToDigitalWidget : HCVModuleWidget { AnalogToDigitalWidget(AnalogToD
 
 AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module)
 {
-    setSkinPath("res/AToD.svg");
+    setSkinPath("res/AToDPoly.svg");
     initializeWidget(module);
 
     //////PARAMS//////
-    addParam(createParam<CKD6>(Vec(16, 270), module, AnalogToDigital::MODE_PARAM));
-    addParam(createParam<CKD6>(Vec(65, 270), module, AnalogToDigital::RECTIFY_PARAM));
+    addParam(createParam<CKD6>(Vec(16, 180), module, AnalogToDigital::MODE_PARAM));
+    addParam(createParam<CKD6>(Vec(65, 180), module, AnalogToDigital::RECTIFY_PARAM));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 12;
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, AnalogToDigital::MODE_UNI8_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, AnalogToDigital::MODE_BOFF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, AnalogToDigital::MODE_BSIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 216), module, AnalogToDigital::MODE_UNI8_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 229), module, AnalogToDigital::MODE_BOFF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 242), module, AnalogToDigital::MODE_BSIG_LIGHT));
 
     int rectLightX = 64;
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, AnalogToDigital::RECT_NONE_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, AnalogToDigital::RECT_HALF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, AnalogToDigital::RECT_FULL_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 216), module, AnalogToDigital::RECT_NONE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 229), module, AnalogToDigital::RECT_HALF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 242), module, AnalogToDigital::RECT_FULL_LIGHT));
 
     //////INPUTS//////
     addInput(createInput<PJ301MPort>(Vec(7, 70), module, AnalogToDigital::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(42, 152), module, AnalogToDigital::SYNC_INPUT));
+    
 
     addParam(createParam<Trimpot>(Vec(44, 73), module, AnalogToDigital::SCALE_PARAM));
     addParam(createParam<Trimpot>(Vec(80, 73), module, AnalogToDigital::OFFSET_PARAM));
@@ -266,6 +272,9 @@ AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module)
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, AnalogToDigital::OUT1_LIGHT + i));
     }
+
+    addInput(createInput<PJ301MPort>(Vec(18, 310), module, AnalogToDigital::SYNC_INPUT));
+    addOutput(createOutput<PJ301MPort>(Vec(83, 310), module, AnalogToDigital::POLY_OUTPUT));
 }
 
 Model *modelAnalogToDigital = createModel<AnalogToDigital, AnalogToDigitalWidget>("AnalogToDigital");

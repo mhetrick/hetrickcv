@@ -24,6 +24,8 @@ struct DigitalToAnalog : HCVModule
 
         SYNC_INPUT,
 
+        POLY_INPUT,
+
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -78,6 +80,9 @@ struct DigitalToAnalog : HCVModule
         {
             configInput(IN1_INPUT + i, "Bit " + std::to_string(i + 1));
         }
+
+        configInput(SYNC_INPUT, "Sync");
+        configInput(POLY_INPUT, "Poly");
 
         configOutput(MAIN_OUTPUT, "Main");
 	}
@@ -142,11 +147,14 @@ void DigitalToAnalog::process(const ProcessArgs &args)
 
     if(readyForProcess)
     {
+        inputs[POLY_INPUT].setChannels(8);
+
         mainOutput = 0.0f;
 
         for(int i = 0; i < 8; i++)
         {
-            ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
+            ins[i] = inputs[POLY_INPUT].getVoltage(i) > 1.0f;
+            if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
             lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         }
 
@@ -219,31 +227,29 @@ struct DigitalToAnalogWidget : HCVModuleWidget { DigitalToAnalogWidget(DigitalTo
 
 DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
-    setSkinPath("res/DToA.svg");
+    setSkinPath("res/DToAPoly.svg");
     initializeWidget(module);
 
     //////PARAMS//////
-    addParam(createParam<CKD6>(Vec(85, 270), module, DigitalToAnalog::MODE_PARAM));
-    addParam(createParam<CKD6>(Vec(135, 270), module, DigitalToAnalog::RECTIFY_PARAM));
+    addParam(createParam<CKD6>(Vec(85, 180), module, DigitalToAnalog::MODE_PARAM));
+    addParam(createParam<CKD6>(Vec(135, 180), module, DigitalToAnalog::RECTIFY_PARAM));
 
     //////BLINKENLIGHTS//////
     int modeLightX = 82;
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 306), module, DigitalToAnalog::MODE_UNI8_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 319), module, DigitalToAnalog::MODE_BOFF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 332), module, DigitalToAnalog::MODE_BSIG_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 216), module, DigitalToAnalog::MODE_UNI8_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 229), module, DigitalToAnalog::MODE_BOFF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(modeLightX, 242), module, DigitalToAnalog::MODE_BSIG_LIGHT));
 
     int rectLightX = 134;
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 306), module, DigitalToAnalog::RECT_NONE_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 319), module, DigitalToAnalog::RECT_HALF_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 332), module, DigitalToAnalog::RECT_FULL_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 216), module, DigitalToAnalog::RECT_NONE_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 229), module, DigitalToAnalog::RECT_HALF_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(rectLightX, 242), module, DigitalToAnalog::RECT_FULL_LIGHT));
 
 
     addOutput(createOutput<PJ301MPort>(Vec(78, 70), module, DigitalToAnalog::MAIN_OUTPUT));
     addChild(createLight<SmallLight<GreenRedLight>>(Vec(87, 111), module, DigitalToAnalog::OUT_POS_LIGHT));
 
     //////INPUTS//////
-    addInput(createInput<PJ301MPort>(Vec(112, 152), module, DigitalToAnalog::SYNC_INPUT));
-
     addParam(createParam<Trimpot>(Vec(114, 73), module, DigitalToAnalog::SCALE_PARAM));
     addParam(createParam<Trimpot>(Vec(150, 73), module, DigitalToAnalog::OFFSET_PARAM));
 
@@ -260,6 +266,9 @@ DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
         //////BLINKENLIGHTS//////
         addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, DigitalToAnalog::IN1_LIGHT + i));
     }
+
+    addInput(createInput<PJ301MPort>(Vec(88, 310), module, DigitalToAnalog::POLY_INPUT));
+    addInput(createInput<PJ301MPort>(Vec(139, 310), module, DigitalToAnalog::SYNC_INPUT));
 }
 
 Model *modelDigitalToAnalog = createModel<DigitalToAnalog, DigitalToAnalogWidget>("DigitalToAnalog");
