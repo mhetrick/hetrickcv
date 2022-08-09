@@ -1,7 +1,7 @@
 {
   "slug": "HetrickCV",
   "name": "HetrickCV",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "CC0-1.0",
   "author": "Michael Hetrick",
   "authorEmail": "",
@@ -51,7 +51,8 @@
       "name": "Analog to Digital",
       "description": "Converts a continuous signal into eight gates representing bit values.",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {
@@ -167,7 +168,8 @@
       "name": "Digital to Analog",
       "description": "Converts eight gates to a smooth signal.",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {
