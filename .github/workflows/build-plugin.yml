@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 env:
   rack-sdk-version: 2.2.1
+  rack-plugin-toolchain-dir: /home/build/rack-plugin-toolchain
 
 defaults:
   run:
