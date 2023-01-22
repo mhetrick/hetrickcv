@@ -139,6 +139,16 @@ struct HCVModuleWidget : ModuleWidget
         addParam(createParam<CKD6>(Vec(_x, _y), module, _paramID));
     }
 
+    void createHCVRedLight(int _x, int _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<RedLight>>(Vec(_x, _y), module, _lightID));
+    }
+
+    void createHCVBipolarLight(int _x, int _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x, _y), module, _lightID));
+    }
+
     void createInputPort(int _x, int _y, int _paramID)
     {
         addInput(createInput<PJ301MPort>(Vec(_x, _y), module, _paramID));
@@ -183,21 +193,27 @@ struct HCVModuleWidget : ModuleWidget
 
 struct HCVTriggerGenerator
 {
-    float time = 0.0;
-	float triggerTime = 0.001;
+    bool triggered = false;
+
     bool process() 
     {
-		time += APP->engine->getSampleTime();
-		return time < triggerTime;
+		if (triggered)
+        {
+            triggered = false;
+            return true;
+        }
+        return false;
 	}
+
     void trigger() 
     {
-		// Keep the previous pulseTime if the existing pulse would be held longer than the currently requested one.
-        if (time + triggerTime >= triggerTime) 
-        {
-			time = 0.0;
-		}
+		triggered = true;
 	}
+
+    void reset()
+    {
+        triggered = false;
+    }
 };
 
 struct TriggerGenWithSchmitt
@@ -210,6 +226,12 @@ struct TriggerGenWithSchmitt
 		if(schmitt.process(_trigger ? 2.0f : 0.0f)) trigGen.trigger();
 		return trigGen.process();
 	}
+
+    void reset()
+    {
+        trigGen.reset();
+        schmitt.reset();
+    }
 };
 
 struct HysteresisGate
