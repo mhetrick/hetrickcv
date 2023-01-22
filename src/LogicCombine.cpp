@@ -16,6 +16,7 @@ struct LogicCombine : HCVModule
         IN6_INPUT,
         IN7_INPUT,
         IN8_INPUT,
+        POLY_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -34,11 +35,16 @@ struct LogicCombine : HCVModule
         NUM_LIGHTS
 	};
 
-    bool ins[NUM_INPUTS] = {};
-    bool trigs[NUM_INPUTS] = {};
+    static constexpr int totalInputs = 24;
+    bool ins[totalInputs] = {};
+    bool trigs[totalInputs] = {};
+    dsp::SchmittTrigger inTrigs[totalInputs];
+
+    TriggerGenWithSchmitt triggerProcessor;
+
     float outs[3] = {};
     float trigLight;
-    dsp::SchmittTrigger inTrigs[NUM_INPUTS];
+    
     bool orState = false;
     bool trigState = false;
     const float lightLambda = 0.075;
@@ -48,6 +54,16 @@ struct LogicCombine : HCVModule
 	LogicCombine()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+
+        for (int i = 0; i < 8; i++)
+        {
+            configInput(IN1_INPUT + i, "Gate " + std::to_string(i + 1));
+        }
+        configInput(POLY_INPUT, "Poly");
+
+        configOutput(OR_OUTPUT, "OR");
+        configOutput(NOR_OUTPUT, "NOR");
+        configOutput(TRIG_OUTPUT, "All Triggers");
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -64,28 +80,31 @@ void LogicCombine::process(const ProcessArgs &args)
     orState = false;
     trigState = false;
 
+    //inputs[POLY_INPUT].setChannels(16);
+
     for(int i = 0; i < NUM_INPUTS; i++)
     {
         ins[i] = (inputs[IN1_INPUT + i].getVoltage() >= 1.0f);
-        trigs[i] = inTrigs[i].process(inputs[IN1_INPUT + i].getVoltage());
+
+        trigs[i] = inTrigs[i].process(ins[i] ? 5.0f : 0.0f);
 
         orState = orState || ins[i];
         trigState = trigState || trigs[i];
     }
 
-    outs[0] = orState ? 5.0f : 0.0f;
-    outs[1] = 5.0f - outs[0];
-
-    if(trigState)
+    for(int i = 0; i < inputs[POLY_INPUT].getChannels(); i++)
     {
-        trigger.trigger();
-        lights[TRIG_LIGHT].value = 5.0f;
+        int polyIndex = i+8; //offset by 8, since we process the 8 non-poly channels above
+        ins[polyIndex] =  inputs[POLY_INPUT].getVoltage(i) >= 1.0f;
+        trigs[polyIndex] = inTrigs[polyIndex].process(ins[polyIndex] ? 5.0f : 0.0f);
+
+        orState = orState || ins[polyIndex];
+        trigState = trigState || trigs[polyIndex];
     }
 
-    outs[2] = trigger.process() ? 5.0f : 0.0f;
-
-    if (lights[TRIG_LIGHT].value > 0.01)
-        lights[TRIG_LIGHT].value -= lights[TRIG_LIGHT].value / lightLambda * args.sampleTime;
+    outs[0] = orState ? 5.0f : 0.0f;
+    outs[1] = 5.0f - outs[0];
+    outs[2] = triggerProcessor.process(trigState) ? 5.0f : 0.0f;
 
     outputs[OR_OUTPUT].setVoltage(outs[0]);
     outputs[NOR_OUTPUT].setVoltage(outs[1]);
@@ -93,7 +112,7 @@ void LogicCombine::process(const ProcessArgs &args)
 
     lights[OR_LIGHT].setBrightness(outs[0]);
     lights[NOR_LIGHT].setBrightness(outs[1]);
-    lights[TRIG_LIGHT].setSmoothBrightness(outs[2], 10);
+    lights[TRIG_LIGHT].setBrightnessSmooth(outs[2], args.sampleTime * 4);
 }
 
 struct LogicCombineWidget : HCVModuleWidget { LogicCombineWidget(LogicCombine *module); };
@@ -110,10 +129,12 @@ LogicCombineWidget::LogicCombineWidget(LogicCombine *module)
     const int outPos = 67;
     const int lightPos = outPos + 29;
 
-    for(int i = 0; i < LogicCombine::NUM_INPUTS; i++)
+    for(int i = 0; i < 8; i++)
     {
         addInput(createInput<PJ301MPort>(Vec(10, 50 + (i*inSpacing)), module, LogicCombine::IN1_INPUT + i));
     }
+
+    addInput(createInput<PJ301MPort>(Vec(outPos, 50), module, LogicCombine::POLY_INPUT));
 
     //////OUTPUTS//////
     addOutput(createOutput<PJ301MPort>(Vec(outPos, 150), module, LogicCombine::OR_OUTPUT));

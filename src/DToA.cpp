@@ -153,8 +153,8 @@ void DigitalToAnalog::process(const ProcessArgs &args)
 
         for(int i = 0; i < 8; i++)
         {
-            ins[i] = inputs[POLY_INPUT].getVoltage(i) > 1.0f;
-            if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() > 1.0f;
+            ins[i] = inputs[POLY_INPUT].getVoltage(i) >= 1.0f;
+            if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() >= 1.0f;
             lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         }
 
