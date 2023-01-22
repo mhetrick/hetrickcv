@@ -10,6 +10,7 @@
   "manualUrl": "https://github.com/mhetrick/hetrickcv/blob/master/README.md",
   "sourceUrl": "https://github.com/mhetrick/hetrickcv",
   "donateUrl": "https://paypal.me/MHetrick",
+  "changelogUrl": "https://github.com/mhetrick/hetrickcv/blob/master/CHANGELOG.md",
   "modules": [
     {
       "slug": "Chaos1Op",
@@ -229,6 +230,16 @@
       ]
     },
     {
+      "slug": "GateJunctionExp",
+      "name": "Gate Junction Expanded",
+      "description": "Eight channel gate processor, expanded with more jacks and polyphony.",
+      "tags": [
+        "Switch",
+        "Logic",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Gingerbread",
       "name": "Gingerbread Chaos",
       "description": "Self-modulating audio and modulation chaos generator.",
@@ -242,7 +253,8 @@
       "name": "OR Logic (Gate Combiner)",
       "description": "Combines multiple gates into one gate.",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {
@@ -304,6 +316,14 @@
       "tags": [
         "Mixer",
         "Polyphonic"
+      ]
+    },
+    {
+      "slug": "VectorMix",
+      "name": "4-Way Cartesian Mixer",
+      "description": "Two-dimensional crossfading between four signals.",
+      "tags": [
+        "Mixer"
       ]
     },
     {

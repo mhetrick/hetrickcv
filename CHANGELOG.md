@@ -1,9 +1,16 @@
 # HetrickCV Changelog
 
 ## 2.1.0
+- Add Probability module.
+- Add Vector Mix module.
+- Add Gate Junction Expanded module.
 - Add poly jacks to Analog<->Digital converters for easier patching.
+- Add poly input jack to Gate Combiner. This is combined with the main 8 inputs (for 24 possible gate ins).
+- Add port names to Gate Combiner and Gate Junction.
+- Trigger times on Gate Combiner and Random Gates have been reduced from 1 ms to 1 sample.
+- Trigger lights on Gate Combiner and Random Gates should now work more consistently across sample rates.
 
-## 2.0.0 Dev
+## 2.0.0
 - Add 1-Op Chaos module.
 - Add 2-Op Chaos module.
 - Add 3-Op Chaos module.

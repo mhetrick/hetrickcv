@@ -32,6 +32,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelFlipFlop);
 	p->addModel(modelFlipPan);
 	p->addModel(modelGateJunction);
+	p->addModel(modelGateJunctionExp);
 	p->addModel(modelGingerbread);
 	p->addModel(modelLogicCombine);
 	p->addModel(modelMidSide);
@@ -40,6 +41,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelRotator);
 	p->addModel(modelRungler);
 	p->addModel(modelScanner);
+	p->addModel(modelVectorMix);
 	p->addModel(modelWaveshape);
 	p->addModel(modelXYToPolar);
 	// Any other pluginInstance initialization may go here.
