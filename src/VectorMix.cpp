@@ -189,7 +189,7 @@ void VectorMix::process(const ProcessArgs &args)
         outC[vectorIndex] = insC[vectorIndex] * outMultsC[vectorIndex];
         outD[vectorIndex] = insD[vectorIndex] * outMultsD[vectorIndex];
 
-        outMix[vectorIndex] = insA[vectorIndex] + insB[vectorIndex] + insC[vectorIndex] + insD[vectorIndex];
+        outMix[vectorIndex] = outA[vectorIndex] + outB[vectorIndex] + outC[vectorIndex] + outD[vectorIndex];
 
         outMix[vectorIndex].store(outputs[OUTMAIN_OUTPUT].getVoltages(c));
         outA[vectorIndex].store(outputs[OUTA_OUTPUT].getVoltages(c));
