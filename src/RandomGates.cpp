@@ -188,7 +188,7 @@ void RandomGates::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        lights[OUT1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, outputs[i].value), 10);
+        lights[OUT1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, outputs[i].value), args.sampleTime * 4.0f);
     }
 }
 

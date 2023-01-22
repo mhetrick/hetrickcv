@@ -95,9 +95,14 @@ struct GateJunction : HCVModule
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         for (int i = 0; i < 8; ++i)
         {
+            const auto channelString = std::to_string(i + 1);
+
             configBypass(GateJunction::IN1_INPUT + i, GateJunction::OUT1_OUTPUT + i);
-            configButton(GateJunction::MUTE1_PARAM + i, "Mute");
-            configButton(GateJunction::INV1_PARAM + i, "Invert");
+            configButton(GateJunction::MUTE1_PARAM + i, "Mute " + channelString);
+            configButton(GateJunction::INV1_PARAM + i, "Invert " + channelString);
+
+            configInput(GateJunction::IN1_INPUT + i, "Gate " + channelString);
+            configOutput(GateJunction::OUT1_OUTPUT + i, "Gate " + channelString);
         }
 
 		onReset();
