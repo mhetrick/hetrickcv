@@ -1,7 +1,10 @@
 # HetrickCV Changelog
 
+## 2.2.0 (in progress)
+- Add Probability module (in progress).
+
 ## 2.1.0
-- Add Probability module.
+- Add Apple Silicon support to build script.
 - Add Vector Mix module.
 - Add Gate Junction Expanded module.
 - Add poly jacks to Analog<->Digital converters for easier patching.
