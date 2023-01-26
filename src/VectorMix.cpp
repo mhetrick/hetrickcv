@@ -147,6 +147,11 @@ void VectorMix::process(const ProcessArgs &args)
     const float yScale = params[YCV_PARAM].getValue() * 0.2;
 
     outputs[OUTMAIN_OUTPUT].setChannels(channels);
+    outputs[OUTA_OUTPUT].setChannels(channels);
+    outputs[OUTB_OUTPUT].setChannels(channels);
+    outputs[OUTC_OUTPUT].setChannels(channels);
+    outputs[OUTD_OUTPUT].setChannels(channels);
+
 
 	for (int c = 0; c < channels; c += 4) 
 	{
