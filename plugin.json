@@ -280,7 +280,8 @@
       "name": "Probability",
       "description": "Sends one gate to two places randomly",
       "tags": [
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {

@@ -124,6 +124,9 @@ void Probability::process(const ProcessArgs &args)
         outMode = (outMode + 1) % 3;
     }
 
+    outputs[OUTA_OUTPUT].setChannels(getMaxInputPolyphony());
+    outputs[OUTB_OUTPUT].setChannels(getMaxInputPolyphony());
+
     for (int i = 0; i < getMaxInputPolyphony(); i++)
     {
         if (clockTrigger[i].process(inputs[GATE_INPUT].getPolyVoltage(i)))
