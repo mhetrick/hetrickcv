@@ -1,7 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.2.0 (in progress)
-- Add Probability module (in progress).
+- Add Probability module.
 
 ## 2.1.0
 - Add Apple Silicon support to build script.

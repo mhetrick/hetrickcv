@@ -58,6 +58,7 @@ extern Model *modelGingerbread;
 extern Model *modelLogicCombine;
 extern Model *modelMidSide;
 extern Model *modelMinMax;
+extern Model *modelProbability;
 extern Model *modelRandomGates;
 extern Model *modelRotator;
 extern Model *modelRungler;

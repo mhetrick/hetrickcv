@@ -276,6 +276,14 @@
       ]
     },
     {
+      "slug": "Probability",
+      "name": "Probability",
+      "description": "Sends one gate to two places randomly",
+      "tags": [
+        "Random"
+      ]
+    },
+    {
       "slug": "RandomGates",
       "name": "Random Gates",
       "description": "Generates up to eight random gates.",

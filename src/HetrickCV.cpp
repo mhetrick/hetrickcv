@@ -37,6 +37,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelLogicCombine);
 	p->addModel(modelMidSide);
 	p->addModel(modelMinMax);
+	p->addModel(modelProbability);
 	p->addModel(modelRandomGates);
 	p->addModel(modelRotator);
 	p->addModel(modelRungler);
