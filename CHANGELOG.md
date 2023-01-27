@@ -2,6 +2,7 @@
 
 ## 2.2.0 (in progress)
 - Add Probability module.
+- Fix polyphony for individual outs on Vector Mix.
 
 ## 2.1.0
 - Add Apple Silicon support to build script.
