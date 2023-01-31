@@ -221,6 +221,16 @@
       ]
     },
     {
+      "slug": "GateDelay",
+      "name": "Gate Delay",
+      "description": "Takes a trigger and outputs a variable-width gate after a specified delay.",
+      "tags": [
+        "Logic",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "GateJunction",
       "name": "Gate Junction",
       "description": "Eight channel gate processor.",
@@ -329,10 +339,11 @@
     },
     {
       "slug": "VectorMix",
-      "name": "4-Way Cartesian Mixer",
+      "name": "Vector Mix",
       "description": "Two-dimensional crossfading between four signals.",
       "tags": [
-        "Mixer"
+        "Mixer",
+        "Polyphonic"
       ]
     },
     {

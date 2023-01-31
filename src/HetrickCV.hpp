@@ -52,6 +52,7 @@ extern Model *modelExponent;
 extern Model *modelFBSineChaos;
 extern Model *modelFlipFlop;
 extern Model *modelFlipPan;
+extern Model *modelGateDelay;
 extern Model *modelGateJunction;
 extern Model *modelGateJunctionExp;
 extern Model *modelGingerbread;

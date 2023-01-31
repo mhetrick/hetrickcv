@@ -44,6 +44,11 @@ struct HCVModule : Module
         return clamp(temp, 0.0, 1.0);
     }
 
+    inline float boolToGate(bool _input)
+    {
+        return _input ? 5.0f : 0.0f;
+    }
+
     inline float getModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
     {
         return params[mainParamIndex].getValue() + (inputs[cvInputIndex].getVoltage() * params[cvScaleIndex].getValue());
@@ -210,6 +215,11 @@ struct HCVTriggerGenerator
         return false;
 	}
 
+    float processFloat()
+    {
+        return process() ? 5.0f : 0.0f;
+    }
+
     void trigger() 
     {
 		triggered = true;
@@ -231,6 +241,12 @@ struct TriggerGenWithSchmitt
 		if(schmitt.process(_trigger ? 2.0f : 0.0f)) trigGen.trigger();
 		return trigGen.process();
 	}
+
+    bool process(float _comparator)
+    {
+        if(schmitt.process(_comparator)) trigGen.trigger();
+		return trigGen.process();
+    }
 
     void reset()
     {
