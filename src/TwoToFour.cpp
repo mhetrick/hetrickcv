@@ -76,7 +76,7 @@ void TwoToFour::process(const ProcessArgs &args)
         insB[vectorIndex] = simd::float_4::load(inputs[INB_INPUT].getVoltages(c));
 		outs1[vectorIndex] = insA[vectorIndex] + insB[vectorIndex];
         outs2[vectorIndex] = outs1[vectorIndex] * -1.0f;
-        outs4[vectorIndex] = insA[vectorIndex] + insB[vectorIndex];
+        outs4[vectorIndex] = insA[vectorIndex] - insB[vectorIndex];
         outs3[vectorIndex] = outs4[vectorIndex] * -1.0f;
 	}
 
