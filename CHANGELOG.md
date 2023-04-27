@@ -1,10 +1,14 @@
 # HetrickCV Changelog
 
-## 2.2.0 (in progress)
-- Add Probability module.
+## 2.3.0 (in progress)
 - Add Gate Delay module (in progress).
+
+## 2.2.0
+- Add Probability module.
+- Fix 2-to-4 Mix Matrix outputs 3 and 4, which were accidental duplicates of 1 and 2 when updated for polyphony.
 - Fix polyphony for individual outs on Vector Mix.
 - Add missing polyphony tag to Vector Mix.
+- Fix Rungler feedback behavior.
 
 ## 2.1.0
 - Add Apple Silicon support to build script.

@@ -58,7 +58,11 @@ public:
 
     void advanceRegisterFrozen() override
     {
-        HCVShiftRegister::advanceRegisterFrozen();
+        for (int i = dataRegister.size() - 1; i > 0; i--)
+        {
+            dataRegister[i] = dataRegister[i-1];
+        }
+        dataRegister[0] = (dataRegister[0] != dataRegister[dataRegister.size() - 1]);
         calculateRunglerOut();
     }
 

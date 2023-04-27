@@ -9,8 +9,7 @@ SOURCES += Gamma/src/arr.cpp
 SOURCES += Gamma/src/Domain.cpp
 SOURCES += Gamma/src/scl.cpp
 
-DISTRIBUTABLES += $(wildcard LICENSE*) res
+DISTRIBUTABLES += $(wildcard LICENSE*) res README.md CHANGELOG.md
 
 RACK_DIR ?= ../Rack-SDK
 include $(RACK_DIR)/plugin.mk
-
