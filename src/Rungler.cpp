@@ -9,6 +9,7 @@ struct Rungler : HCVModule
         COMPARE_PARAM, COMPARE_DEPTH_PARAM,
         SCALE_PARAM, SCALE_DEPTH_PARAM,
         WRITE_PARAM,
+        XOR_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -59,6 +60,7 @@ struct Rungler : HCVModule
 		configParam(Rungler::SCALE_DEPTH_PARAM, -1.0, 1.0, 0.0, "Output Scale CV Depth");
         
         configSwitch(WRITE_PARAM, 0.0, 1.0, 1.0, "Write Enable", {"Loop", "Write"});
+        configSwitch(XOR_PARAM, 0.0, 1.0, 1.0, "Feedback Mode", {"Direct", "XOR"});
 	}
 
     void process(const ProcessArgs &args) override;
@@ -69,7 +71,7 @@ struct Rungler : HCVModule
 
     void onReset() override
     {
-
+        rungler.emptyRegister();
     }
 
     void onRandomize() override
@@ -89,6 +91,8 @@ void Rungler::process(const ProcessArgs &args)
 
     if (clockTrigger.process(inputs[CLOCK_INPUT].getVoltage()))
     {
+        rungler.enableXORFeedback(params[XOR_PARAM].getValue() > 0.0f);
+
         if(params[WRITE_PARAM].getValue() == 0.0f)
         {
             rungler.advanceRegisterFrozen();
@@ -142,7 +146,9 @@ RunglerWidget::RunglerWidget(Rungler *module)
     createInputPort(clockX, inputY, Rungler::CLOCK_INPUT);
     createInputPort(dataX, inputY, Rungler::DATA_INPUT);
 
-    createHCVSwitchVert(clockX + 5, outY, Rungler::WRITE_PARAM);
+    const float switchX = 7.0f;
+    createHCVSwitchVert(switchX, outY, Rungler::WRITE_PARAM);
+    createHCVSwitchVert(switchX + 29, outY, Rungler::XOR_PARAM);
 
     createOutputPort(dataX, outY, Rungler::SEQ_OUTPUT);
 

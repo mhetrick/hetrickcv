@@ -40,6 +40,14 @@ public:
         dataRegister[0] = temp;
     }
 
+    void emptyRegister()
+    {
+        for (int i = 0; i < dataRegister.size(); i++)
+        {
+           dataRegister[i] = T(0);
+        }
+    }
+
     std::vector<T> dataRegister;
 
 private:
@@ -52,7 +60,13 @@ public:
 
     virtual void advanceRegister(bool _input) override
     {
-        HCVShiftRegister::advanceRegister(_input);
+        for (int i = dataRegister.size() - 1; i > 0; i--)
+        {
+            dataRegister[i] = dataRegister[i-1];
+        }
+
+        if(xorMode) dataRegister[0] = (_input != dataRegister[dataRegister.size() - 1]);
+        else dataRegister[0] = _input;
         calculateRunglerOut();
     }
 
@@ -62,7 +76,8 @@ public:
         {
             dataRegister[i] = dataRegister[i-1];
         }
-        dataRegister[0] = (dataRegister[0] != dataRegister[dataRegister.size() - 1]);
+        if(xorMode) dataRegister[0] = (dataRegister[0] != dataRegister[dataRegister.size() - 1]);
+        else dataRegister[0] = dataRegister[dataRegister.size() - 1];
         calculateRunglerOut();
     }
 
@@ -81,8 +96,14 @@ public:
         return runglerOut;
     }
 
+    void enableXORFeedback(bool _xorEnabled)
+    {
+        xorMode = _xorEnabled;
+    }
+
 private:
     float runglerOut = 0.0f;
+    bool xorMode = false;
 };
 
 class HCVLFSRNoise : public HCVShiftRegister<float>

@@ -3,6 +3,9 @@
 ## 2.3.0 (in progress)
 - Add Gate Delay module (in progress).
 
+## 2.2.1
+- Add XOR feedback toggle to Rungler. Apply XOR feedback to locked and unlocked shift register.
+
 ## 2.2.0
 - Add Probability module.
 - Fix 2-to-4 Mix Matrix outputs 3 and 4, which were accidental duplicates of 1 and 2 when updated for polyphony.
