@@ -2,6 +2,8 @@
 
 ## 2.3.0 (in progress)
 - Add Gate Delay module (in progress).
+- Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
+- Make Mode knob on 1-Op Chaos snap to values and print the current mode.
 
 ## 2.2.1
 - Add XOR feedback toggle to Rungler. Apply XOR feedback to locked and unlocked shift register.

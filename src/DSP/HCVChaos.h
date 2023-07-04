@@ -130,12 +130,12 @@ public:
 		chaosAmount = 3.0f + _chaosAmount;
 	}
     
-    void reset() override final
+    void reset() final
     {
         lastValue = 0.6f;
     }
 
-	void generate() override final;
+	void generate() final;
 
 private:
     float lastValue = 0.6f;
@@ -151,14 +151,14 @@ public:
         HCVIkedaMap::reset();
     }
 
-    void setChaosAmount(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) final
     {
         chaosAmount = gam::scl::mapLin(_chaosAmount, 0.0f, 1.0f, 0.79f, 0.87f);
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise() * 5.0f;
         lastY = randomGen.whiteNoise() * 5.0f;
@@ -176,14 +176,14 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) final
     {
         chaosAmount = gam::scl::mapLin(_chaosAmount, 0.0f, 1.0f, 1.0001f, 1.999f);
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         out = randomGen.nextFloat();
     }
@@ -200,14 +200,14 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmount) override final
+    void setChaosAmount(const float _chaosAmount) final
     {
         chaosAmount = 8.0f * _chaosAmount;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastP = randomGen.nextFloat();
         lastO = randomGen.nextFloat();
@@ -224,6 +224,77 @@ private:
     }
 
     float lastP = 0.0, lastO = 0.0;
+};
+
+class HCVThomasMap : public HCVChaos1Op
+{
+public:
+    HCVThomasMap()
+    {
+        reset();
+    }
+
+    void generate() final
+    {
+        float x = sin(lastY) - chaosAmount*lastX;
+        float y = sin(lastZ) - chaosAmount*lastY;
+        float z = sin(lastX) - chaosAmount*lastZ;
+
+        lastX = x; lastY = y; lastZ = z;
+        out1 = x; out2 = y;
+    }
+
+    void setChaosAmount(const float _chaosAmount) final
+    {
+        chaosAmount = 0.6f * _chaosAmount;
+    }
+
+    void reset() final
+    {
+        lastX = randomGen.whiteNoise();
+        lastY = randomGen.whiteNoise();
+        lastZ = randomGen.whiteNoise();
+    }
+
+private:
+    float lastX = 0.0f, lastY = 0.0f, lastZ = 0.0f;
+};
+
+class HCVHalvorsenMap : public HCVChaos1Op
+{
+public:
+    HCVHalvorsenMap()
+    {
+        reset();
+    }
+
+    void setChaosAmount(const float _chaosAmount) final
+    {
+        chaosAmount = 1.0f + _chaosAmount;
+    }
+
+    void generate() final
+    {
+        float x = (-chaosAmount*lastX) - (4.0f*lastY) - (4.0f*lastZ) - (lastY*lastY);
+        float y = (-chaosAmount*lastY) - (4.0f*lastZ) - (4.0f*lastX) - (lastZ*lastZ);
+        float z = (-chaosAmount*lastZ) - (4.0f*lastX) - (4.0f*lastY) - (lastX*lastX);
+
+        lastX = std::isnormal(x) ? x : 0.1f; 
+        lastY = std::isnormal(y) ? y : 0.0f; 
+        lastZ = std::isnormal(z) ? z : 0.0f;
+        out1 = gam::scl::clip(x, 10.0f, -10.0f); 
+        out2 = gam::scl::clip(y, 10.0f, -10.0f);
+    }
+
+    void reset() final
+    {
+        lastX = 0.1f;
+        lastY = 0.0f;
+        lastZ = 0.0f;
+    }
+
+private:
+    float lastX = 0.1f, lastY = 0.0f, lastZ = 0.0f;
 };
 
 //////////////////////////
@@ -252,15 +323,15 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) final
     {
         chaosAmountA = _chaosAmountA * 2.0f;
         chaosAmountB = _chaosAmountB;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
         lastY = randomGen.whiteNoise();
@@ -278,15 +349,15 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) final
     {
         chaosAmountA = _chaosAmountA + 1.0f;
         chaosAmountB = _chaosAmountB * 0.5f;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
         lastX2 = randomGen.whiteNoise();
@@ -304,15 +375,15 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) final
     {
         chaosAmountA = _chaosAmountA + 1.0f;
         chaosAmountB = _chaosAmountB + 1.0f;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
     }
@@ -329,15 +400,15 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) final
     {
         chaosAmountA = _chaosAmountA * 0.4f;
         chaosAmountB = gam::scl::mapLin(_chaosAmountB, 0.0f, 1.0f, 0.001f, 0.5f);
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
     }
@@ -354,15 +425,15 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB) final
     {
         chaosAmountA = 2.0 + (_chaosAmountA * 6.0);
         chaosAmountB = _chaosAmountB * -0.7;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
     }
@@ -398,16 +469,16 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) final
     {
         chaosAmountA = (_chaosAmountA * _chaosAmountA) + 0.9f;
         chaosAmountB = _chaosAmountB * 0.3f;
         chaosAmountC = 0.0001f + (_chaosAmountC * 0.9999f);
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastOut = randomGen.nextFloat();
     }
@@ -424,16 +495,16 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) override final
+    void setChaosAmount(const float _chaosAmountA, const float _chaosAmountB, const float _chaosAmountC) final
     {
         chaosAmountA = -3.4f - (_chaosAmountA * 0.6f);
         chaosAmountB = 3.4f + (_chaosAmountB * 0.6f);
         chaosAmountC = (_chaosAmountC * 0.6f) - 0.1f;
     }
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastOut = randomGen.nextFloat();
     }
@@ -471,7 +542,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = (_chaosA * TWO_PI) - PI;
         chaosAmountB = (_chaosB * TWO_PI) - PI;
@@ -479,9 +550,9 @@ public:
         chaosAmountD = (_chaosD * TWO_PI) - PI;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -501,7 +572,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = (_chaosA * TWO_PI) - PI;
         chaosAmountB = (_chaosB * TWO_PI) - PI;
@@ -509,9 +580,9 @@ public:
         chaosAmountD = _chaosD + 0.5f;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -531,7 +602,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = (_chaosA * TWO_PI) - PI;
         chaosAmountB = (_chaosB * TWO_PI) - PI;
@@ -539,9 +610,9 @@ public:
         chaosAmountD = _chaosD + 0.5f;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -561,7 +632,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = _chaosA * 5.0f;
         chaosAmountB = _chaosB * 5.0f;
@@ -569,9 +640,9 @@ public:
         chaosAmountD = _chaosD * 5.0f;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -592,7 +663,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = gam::scl::mapLin(_chaosA, 0.0f, 1.0f, 0.001f, 0.01f);
         chaosAmountB = 4.0f + (_chaosB * 51.0f);
@@ -600,9 +671,9 @@ public:
         chaosAmountD = 0.4f + (_chaosD * 4.6f);
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -623,7 +694,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = gam::scl::mapLin(_chaosA, 0.0f, 1.0f, 0.001f, 0.015f);
         chaosAmountB = _chaosB * 0.35f;
@@ -631,9 +702,9 @@ public:
         chaosAmountD = 1.0f + (_chaosD * 9.0f);
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.nextFloat();
         lastY = randomGen.nextFloat();
@@ -654,7 +725,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = _chaosA;
         chaosAmountB = uniToBi(_chaosB);
@@ -662,9 +733,9 @@ public:
         chaosAmountD = _chaosD;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastX = randomGen.whiteNoise();
         lastY = randomGen.whiteNoise();
@@ -685,7 +756,7 @@ public:
         reset();
     }
 
-    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) override final
+    void setChaosAmount(const float _chaosA, const float _chaosB, const float _chaosC, const float _chaosD) final
     {
         chaosAmountA = _chaosA;
         chaosAmountB = _chaosA;
@@ -693,9 +764,9 @@ public:
         chaosAmountD = _chaosD;
     } 
 
-    void generate() override final;
+    void generate() final;
 
-    void reset() override final
+    void reset() final
     {
         lastU = randomGen.nextFloat();
         lastW = randomGen.nextFloat();

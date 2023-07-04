@@ -35,7 +35,7 @@ struct Chaos1Op : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 6
+        NUM_LIGHTS = 7
 	};
 
 	Chaos1Op()
@@ -46,8 +46,10 @@ struct Chaos1Op : HCVModule
 
         configParam(Chaos1Op::CHAOS_PARAM, -5.0, 5.0, 0.0, "Chaos");
 		configParam(Chaos1Op::CHAOS_SCALE_PARAM, -1.0, 1.0, 1.0, "Chaos CV Depth");
-
-        configParam(Chaos1Op::MODE_PARAM, 0.0, 5.0, 0.0, "Mode");
+        
+        configSwitch(Chaos1Op::MODE_PARAM, 0.0, 6.0, 0.0, "Mode",
+        {"Crackle", "Broken Crackle", "Ikeda", "Logistic", "Standard", "Tent", "Thomas"});
+        paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(Chaos1Op::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
         configSwitch(Chaos1Op::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
@@ -87,6 +89,7 @@ struct Chaos1Op : HCVModule
     HCVIkedaMap ikeda;
     HCVStandardMap standard;
     HCVTentMap tent;
+    HCVThomasMap thomas;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -140,9 +143,16 @@ struct Chaos1Op : HCVModule
                 xVal = tent.out1;
                 yVal = tent.out2;
                 break;
-                
-            default:
-            
+
+            case 6: //thomas
+                thomas.setChaosAmount(chaosAmount);
+                thomas.generate();
+                xVal = thomas.out1;
+                yVal = thomas.out2;
+                break;
+
+
+            default:            
                 break;
         }
 
@@ -175,6 +185,10 @@ struct Chaos1Op : HCVModule
             case 5: //tent
                 tent.reset();
                 break;
+
+            case 6: //thomas
+                thomas.reset();
+                break;
                 
             default:
             
@@ -198,7 +212,7 @@ void Chaos1Op::process(const ProcessArgs &args)
     if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
 
     float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
-    modeValue = clamp(modeValue, 0.0, 5.0);
+    modeValue = clamp(modeValue, 0.0, 6.0);
     mode = (int) std::round(modeValue);
 
     if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
@@ -231,7 +245,7 @@ void Chaos1Op::process(const ProcessArgs &args)
     outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
     outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < NUM_LIGHTS; i++)
     {
         lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
@@ -271,7 +285,7 @@ Chaos1OpWidget::Chaos1OpWidget(Chaos1Op *module)
     createOutputPort(104.0f, jackY, Chaos1Op::X_OUTPUT);
     createOutputPort(146.0f, jackY, Chaos1Op::Y_OUTPUT);
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < Chaos1Op::NUM_LIGHTS; i++)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 223 + (i*9.5)), module, i));
     }
