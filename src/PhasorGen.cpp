@@ -201,9 +201,9 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-    const float knobY = 37.0f;
+    const float knobY = 60.0f;
     const float knobX = 70.0f;
-    const float spacing = 51.0f;
+    const float spacing = 50.0f;
 
     createParamComboHorizontal(knobX, knobY,                PhasorGen::PHASE_PARAM, PhasorGen::PHASE_SCALE_PARAM, PhasorGen::PHASE_INPUT);
     createParamComboHorizontal(knobX, knobY + spacing,      PhasorGen::PW_PARAM, PhasorGen::PW_SCALE_PARAM, PhasorGen::PW_INPUT);
@@ -219,14 +219,14 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
 
     
 	//////INPUTS//////
-    const float jackY = 255.0f;
+    const float jackY = 265.0f;
     createInputPort(22.0f, jackY, PhasorGen::VOCT_INPUT);
     createInputPort(78.0f, jackY, PhasorGen::CLOCK_INPUT);
     createInputPort(134.0f, jackY, PhasorGen::RESET_INPUT);
     createInputPort(190.0f, jackY, PhasorGen::FREEZE_INPUT);
 
 	//////OUTPUTS//////
-    const float outJackY = 305.0f;
+    const float outJackY = 315.0f;
     createOutputPort(41.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
     createOutputPort(108.0f, outJackY, PhasorGen::PULSES_OUTPUT);
     createOutputPort(175.0f, outJackY, PhasorGen::JITTER_OUTPUT);
