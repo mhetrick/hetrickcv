@@ -105,7 +105,7 @@ struct PhasorGen : HCVModule
         paramQuantities[PULSES_PARAM]->snapEnabled = true;
 		configParam(PhasorGen::PULSES_SCALE_PARAM, -1.0, 1.0, 1.0, "Pulses Per Cycle CV Depth");
 
-        configParam(PhasorGen::JITTER_PARAM, -5.0, 5.0, -5.0, "Jitter");
+        configParam(PhasorGen::JITTER_PARAM, 0.0, 5.0, 0.0, "Jitter");
 		configParam(PhasorGen::JITTER_SCALE_PARAM, -1.0, 1.0, 1.0, "Jitter CV Depth");
 
         configSwitch(PhasorGen::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
@@ -130,8 +130,8 @@ struct PhasorGen : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasor phasor;
-    HCVClockSync clockSync;
+    HCVPhasor phasors[16];
+    HCVClockSync clockSyncs[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -141,55 +141,83 @@ struct PhasorGen : HCVModule
 
 void PhasorGen::process(const ProcessArgs &args)
 {
-    const float jitterDepth = getNormalizedModulatedValue(JITTER_PARAM, JITTER_INPUT, JITTER_SCALE_PARAM);
-    const float jitterValue = phasor.getJitterSample() * 5.0f;
+    const float jitterKnob = params[JITTER_PARAM].getValue();
+    const float jitterCVDepth = params[JITTER_SCALE_PARAM].getValue();
 
-    if(inputs[CLOCK_INPUT].isConnected()) //clock mode
+    const float freqKnob = params[FREQ_PARAM].getValue();
+    const float fmCVKnob = params[FREQ_SCALE_PARAM].getValue();
+
+    const float pulsesKnob = params[PULSES_PARAM].getValue();
+    const float pulsesCVDepth = params[PULSES_SCALE_PARAM].getValue();
+
+    const float phaseKnob = params[PHASE_PARAM].getValue();
+    const float phaseCVDepth = params[PHASE_SCALE_PARAM].getValue();
+
+    const float pwKnob = params[PW_PARAM].getValue();
+    const float pwCVDepth = params[PW_SCALE_PARAM].getValue();
+
+    const bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
+
+    int numChannels = getMaxInputPolyphony();
+    outputs[PHASOR_OUTPUT].setChannels(numChannels);
+    outputs[PULSES_OUTPUT].setChannels(numChannels);
+    outputs[JITTER_OUTPUT].setChannels(numChannels);
+
+    for (int i = 0; i < numChannels; i++)
     {
-        clockSync.processGateClockInput(inputs[CLOCK_INPUT].getVoltage());
-        const float baseClockFreq = clockSync.getBaseClockFreq();
+        const float jitterCVIn = inputs[JITTER_INPUT].getPolyVoltage(i);
+        float jitterDepth = jitterKnob + (jitterCVDepth * jitterCVIn);
+        jitterDepth = clamp(jitterDepth, 0.0f, 5.0f) * 0.2f;
+        const float jitterValue = phasors[i].getJitterSample() * 5.0f;
 
-        float pitch = params[FREQ_PARAM].getValue() + inputs[VOCT_INPUT].getVoltage();
-        pitch += (inputs[FM_INPUT].getVoltage() * params[FREQ_SCALE_PARAM].getValue());
-        pitch += (jitterDepth * jitterValue);
+        if(inputs[CLOCK_INPUT].isConnected()) //clock mode
+        {
+            clockSyncs[i].processGateClockInput(inputs[CLOCK_INPUT].getPolyVoltage(i));
+            const float baseClockFreq = clockSyncs[i].getBaseClockFreq();
 
-        float freq = baseClockFreq * 0.5f * rack::dsp::approxExp2_taylor5(pitch);
+            float pitch =  freqKnob + inputs[VOCT_INPUT].getPolyVoltage(i);
+            pitch += (inputs[FM_INPUT].getPolyVoltage(i) * fmCVKnob);
+            pitch += (jitterDepth * jitterValue);
 
-        phasor.setFreqDirect(freq);
+            float freq = baseClockFreq * 0.5f * rack::dsp::approxExp2_taylor5(pitch);
+
+            phasors[i].setFreqDirect(freq);
+        }
+        else //freq mode
+        {
+            float pitchParamValue = freqKnob;
+            if(!lfoMode) pitchParamValue = pitchParamValue / 12.0f;
+            float pitch = pitchParamValue + inputs[VOCT_INPUT].getPolyVoltage(i);
+            pitch += (inputs[FM_INPUT].getPolyVoltage(i) * fmCVKnob);
+            pitch += (jitterDepth * jitterValue);
+
+            float baseFreq = lfoMode ? 1.0f : dsp::FREQ_C4;
+            float freq = baseFreq * rack::dsp::approxExp2_taylor5(pitch);
+
+            freq = clamp(freq, 0.f, args.sampleRate / 2.f);
+            phasors[i].setFreqDirect(freq);
+        }
+
+        float phase = phaseKnob + (phaseCVDepth * inputs[PHASE_INPUT].getPolyVoltage(i));
+        phase = clamp(phase, -5.0f, 5.0f) * 0.2f;
+        phasors[i].setPhaseOffset(phase);
+
+        float pulseWidth = pwKnob + (pwCVDepth * inputs[PW_INPUT].getPolyVoltage(i));
+        pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;;
+        phasors[i].setPulseWidth(pulseWidth);
+
+        phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
+        phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
+
+        
+        float modulatedPulses = pulsesCVDepth * inputs[PULSES_INPUT].getPolyVoltage(i) * PULSE_CV_SCALAR;
+        float pulses = clamp(pulsesKnob + modulatedPulses, 1.0f, 64.0f);
+        phasors[i].setPulsesPerCycle(pulses);
+
+        outputs[PHASOR_OUTPUT].setVoltage(phasors[i](), i);
+        outputs[PULSES_OUTPUT].setVoltage(phasors[i].getPulse(), i); 
+        outputs[JITTER_OUTPUT].setVoltage(jitterValue, i);  
     }
-    else //freq mode
-    {
-        const bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
-        float pitchParamValue = params[FREQ_PARAM].getValue();
-        if(!lfoMode) pitchParamValue = pitchParamValue / 12.0f;
-        float pitch = pitchParamValue + inputs[VOCT_INPUT].getVoltage();
-        pitch += (inputs[FM_INPUT].getVoltage() * params[FREQ_SCALE_PARAM].getValue());
-        pitch += (jitterDepth * jitterValue);
-
-        float baseFreq = lfoMode ? 1.0f : dsp::FREQ_C4;
-        float freq = baseFreq * rack::dsp::approxExp2_taylor5(pitch);
-
-        freq = clamp(freq, 0.f, args.sampleRate / 2.f);
-		phasor.setFreqDirect(freq);
-    }
-
-    const float phase = getBipolarNormalizedModulatedValue(PHASE_PARAM, PHASE_INPUT, PHASE_SCALE_PARAM);
-    phasor.setPhaseOffset(phase);
-
-    const float pulseWidth = getNormalizedModulatedValue(PW_PARAM, PW_INPUT, PW_SCALE_PARAM);
-    phasor.setPulseWidth(pulseWidth);
-
-    phasor.setFrozen(inputs[FREEZE_INPUT].getVoltage() >= 1.0f);
-    phasor.processGateResetInput(inputs[RESET_INPUT].getVoltage());
-
-    float pulses = params[PULSES_PARAM].getValue();
-    float modulatedPulses = params[PULSES_SCALE_PARAM].getValue() * inputs[PULSES_INPUT].getVoltage() * PULSE_CV_SCALAR;
-    pulses = clamp(pulses + modulatedPulses, 1.0f, 64.0f);
-    phasor.setPulsesPerCycle(pulses);
-
-    outputs[PHASOR_OUTPUT].setVoltage(phasor());
-    outputs[PULSES_OUTPUT].setVoltage(phasor.getPulse()); 
-    outputs[JITTER_OUTPUT].setVoltage(jitterValue);   
 }
 
 
