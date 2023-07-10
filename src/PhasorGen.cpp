@@ -105,7 +105,7 @@ struct PhasorGen : HCVModule
         paramQuantities[PULSES_PARAM]->snapEnabled = true;
 		configParam(PhasorGen::PULSES_SCALE_PARAM, -1.0, 1.0, 1.0, "Pulses Per Cycle CV Depth");
 
-        configParam(PhasorGen::JITTER_PARAM, -5.0, 5.0, 0.0, "Jitter");
+        configParam(PhasorGen::JITTER_PARAM, -5.0, 5.0, -5.0, "Jitter");
 		configParam(PhasorGen::JITTER_SCALE_PARAM, -1.0, 1.0, 1.0, "Jitter CV Depth");
 
         configSwitch(PhasorGen::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
@@ -201,9 +201,9 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-    const float knobY = 35.0f;
+    const float knobY = 37.0f;
     const float knobX = 70.0f;
-    const float spacing = 45.0f;
+    const float spacing = 51.0f;
 
     createParamComboHorizontal(knobX, knobY,                PhasorGen::PHASE_PARAM, PhasorGen::PHASE_SCALE_PARAM, PhasorGen::PHASE_INPUT);
     createParamComboHorizontal(knobX, knobY + spacing,      PhasorGen::PW_PARAM, PhasorGen::PW_SCALE_PARAM, PhasorGen::PW_INPUT);
@@ -215,21 +215,21 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
     createParamComboVertical(sRateX, sRateY, PhasorGen::FREQ_PARAM, PhasorGen::FREQ_SCALE_PARAM, PhasorGen::FM_INPUT);
 
 
-    createHCVSwitchVert(200.0f, 250.0f, PhasorGen::RANGE_PARAM);
+    createHCVSwitchVert(25.0f, 215.0f, PhasorGen::RANGE_PARAM);
 
     
 	//////INPUTS//////
-    createInputPort(20.0f, 210.0f, PhasorGen::VOCT_INPUT);
-    const float jackY = 270;
-    createInputPort(20.0f, jackY, PhasorGen::CLOCK_INPUT);
-    createInputPort(90.0f, jackY, PhasorGen::RESET_INPUT);
-    createInputPort(160.0f, jackY, PhasorGen::FREEZE_INPUT);
+    const float jackY = 255.0f;
+    createInputPort(22.0f, jackY, PhasorGen::VOCT_INPUT);
+    createInputPort(78.0f, jackY, PhasorGen::CLOCK_INPUT);
+    createInputPort(134.0f, jackY, PhasorGen::RESET_INPUT);
+    createInputPort(190.0f, jackY, PhasorGen::FREEZE_INPUT);
 
 	//////OUTPUTS//////
     const float outJackY = 305.0f;
-    createOutputPort(50.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
-    createOutputPort(120.0f, outJackY, PhasorGen::PULSES_OUTPUT);
-    createOutputPort(190.0f, outJackY, PhasorGen::JITTER_OUTPUT);
+    createOutputPort(41.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
+    createOutputPort(108.0f, outJackY, PhasorGen::PULSES_OUTPUT);
+    createOutputPort(175.0f, outJackY, PhasorGen::JITTER_OUTPUT);
 }
 
 Model *modelPhasorGen = createModel<PhasorGen, PhasorGenWidget>("PhasorGen");
