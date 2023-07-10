@@ -198,6 +198,7 @@
       "tags": [
         "Noise",
         "Oscillator",
+        "Low-frequency Oscillator",
         "Random"
       ]
     },
@@ -276,9 +277,22 @@
       ]
     },
     {
+      "slug": "PhasorGen",
+      "name": "Phasor Generator",
+      "description": "Generates a phasor along with time-synced gates.",
+      "tags": [
+        "Oscillator",
+        "Clock Generator",
+        "Clock Modulator",
+        "Low-frequency Oscillator",
+        "Random",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Probability",
       "name": "Probability",
-      "description": "Sends one gate to two places randomly",
+      "description": "Sends one gate to two places randomly.",
       "tags": [
         "Random",
         "Polyphonic"

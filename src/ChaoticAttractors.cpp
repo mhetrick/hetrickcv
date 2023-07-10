@@ -67,7 +67,9 @@ struct ChaoticAttractors : HCVModule
         configParam(ChaoticAttractors::CHAOSD_PARAM, -5.0, 5.0, 0.0, "Chaos D");
 		configParam(ChaoticAttractors::CHAOSD_SCALE_PARAM, -1.0, 1.0, 1.0, "Chaos D CV Depth");
 
-        configParam(ChaoticAttractors::MODE_PARAM, 0.0, 7.0, 4.0, "Mode");
+        configSwitch(ChaoticAttractors::MODE_PARAM, 0.0, 7.0, 4.0, "Mode",
+        {"De Jong", "Latoocarfian", "Clifford", "Tinkerbell", "Lorenz", "Rossler", "Pickover", "Fitzhugh-Nagumo"});
+        paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(ChaoticAttractors::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
         configSwitch(ChaoticAttractors::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});

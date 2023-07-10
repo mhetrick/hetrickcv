@@ -1,9 +1,12 @@
 # HetrickCV Changelog
 
 ## 2.3.0 (in progress)
-- Add Gate Delay module (in progress).
+- Add Phasor Generator module.
+- Add Gate Delay module (in progress. replace with burst phasor logic).
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
-- Make Mode knob on 1-Op Chaos snap to values and print the current mode.
+- Make Mode knobs on 1-Op Chaos, 2-Op Chaos, Chaotic Attactors, and Clocked Noise snap to values and print the current mode.
+- Add "Low-frequency Oscillator" tag to Feedback Sine Chaos.
+- TODO: Make Scanner polyphonic.
 
 ## 2.2.1
 - Add XOR feedback toggle to Rungler. Apply XOR feedback to locked and unlocked shift register.

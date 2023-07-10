@@ -46,7 +46,9 @@ struct ClockedNoise : HCVModule
         configParam(ClockedNoise::FLUX_PARAM, -5.0, 5.0, -5.0, "Flux");
 		configParam(ClockedNoise::FLUX_SCALE_PARAM, -1.0, 1.0, 1.0, "Flux CV Depth");
 
-        configParam(ClockedNoise::MODE_PARAM, 0.0, 5.0, 0.0, "Mode");
+        configSwitch(ClockedNoise::MODE_PARAM, 0.0, 5.0, 0.0, "Mode", 
+        {"White", "LFSR", "Gray", "Pink", "Brown", "Gaussian"});
+        paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(ClockedNoise::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
         configSwitch(ClockedNoise::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});

@@ -54,7 +54,8 @@ struct Chaos2Op : HCVModule
         configParam(Chaos2Op::CHAOSB_PARAM, -5.0, 5.0, 0.0, "Chaos B");
 		configParam(Chaos2Op::CHAOSB_SCALE_PARAM, -1.0, 1.0, 1.0, "Chaos B CV Depth");
 
-        configParam(Chaos2Op::MODE_PARAM, 0.0, 4.0, 4.0, "Mode");
+        configSwitch(Chaos2Op::MODE_PARAM, 0.0, 4.0, 4.0, "Mode", {"Cusp", "Gauss", "Henon", "Hetrick", "Mouse"});
+        paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(Chaos2Op::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
         configSwitch(Chaos2Op::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
