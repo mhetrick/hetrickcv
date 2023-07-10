@@ -227,7 +227,8 @@
       "description": "Trigger input to delayed Gate output",
       "tags": [
         "Utility",
-        "Clock Modulator"
+        "Clock Modulator",
+        "Polyphonic"
       ]
     },
     {
