@@ -222,6 +222,15 @@
       ]
     },
     {
+      "slug": "GateDelay",
+      "name": "Gate Delay",
+      "description": "Trigger input to delayed Gate output",
+      "tags": [
+        "Utility",
+        "Clock Modulator"
+      ]
+    },
+    {
       "slug": "GateJunction",
       "name": "Gate Junction",
       "description": "Eight channel gate processor.",

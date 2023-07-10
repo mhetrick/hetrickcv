@@ -31,7 +31,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelFBSineChaos);
 	p->addModel(modelFlipFlop);
 	p->addModel(modelFlipPan);
-	//p->addModel(modelGateDelay);
+	p->addModel(modelGateDelay);
 	p->addModel(modelGateJunction);
 	p->addModel(modelGateJunctionExp);
 	p->addModel(modelGingerbread);
