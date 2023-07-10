@@ -20,7 +20,6 @@ struct PhasorGen : HCVModule
 	};
 	enum InputIds
 	{
-        CLOCK_INPUT,
         FM_INPUT,
 
         PHASE_INPUT,
@@ -29,6 +28,10 @@ struct PhasorGen : HCVModule
         JITTER_INPUT,
 
         VOCT_INPUT,
+
+        CLOCK_INPUT,
+        RESET_INPUT,
+        FREEZE_INPUT,
         
 		NUM_INPUTS
 	};
@@ -107,13 +110,16 @@ struct PhasorGen : HCVModule
 
         configSwitch(PhasorGen::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
 
-        configInput(CLOCK_INPUT, "Clock");
         configInput(FM_INPUT, "Frequency CV");
 
         configInput(PHASE_INPUT, "Index Multiplier CV");
         configInput(PW_INPUT, "Phase Increment CV");
         configInput(PULSES_INPUT, "Phase Multiplier CV");
         configInput(JITTER_INPUT, "Feedback CV CV");
+
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(RESET_INPUT, "Reset");
+        configInput(FREEZE_INPUT, "Freeze");
 
         configOutput(PHASOR_OUTPUT, "Phasor");
         configOutput(PULSES_OUTPUT, "Pulses");
@@ -143,7 +149,13 @@ void PhasorGen::process(const ProcessArgs &args)
         clockSync.processGateClockInput(inputs[CLOCK_INPUT].getVoltage());
         const float baseClockFreq = clockSync.getBaseClockFreq();
 
-        phasor.setFreqDirect(baseClockFreq);
+        float pitch = params[FREQ_PARAM].getValue() + inputs[VOCT_INPUT].getVoltage();
+        pitch += (inputs[FM_INPUT].getVoltage() * params[FREQ_SCALE_PARAM].getValue());
+        pitch += (jitterDepth * jitterValue);
+
+        float freq = baseClockFreq * 0.5f * rack::dsp::approxExp2_taylor5(pitch);
+
+        phasor.setFreqDirect(freq);
     }
     else //freq mode
     {
@@ -166,6 +178,9 @@ void PhasorGen::process(const ProcessArgs &args)
 
     const float pulseWidth = getNormalizedModulatedValue(PW_PARAM, PW_INPUT, PW_SCALE_PARAM);
     phasor.setPulseWidth(pulseWidth);
+
+    phasor.setFrozen(inputs[FREEZE_INPUT].getVoltage() >= 1.0f);
+    phasor.processGateResetInput(inputs[RESET_INPUT].getVoltage());
 
     float pulses = params[PULSES_PARAM].getValue();
     float modulatedPulses = params[PULSES_SCALE_PARAM].getValue() * inputs[PULSES_INPUT].getVoltage() * PULSE_CV_SCALAR;
@@ -199,17 +214,22 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
     const float sRateY = 60.0f;
     createParamComboVertical(sRateX, sRateY, PhasorGen::FREQ_PARAM, PhasorGen::FREQ_SCALE_PARAM, PhasorGen::FM_INPUT);
 
-    const float switchY = 238.0f;
-    createHCVSwitchVert(19.0f, switchY, PhasorGen::RANGE_PARAM);
 
-    const float jackY = 305.0f;
+    createHCVSwitchVert(200.0f, 250.0f, PhasorGen::RANGE_PARAM);
+
+    
 	//////INPUTS//////
-    //createInputPort(50.0f, jackY, PhasorGen::CLOCK_INPUT);
+    createInputPort(20.0f, 210.0f, PhasorGen::VOCT_INPUT);
+    const float jackY = 270;
+    createInputPort(20.0f, jackY, PhasorGen::CLOCK_INPUT);
+    createInputPort(90.0f, jackY, PhasorGen::RESET_INPUT);
+    createInputPort(160.0f, jackY, PhasorGen::FREEZE_INPUT);
 
 	//////OUTPUTS//////
-    createOutputPort(50.0f, jackY, PhasorGen::PHASOR_OUTPUT);
-    createOutputPort(134.0f, jackY, PhasorGen::PULSES_OUTPUT);
-    createOutputPort(184.0f, jackY, PhasorGen::JITTER_OUTPUT);
+    const float outJackY = 305.0f;
+    createOutputPort(50.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
+    createOutputPort(120.0f, outJackY, PhasorGen::PULSES_OUTPUT);
+    createOutputPort(190.0f, outJackY, PhasorGen::JITTER_OUTPUT);
 }
 
 Model *modelPhasorGen = createModel<PhasorGen, PhasorGenWidget>("PhasorGen");
