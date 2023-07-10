@@ -1,6 +1,35 @@
 #include "rack.hpp"
 #include "engine/Engine.hpp"
 #include "dsp/digital.hpp"
+#include "Gamma/Domain.h"
+
+class HCVClockSync
+{
+public:
+
+    void processGateClockInput(float _clockIn)
+    {
+        const float sampleTime = gam::Domain::master().ups();
+        clockTimer.process(sampleTime);
+        if(clockTrigger.process(_clockIn))
+        {
+            float newClockFreq = 1.f / clockTimer.getTime();
+			clockTimer.reset();
+            clockFreq = newClockFreq;
+            //TODO: Maybe clamp clock freq
+        }
+    }
+
+    float getBaseClockFreq() const
+    {
+        return clockFreq;
+    }
+
+private:
+    float clockFreq = 1.0f;
+    rack::dsp::Timer clockTimer;
+    rack::dsp::SchmittTrigger clockTrigger;
+};
 
 //basically a wrapper around dsp::PulseGenerator
 class HCVTriggeredGate
@@ -49,7 +78,7 @@ public:
 
 private:
     float gateLengthInSeconds = 0.001f;
-    dsp::PulseGenerator gate;
+    rack::dsp::PulseGenerator gate;
     rack::dsp::SchmittTrigger schmitt;
 };
 

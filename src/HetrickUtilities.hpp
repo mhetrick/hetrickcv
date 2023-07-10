@@ -44,6 +44,11 @@ struct HCVModule : Module
         return clamp(temp, 0.0, 1.0);
     }
 
+    float normalizeParameterBipolar(float value)
+    {
+        return clamp(value * 0.1f, -1.0f, 1.0f);
+    }
+
     inline float boolToGate(bool _input)
     {
         return _input ? 5.0f : 0.0f;
@@ -57,6 +62,11 @@ struct HCVModule : Module
     inline float getNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
     {
         return normalizeParameter(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex));
+    }
+
+    inline float getBipolarNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
+    {
+        return normalizeParameterBipolar(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex));
     }
 
     float getSampleRateParameter(int mainSRateIndex, int sRateCVIndex, int cvScaleIndex, int rangeIndex)

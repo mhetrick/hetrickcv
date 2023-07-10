@@ -1,5 +1,4 @@
 #include "Gamma/Oscillator.h"
-#include "Gamma/Domain.h"
 #include "dsp/digital.hpp"
 #include "HCVRandom.h"
 
@@ -16,11 +15,6 @@ public:
     virtual float getCurrentPhase() = 0;
     virtual bool phasorFinishedThisSample() = 0;
 
-    void enableLFOMode(bool _enabled)
-    {
-        baseFreq = _enabled ? 2.0f : rack::dsp::FREQ_C4;
-    }
-
     void setFrozen(bool _isFrozen) { frozenMult = _isFrozen ? 0.0f : 1.0f; }
     void setOutputScalar(float _scalar){ outputScalar = _scalar; } 
     void setPulseWidth(float _pulseWidth){ pulseWidth = _pulseWidth; }
@@ -31,19 +25,6 @@ public:
     void processGateResetInput(float _gateIn)
     {
         if(resetTrigger.process(_gateIn)) reset();
-    }
-
-    void processGateClockInput(float _clockIn)
-    {
-        const float sampleTime = gam::Domain::master().ups();
-        clockTimer.process(sampleTime);
-        if(clockTrigger.process(_clockIn))
-        {
-            float newClockFreq = 1.f / clockTimer.getTime();
-			clockTimer.reset();
-            clockFreq = newClockFreq;
-            //TODO: Maybe clamp clock freq
-        }
     }
 
     float getPulse()
@@ -57,12 +38,11 @@ public:
     {
         if(phasorFinishedThisSample())
         {
-            jitterValue = randomGen.nextFloat();
+            jitterValue = randomGen.whiteNoise();
         }
     }
 
 protected:
-    float baseFreq = rack::dsp::FREQ_C4;
     float clockFreq = 1.0f;
     float outputScalar = 5.0f;
     float pulseWidth = 0.5f;
@@ -72,8 +52,7 @@ protected:
     int pulsesPerCycle = 1;
 
     HCVRandom randomGen;
-    rack::dsp::SchmittTrigger resetTrigger, clockTrigger;
-    rack::dsp::Timer clockTimer;
+    rack::dsp::SchmittTrigger resetTrigger;
 };
 
 class HCVPhasor : public HCVPhasorBase
@@ -81,7 +60,7 @@ class HCVPhasor : public HCVPhasorBase
 public:
     HCVPhasor()
     {
-        setFreqDirect(baseFreq);
+        setFreqDirect(2.0f);
     }
 
     float operator()()
@@ -123,7 +102,7 @@ public:
     HCVBurstPhasor()
     {
         setRepeats(1);
-        setFreqDirect(baseFreq);
+        setFreqDirect(2.0f);
     }
 
     float operator()()

@@ -1,9 +1,7 @@
 #include "HetrickCV.hpp"
-#include "DSP/HCVChaos.h" 
-#include "DSP/HCVDCFilter.h"
-#include "DSP/HCVSampleRate.h"
-#include "DSP/HCVCrackle.h"
+#include "DSP/HCVTiming.h" 
 #include "DSP/HCVPhasor.h"
+#include "dsp/approx.hpp"
 
 struct PhasorGen : HCVModule
 {
@@ -29,6 +27,8 @@ struct PhasorGen : HCVModule
         PW_INPUT,
         PULSES_INPUT,
         JITTER_INPUT,
+
+        VOCT_INPUT,
         
 		NUM_INPUTS
 	};
@@ -44,11 +44,53 @@ struct PhasorGen : HCVModule
         NUM_LIGHTS = 8
 	};
 
+    const float MAX_NUM_PULSES = 64.0f;
+    const float PULSE_CV_SCALAR = MAX_NUM_PULSES/5.0f;
+
 	PhasorGen()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(PhasorGen::FREQ_PARAM, 0.01, 1.0, 1.0, "Sample Rate");
-		configParam(PhasorGen::FREQ_SCALE_PARAM, -1.0, 1.0, 1.0, "Sample Rate CV Depth");
+		struct FrequencyQuantity : ParamQuantity {
+			float getDisplayValue() override {
+				PhasorGen* module = reinterpret_cast<PhasorGen*>(this->module);
+				if (!module->inputs[CLOCK_INPUT].isConnected()) 
+                {
+                    unit = " Hz";
+                    if(module->params[RANGE_PARAM].getValue() > 0.0f) //oscillator
+                    {
+                        minValue = -54.0f;
+                        maxValue = 54.0f;
+                        defaultValue = 0.0f;
+
+                        displayBase = dsp::FREQ_SEMITONE;
+                        displayMultiplier = dsp::FREQ_C4;
+                    }
+                    else //LFO
+                    {
+                        minValue = -8.0f;
+                        maxValue = 10.0f;
+                        defaultValue = 1.0f;
+
+                        displayMultiplier = 1.f;
+                        displayBase = 2.0f;
+                    }
+				}
+				else //clock sync div/mult
+                {
+					unit = "x";
+
+                    minValue = -8.0f;
+                    maxValue = 10.0f;
+                    defaultValue = 1.0f;
+
+                    displayBase = 2.0f;
+					displayMultiplier = 1 / 2.f;
+				}
+				return ParamQuantity::getDisplayValue();
+			}
+		};
+		configParam<FrequencyQuantity>(FREQ_PARAM, -8.f, 10.f, 1.f, "Frequency", " Hz", 2, 1);
+		configParam(PhasorGen::FREQ_SCALE_PARAM, -1.0, 1.0, 1.0, "Cycle Frequency CV Depth");
 
         configParam(PhasorGen::PHASE_PARAM, -5.0, 5.0, 0.0, "Phase");
 		configParam(PhasorGen::PHASE_SCALE_PARAM, -1.0, 1.0, 1.0, "Phase CV Depth");
@@ -56,7 +98,7 @@ struct PhasorGen : HCVModule
         configParam(PhasorGen::PW_PARAM, -5.0, 5.0, 0.0, "Pulse Width");
 		configParam(PhasorGen::PW_SCALE_PARAM, -1.0, 1.0, 1.0, "Pulse Width CV Depth");
 
-        configSwitch(PhasorGen::PULSES_PARAM, 1, 64.0, 1, "Pulses Per Cycle");
+        configParam(PhasorGen::PULSES_PARAM, 1, MAX_NUM_PULSES, 1, "Pulses Per Cycle");
         paramQuantities[PULSES_PARAM]->snapEnabled = true;
 		configParam(PhasorGen::PULSES_SCALE_PARAM, -1.0, 1.0, 1.0, "Pulses Per Cycle CV Depth");
 
@@ -83,6 +125,7 @@ struct PhasorGen : HCVModule
 	void process(const ProcessArgs &args) override;
 
     HCVPhasor phasor;
+    HCVClockSync clockSync;
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -92,23 +135,46 @@ struct PhasorGen : HCVModule
 
 void PhasorGen::process(const ProcessArgs &args)
 {
-    bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
-    phasor.enableLFOMode(lfoMode);
+    const float jitterDepth = getNormalizedModulatedValue(JITTER_PARAM, JITTER_INPUT, JITTER_SCALE_PARAM);
+    const float jitterValue = phasor.getJitterSample() * 5.0f;
+
+    if(inputs[CLOCK_INPUT].isConnected()) //clock mode
+    {
+        clockSync.processGateClockInput(inputs[CLOCK_INPUT].getVoltage());
+        const float baseClockFreq = clockSync.getBaseClockFreq();
+
+        phasor.setFreqDirect(baseClockFreq);
+    }
+    else //freq mode
+    {
+        const bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
+        float pitchParamValue = params[FREQ_PARAM].getValue();
+        if(!lfoMode) pitchParamValue = pitchParamValue / 12.0f;
+        float pitch = pitchParamValue + inputs[VOCT_INPUT].getVoltage();
+        pitch += (inputs[FM_INPUT].getVoltage() * params[FREQ_SCALE_PARAM].getValue());
+        pitch += (jitterDepth * jitterValue);
+
+        float baseFreq = lfoMode ? 1.0f : dsp::FREQ_C4;
+        float freq = baseFreq * rack::dsp::approxExp2_taylor5(pitch);
+
+        freq = clamp(freq, 0.f, args.sampleRate / 2.f);
+		phasor.setFreqDirect(freq);
+    }
+
+    const float phase = getBipolarNormalizedModulatedValue(PHASE_PARAM, PHASE_INPUT, PHASE_SCALE_PARAM);
+    phasor.setPhaseOffset(phase);
 
     const float pulseWidth = getNormalizedModulatedValue(PW_PARAM, PW_INPUT, PW_SCALE_PARAM);
     phasor.setPulseWidth(pulseWidth);
 
-    const int pulses = params[PULSES_PARAM].getValue();
+    float pulses = params[PULSES_PARAM].getValue();
+    float modulatedPulses = params[PULSES_SCALE_PARAM].getValue() * inputs[PULSES_INPUT].getVoltage() * PULSE_CV_SCALAR;
+    pulses = clamp(pulses + modulatedPulses, 1.0f, 64.0f);
     phasor.setPulsesPerCycle(pulses);
-
-    phasor.setFreqDirect(2.0f);
-
-    const float jitter = getNormalizedModulatedValue(JITTER_PARAM, JITTER_INPUT, JITTER_SCALE_PARAM);
-    phasor.setJitterDepth(jitter);
 
     outputs[PHASOR_OUTPUT].setVoltage(phasor());
     outputs[PULSES_OUTPUT].setVoltage(phasor.getPulse()); 
-    outputs[JITTER_OUTPUT].setVoltage(phasor.getJitterSample() * 5.0f);   
+    outputs[JITTER_OUTPUT].setVoltage(jitterValue);   
 }
 
 
