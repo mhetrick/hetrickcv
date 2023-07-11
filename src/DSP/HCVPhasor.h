@@ -22,9 +22,15 @@ public:
     void setPulsesPerCycle(int _pulsesPerCycle){ pulsesPerCycle = _pulsesPerCycle; }
     float getJitterSample() { return jitterValue; }
 
-    void processGateResetInput(float _gateIn)
+    bool processGateResetInput(float _gateIn)
     {
-        if(resetTrigger.process(_gateIn)) reset();
+        if(resetTrigger.process(_gateIn))
+        {
+            reset();
+            return true;
+        }
+
+        return false;
     }
 
     float getPulse()

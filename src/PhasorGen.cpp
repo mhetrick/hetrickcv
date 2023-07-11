@@ -40,6 +40,7 @@ struct PhasorGen : HCVModule
 		PHASOR_OUTPUT,
         PULSES_OUTPUT,
         JITTER_OUTPUT,
+        FINISH_OUTPUT,
 		NUM_OUTPUTS
 	};
     enum LightIds
@@ -124,6 +125,7 @@ struct PhasorGen : HCVModule
         configOutput(PHASOR_OUTPUT, "Phasor");
         configOutput(PULSES_OUTPUT, "Pulses");
         configOutput(JITTER_OUTPUT, "Jitter");
+        configOutput(FINISH_OUTPUT, "Finished Trigger");
 
         random::init();
 	}
@@ -207,7 +209,7 @@ void PhasorGen::process(const ProcessArgs &args)
         phasors[i].setPulseWidth(pulseWidth);
 
         phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
-        phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
+        bool resetThisFrame = phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
 
         
         float modulatedPulses = pulsesCVDepth * inputs[PULSES_INPUT].getPolyVoltage(i) * PULSE_CV_SCALAR;
@@ -216,7 +218,9 @@ void PhasorGen::process(const ProcessArgs &args)
 
         outputs[PHASOR_OUTPUT].setVoltage(phasors[i](), i);
         outputs[PULSES_OUTPUT].setVoltage(phasors[i].getPulse(), i); 
-        outputs[JITTER_OUTPUT].setVoltage(jitterValue, i);  
+        outputs[JITTER_OUTPUT].setVoltage(jitterValue, i);
+        bool finishHigh = phasors[i].phasorFinishedThisSample();
+        outputs[FINISH_OUTPUT].setVoltage( finishHigh ? 5.0f : 0.0f, i);
     }
 }
 
@@ -255,9 +259,10 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
 
 	//////OUTPUTS//////
     const float outJackY = 315.0f;
-    createOutputPort(41.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
-    createOutputPort(108.0f, outJackY, PhasorGen::PULSES_OUTPUT);
-    createOutputPort(175.0f, outJackY, PhasorGen::JITTER_OUTPUT);
+    createOutputPort(22.0f, outJackY, PhasorGen::PHASOR_OUTPUT);
+    createOutputPort(78.0f, outJackY, PhasorGen::PULSES_OUTPUT);
+    createOutputPort(134.0f, outJackY, PhasorGen::JITTER_OUTPUT);
+    createOutputPort(190.0f, outJackY, PhasorGen::FINISH_OUTPUT);
 }
 
 Model *modelPhasorGen = createModel<PhasorGen, PhasorGenWidget>("PhasorGen");
