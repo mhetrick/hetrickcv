@@ -9,11 +9,13 @@ struct GateDelay : HCVModule
         DELAYCV_PARAM,
         WIDTH_PARAM,
         WIDTHCV_PARAM,
+        GATEBUTTON_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
 	{
-        GATE_INPUT,
+        GATE1_INPUT,
+        GATE2_INPUT,
         DELAYCV_INPUT,
         WIDTHCV_INPUT,
 		NUM_INPUTS
@@ -46,7 +48,10 @@ struct GateDelay : HCVModule
         configParam(GateDelay::WIDTH_PARAM, 0.0001, maxTime, 0.1, "Gate Width", " s");
         configParam(GateDelay::WIDTHCV_PARAM, -1.0, 1.0, 1.0, "Gate Width CV Depth");
 
-        configInput(GateDelay::GATE_INPUT, "Gate");
+        configButton(GATEBUTTON_PARAM, "Gate Button");
+
+        configInput(GateDelay::GATE1_INPUT, "Gate 1");
+        configInput(GateDelay::GATE2_INPUT, "Gate 2");
         configInput(GateDelay::DELAYCV_INPUT, "Delay Time CV");
         configInput(GateDelay::WIDTHCV_INPUT, "Gate Width CV");
 
@@ -82,11 +87,15 @@ void GateDelay::process(const ProcessArgs &args)
     const float widthKnob = params[WIDTH_PARAM].getValue();
     const float widthDepth = params[WIDTHCV_PARAM].getValue();
 
+    const float gateButton = params[GATEBUTTON_PARAM].getValue() * 2.0f;
+
     outputs[DELAY_OUTPUT].setChannels(getMaxInputPolyphony());
 
     for (int i = 0; i < getMaxInputPolyphony(); i++)
     {
-        if (clockTrigger[i].process(inputs[GATE_INPUT].getPolyVoltage(i)))
+        float allGates = inputs[GATE1_INPUT].getPolyVoltage(i) + inputs[GATE2_INPUT].getPolyVoltage(i);
+        allGates += gateButton;
+        if (clockTrigger[i].process(allGates))
         {
             float delayTime = ((inputs[DELAYCV_INPUT].getPolyVoltage(i)) * delayDepth) + delayKnob;
             delayTime = clamp(delayTime, 0.0f, maxTime);
@@ -118,11 +127,14 @@ GateDelayWidget::GateDelayWidget(GateDelay *module)
 
     //////INPUTS//////
     int jackX = 49;
-    createInputPort(jackX, 248, GateDelay::GATE_INPUT);
+    createInputPort(21, 248, GateDelay::GATE1_INPUT);
+    createInputPort(76, 248, GateDelay::GATE2_INPUT);
     int knobY = 90;
     createParamComboVertical(15, knobY, GateDelay::DELAY_PARAM, GateDelay::DELAYCV_PARAM, GateDelay::DELAYCV_INPUT);
     createParamComboVertical(70, knobY, GateDelay::WIDTH_PARAM, GateDelay::WIDTHCV_PARAM, GateDelay::WIDTHCV_INPUT);
     
+    createHCVButtonSmall(53.5, 251, GateDelay::GATEBUTTON_PARAM);
+
     createHCVRedLight(75, 320, GateDelay::DELAY_LIGHT);
     createOutputPort(jackX, 310, GateDelay::DELAY_OUTPUT);
     

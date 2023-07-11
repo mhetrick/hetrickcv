@@ -186,5 +186,11 @@
                 </g>
             </g>
         </g>
+        <g transform="matrix(3.58945e-17,1.19028,-0.717419,8.91978e-17,144.55,213.119)">
+            <path d="M37.5,78.323L37.5,154.987" style="fill:none;stroke:black;stroke-width:1.02px;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;stroke-dasharray:2.04,2.04,0,0;"/>
+        </g>
+        <g transform="matrix(1.19028,0,0,0.180362,16.3468,243.628)">
+            <path d="M37.5,78.323L37.5,154.987" style="fill:none;stroke:black;stroke-width:1.17px;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;stroke-dasharray:2.35,2.35,0,0;"/>
+        </g>
     </g>
 </svg>
