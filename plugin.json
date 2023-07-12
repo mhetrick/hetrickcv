@@ -287,6 +287,16 @@
       ]
     },
     {
+      "slug": "PhasorEuclidean",
+      "name": "Phasor to Euclidean",
+      "description": "Generates a Euclidean rhythm via a 0-5V Phasor input",
+      "tags": [
+        "Clock Generator",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorGen",
       "name": "Phasor Generator",
       "description": "Generates a phasor along with time-synced gates.",

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "rack.hpp"
 #include "engine/Engine.hpp"
 #include "dsp/digital.hpp"

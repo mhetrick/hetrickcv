@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Gamma/Oscillator.h"
 #include "dsp/digital.hpp"
 #include "HCVRandom.h"
