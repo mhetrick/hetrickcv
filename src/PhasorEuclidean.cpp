@@ -4,6 +4,7 @@
 struct PhasorEuclidean : HCVModule
 {
     static constexpr float MAX_BEATS = 16.0f;
+    static constexpr float BEATS_CV_SCALE = MAX_BEATS/5.0f;
 
 	enum ParamIds
 	{
@@ -98,12 +99,21 @@ void PhasorEuclidean::process(const ProcessArgs &args)
 
     for (int i = 0; i < numChannels; i++)
     {
-        euclidean[i].setBeats(beatKnob);
-        euclidean[i].setFill(fillKnob);
+        float beats = beatKnob + (beatCVDepth * inputs[BEATS_SCALE_PARAM].getPolyVoltage(i) * BEATS_CV_SCALE);
+        beats = clamp(beats, 1.0f, MAX_BEATS);
+        euclidean[i].setBeats(beats);
+
+        float fill = fillKnob + (fillCVDepth * inputs[FILL_SCALE_PARAM].getPolyVoltage(i) * BEATS_CV_SCALE);
+        fill = clamp(fill, 0.0f, MAX_BEATS);
+        euclidean[i].setFill(fill);
 
         float pulseWidth = pwKnob + (pwCVDepth * inputs[PW_INPUT].getPolyVoltage(i));
-        pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;;
+        pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
         euclidean[i].setPulseWidth(pulseWidth);
+
+        float rotation = rotateKnob + (rotateCVDepth * inputs[ROTATE_INPUT].getPolyVoltage(i));
+        rotation = clamp(rotation, -5.0f, 5.0f) * 0.2f;
+        euclidean[i].setRotation(rotation);
 
         euclidean[i].processPhasor(inputs[PHASOR_INPUT].getVoltage(i));
 

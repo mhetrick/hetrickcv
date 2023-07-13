@@ -3,13 +3,21 @@
 #include "HCVPhasor.h"
 #include "dsp/common.hpp"
 
+
+float scaleAndWrapPhasor(float _input)
+{
+    return gam::scl::wrap(_input * 0.2f);
+}
+
+
 class HCVPhasorToEuclidean
 {
 public:
 
     void processPhasor(float _inputPhasor)
     {
-        const float scaledRamp = rack::math::clamp(_inputPhasor * 0.2f, 0.0f, 1.0f) * steps;
+        float scaledRotation = quantizeRotation ? floorf(rotation * steps)/steps : rotation;
+        const float scaledRamp = gam::scl::wrap(_inputPhasor*0.2f + scaledRotation) * steps;
         const float currentStep = floorf(scaledRamp);
         const float fillRatio = fill/steps;
 
@@ -36,6 +44,11 @@ public:
         fill = std::max(0.0f, _fill);
     }
 
+    void setRotation(float _rotate)
+    {
+        rotation = rack::math::clamp(_rotate, -1.0f, 1.0f);
+    }
+
     void setPulseWidth(float _pulseWidth)
     {
         pulseWidth = rack::math::clamp(_pulseWidth, 0.0f, 1.0f);
@@ -52,6 +65,8 @@ protected:
     float steps = 16; //N
     float fill = 4; //K
     float rotation = 0; //S
+
+    bool quantizeRotation = true;
 
     float phasorOutput = 0.0f;
     float euclidGateOutput = 0.0f;
