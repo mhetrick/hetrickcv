@@ -99,11 +99,11 @@ void PhasorEuclidean::process(const ProcessArgs &args)
 
     for (int i = 0; i < numChannels; i++)
     {
-        float beats = beatKnob + (beatCVDepth * inputs[BEATS_SCALE_PARAM].getPolyVoltage(i) * BEATS_CV_SCALE);
+        float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i) * BEATS_CV_SCALE);
         beats = clamp(beats, 1.0f, MAX_BEATS);
         euclidean[i].setBeats(beats);
 
-        float fill = fillKnob + (fillCVDepth * inputs[FILL_SCALE_PARAM].getPolyVoltage(i) * BEATS_CV_SCALE);
+        float fill = fillKnob + (fillCVDepth * inputs[FILL_INPUT].getPolyVoltage(i) * BEATS_CV_SCALE);
         fill = clamp(fill, 0.0f, MAX_BEATS);
         euclidean[i].setFill(fill);
 
