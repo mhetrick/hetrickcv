@@ -26,8 +26,10 @@ struct PhasorShape : HCVModule
 
     enum LightIds
     {
-        NUM_LIGHTS = 5
+        NUM_LIGHTS = 8
 	};
+
+    static constexpr float MODE_CV_SCALE = 7.0f/5.0f;
 
 	PhasorShape()
 	{
@@ -36,9 +38,10 @@ struct PhasorShape : HCVModule
         configParam(SHAPE_PARAM, -5.0, 5.0, 0.0, "Phasor Shape");
         configParam(SHAPECV_PARAM, -1.0, 1.0, 1.0, "Phasor Shape CV Depth");
 
-        configSwitch(MODE_PARAM, 0.0, 4.0, 0.0, "Shape Mode", 
-        {"Curve", "S-Curve", "Kink", "Split", "Mirror"});
+        configSwitch(MODE_PARAM, 0.0, 7.0, 0.0, "Shape Mode", 
+        {"Curve", "S-Curve", "Kink", "Split", "Shift", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
         configParam(MODECV_PARAM, -1.0, 1.0, 1.0, "Shape Mode CV Depth");
+        paramQuantities[MODE_PARAM]->snapEnabled = true;
 
         configInput(PHASOR_INPUT, "Phasor");
         configInput(SHAPECV_INPUT, "Phasor Shape CV");
@@ -50,6 +53,7 @@ struct PhasorShape : HCVModule
 	}
 
 	void process(const ProcessArgs &args) override;
+    float phasorShape(float _phasor, float _parameter, int _mode);
 
     void onReset() override
     {
@@ -69,7 +73,7 @@ void PhasorShape::process(const ProcessArgs &args)
     const float shapeDepth = params[SHAPECV_PARAM].getValue();
 
     const float modeKnob = params[MODE_PARAM].getValue();
-    const float modeDepth = params[MODECV_PARAM].getValue();
+    const float modeDepth = params[MODECV_PARAM].getValue() * MODE_CV_SCALE;
 
     int numChannels = getMaxInputPolyphony();
     outputs[PHASOR_OUTPUT].setChannels(numChannels);
@@ -79,12 +83,32 @@ void PhasorShape::process(const ProcessArgs &args)
         float shape = shapeKnob + (shapeDepth * inputs[SHAPECV_INPUT].getPolyVoltage(i));
         shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
 
-        float phasorInput = inputs[PHASOR_INPUT].getPolyVoltage(i);
-        float scaledPhasor = scaleAndWrapPhasor(phasorInput);
+        float modeMode = modeKnob + (modeDepth * inputs[MODECV_INPUT].getPolyVoltage(i));
+        int mode = (int)clamp(modeKnob, 0.0f, 7.0f);
 
-        float shapedOutput = HCVPhasorEffects::phasorCurve(scaledPhasor, shape);
+        const float phasorInput = inputs[PHASOR_INPUT].getPolyVoltage(i);
+        const float scaledPhasor = scaleAndWrapPhasor(phasorInput);
+
+        const float shapedOutput = phasorShape(scaledPhasor, shape, mode);
 
         outputs[PHASOR_OUTPUT].setVoltage(shapedOutput * 5.0f, i);
+    }
+}
+
+float PhasorShape::phasorShape(float _phasor, float _parameter, int _mode)
+{
+    switch (_mode)
+    {
+    case 0: return HCVPhasorEffects::phasorCurve(_phasor, _parameter); //curve
+    case 1: return HCVPhasorEffects::phasorPinch(_phasor, _parameter); //s-curve
+    case 2: return HCVPhasorEffects::phasorKink(_phasor, _parameter); //kink
+    case 3: return HCVPhasorEffects::phasorSplit(_phasor, _parameter); //split
+    case 4: return HCVPhasorEffects::phasorShift(_phasor, _parameter); //phase shift
+    case 5: return HCVPhasorEffects::speedClip(_phasor, _parameter); //speed clip
+    case 6: return HCVPhasorEffects::speedWrap(_phasor, _parameter); //speed wrap
+    case 7: return HCVPhasorEffects::speedFold(_phasor, _parameter); //speed fold
+    
+    default: return _phasor;
     }
 }
 

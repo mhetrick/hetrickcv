@@ -100,6 +100,11 @@ public:
         return powf(_phasorIn, exponent);
     }
 
+    static float phasorShift(float _phasorIn, float _parameterIn)
+    {
+        return gam::scl::wrap(_phasorIn + _parameterIn);
+    }
+
     static float phasorPinch(float _phasorIn, float _parameterIn)
     {
         float warpedPhasor;
@@ -141,6 +146,45 @@ public:
         }
         
         return gam::scl::mapLin(_phasorIn, 0.5f, 1.0f, kinkPoint, 1.0f);
+    }
+
+    static float speedClip(float _phasorIn, float _parameterIn)
+    {
+        
+        if(_parameterIn >= 0.0f)
+        {
+            const float mult = 1.0f + _parameterIn * 7.0f;
+            return clamp(_phasorIn * mult, 0.0f, 1.0f);
+        }
+
+        const float mult = 1.0f - _parameterIn * 7.0f;
+        return clamp(_phasorIn / mult, 0.0f, 1.0f);
+    }
+
+    static float speedWrap(float _phasorIn, float _parameterIn)
+    {
+        
+        if(_parameterIn >= 0.0f)
+        {
+            const float mult = 1.0f + _parameterIn * 7.0f;
+            return gam::scl::wrap(_phasorIn * mult);
+        }
+
+        const float mult = 1.0f - _parameterIn * 7.0f;
+        return clamp(_phasorIn / mult, 0.0f, 1.0f); //no need to wrap
+    }
+
+    static float speedFold(float _phasorIn, float _parameterIn)
+    {
+        
+        if(_parameterIn >= 0.0f)
+        {
+            const float mult = 1.0f + _parameterIn * 7.0f;
+            return gam::scl::fold(_phasorIn * mult);
+        }
+
+        const float mult = 1.0f - _parameterIn * 7.0f;
+        return clamp(_phasorIn / mult, 0.0f, 1.0f); //no need to fold
     }
 
 private:
