@@ -123,63 +123,63 @@ struct HCVModuleWidget : ModuleWidget
         createScrews(_is4HP);
     }
 
-	void createHCVKnob(int _x, int _y, int _paramID)
+	void createHCVKnob(float _x, float _y, int _paramID)
     {
         //addParam(createParam<Davies1900hBlackKnob>(Vec(_x, _y), module, _paramID));
         addParam(createParam<Rogan1PRed>(Vec(_x + 2.5, _y), module, _paramID));
     }
 
-    void createHCVTrimpot(int _x, int _y, int _paramID)
+    void createHCVTrimpot(float _x, float _y, int _paramID)
     {
         addParam(createParam<Trimpot>(Vec(_x, _y), module, _paramID));
     }
 
-    void createHCVSwitchVert(int _x, int _y, int _paramID)
+    void createHCVSwitchVert(float _x, float _y, int _paramID)
     {
         addParam(createParam<CKSS>(Vec(_x, _y), module, _paramID));
     }
 
-    void createHCVSwitchHoriz(int _x, int _y, int _paramID)
+    void createHCVSwitchHoriz(float _x, float _y, int _paramID)
     {
         addParam(createParam<CKSSRot>(Vec(_x, _y), module, _paramID));
     }
 
-    void createHCVButtonSmall(int _x, int _y, int _paramID)
+    void createHCVButtonSmall(float _x, float _y, int _paramID)
     {
         addParam(createParam<TL1105>(Vec(_x, _y), module, _paramID));
     }
 
-    void createHCVButtonLarge(int _x, int _y, int _paramID)
+    void createHCVButtonLarge(float _x, float _y, int _paramID)
     {
         addParam(createParam<CKD6>(Vec(_x, _y), module, _paramID));
     }
 
-    void createHCVRedLight(int _x, int _y, int _lightID)
+    void createHCVRedLight(float _x, float _y, int _lightID)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(_x, _y), module, _lightID));
     }
 
-    void createHCVGreenLight(int _x, int _y, int _lightID)
+    void createHCVGreenLight(float _x, float _y, int _lightID)
     {
         addChild(createLight<SmallLight<GreenLight>>(Vec(_x, _y), module, _lightID));
     }
 
-    void createHCVBipolarLight(int _x, int _y, int _lightID)
+    void createHCVBipolarLight(float _x, float _y, int _lightID)
     {
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x, _y), module, _lightID));
     }
 
-    void createInputPort(int _x, int _y, int _paramID)
+    void createInputPort(float _x, float _y, int _paramID)
     {
         addInput(createInput<PJ301MPort>(Vec(_x, _y), module, _paramID));
     }
 
-    void createOutputPort(int _x, int _y, int _paramID)
+    void createOutputPort(float _x, float _y, int _paramID)
     {
         addOutput(createOutput<PJ301MPort>(Vec(_x, _y), module, _paramID));
     }
 
-    void createParamComboVertical(int _x, int _y, int _paramID, int _trimpotID, int _inputID)
+    void createParamComboVertical(float _x, float _y, int _paramID, int _trimpotID, int _inputID)
     {
         const float knobY = _y;
         const float trimpotY = knobY + 58.0f;
@@ -194,7 +194,7 @@ struct HCVModuleWidget : ModuleWidget
         createInputPort(paramJackX, paramJackY, _inputID);
     }
 
-    void createParamComboHorizontal(int _x, int _y, int _paramID, int _trimpotID, int _inputID)
+    void createParamComboHorizontal(float _x, float _y, int _paramID, int _trimpotID, int _inputID)
     {
         const float knobY = _y;
         const float trimpotY = knobY + 4.0f;
