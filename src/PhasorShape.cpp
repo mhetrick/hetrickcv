@@ -93,6 +93,13 @@ void PhasorShape::process(const ProcessArgs &args)
 
         outputs[PHASOR_OUTPUT].setVoltage(shapedOutput * 5.0f, i);
     }
+
+    int lightMode = (int)modeKnob;
+    for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        lights[i].setBrightness(lightMode == i ? 5.0f : 0.0f);
+    }
+    
 }
 
 float PhasorShape::phasorShape(float _phasor, float _parameter, int _mode)
@@ -128,9 +135,15 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
     createParamComboVertical(15, knobY, PhasorShape::SHAPE_PARAM, PhasorShape::SHAPECV_PARAM, PhasorShape::SHAPECV_INPUT);
     createParamComboVertical(70, knobY, PhasorShape::MODE_PARAM, PhasorShape::MODECV_PARAM, PhasorShape::MODECV_INPUT);
     
-
-    //createHCVRedLight(75, 320, PhasorShape::DELAY_LIGHT);
     createOutputPort(70, jackY, PhasorShape::PHASOR_OUTPUT);
+
+    for (int i = 0; i < 4; i++)
+    {
+        float lightY = 250 + i*10.0f;
+        createHCVRedLight(35, lightY, i*2);
+        createHCVRedLight(65, lightY, i*2 + 1);
+    }
+    
     
 }
 

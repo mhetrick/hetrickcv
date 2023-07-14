@@ -125,7 +125,6 @@ public:
     static float phasorSplit(float _phasorIn, float _parameterIn)
     {
         float kinkPoint = (_parameterIn + 1.0f) * 0.5f;
-		kinkPoint = clamp(kinkPoint, 0.001f, 0.99f);
 
         if (_phasorIn < kinkPoint)
         {
@@ -138,7 +137,6 @@ public:
     static float phasorKink(float _phasorIn, float _parameterIn)
     {
         float kinkPoint = (_parameterIn + 1.0f) * 0.5f;
-		kinkPoint = gam::scl::mapLin(kinkPoint, 0.0f, 1.0f, 0.05f, 0.95f);
 
         if (_phasorIn < 0.5f)
         {
