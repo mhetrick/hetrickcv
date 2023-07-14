@@ -139,9 +139,9 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
 
     for (int i = 0; i < 4; i++)
     {
-        float lightY = 250 + i*10.0f;
-        createHCVRedLight(35, lightY, i*2);
-        createHCVRedLight(65, lightY, i*2 + 1);
+        float lightY = 236 + i*10.0f;
+        createHCVRedLight(52, lightY, i);
+        createHCVRedLight(63, lightY, i + 4);
     }
     
     
