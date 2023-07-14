@@ -61,6 +61,7 @@ extern Model *modelMidSide;
 extern Model *modelMinMax;
 extern Model *modelPhasorEuclidean;
 extern Model *modelPhasorGen;
+extern Model *modelPhasorShape;
 extern Model *modelProbability;
 extern Model *modelRandomGates;
 extern Model *modelRotator;

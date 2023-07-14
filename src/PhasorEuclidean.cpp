@@ -121,6 +121,8 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         outputs[GATE_OUTPUT].setVoltage(euclidean[i].getEuclideanGateOutput(), i);
         outputs[CLOCK_OUTPUT].setVoltage(euclidean[i].getClockOutput(), i);
     }
+
+    //lights[GATE_LIGHT].set
 }
 
 

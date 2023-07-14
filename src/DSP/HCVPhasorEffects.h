@@ -5,7 +5,7 @@
 #include "HCVFunctions.h"
 
 
-float scaleAndWrapPhasor(float _input)
+static float scaleAndWrapPhasor(float _input)
 {
     return gam::scl::wrap(_input * 0.2f);
 }
@@ -115,6 +115,32 @@ public:
         }
 
         return clamp(warpedPhasor, 0.0f, 1.0f);
+    }
+
+    static float phasorSplit(float _phasorIn, float _parameterIn)
+    {
+        float kinkPoint = (_parameterIn + 1.0f) * 0.5f;
+		kinkPoint = clamp(kinkPoint, 0.001f, 0.99f);
+
+        if (_phasorIn < kinkPoint)
+        {
+            return gam::scl::mapLin(_phasorIn, 0.0f, kinkPoint, 0.0f, 0.5f);
+        }
+
+        return gam::scl::mapLin(_phasorIn, kinkPoint, 1.0f, 0.5f, 1.0f);
+    }
+
+    static float phasorKink(float _phasorIn, float _parameterIn)
+    {
+        float kinkPoint = (_parameterIn + 1.0f) * 0.5f;
+		kinkPoint = gam::scl::mapLin(kinkPoint, 0.0f, 1.0f, 0.05f, 0.95f);
+
+        if (_phasorIn < 0.5f)
+        {
+            return gam::scl::mapLin(_phasorIn, 0.0f, 0.5f, 0.0f, kinkPoint);
+        }
+        
+        return gam::scl::mapLin(_phasorIn, 0.5f, 1.0f, kinkPoint, 1.0f);
     }
 
 private:

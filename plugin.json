@@ -310,6 +310,17 @@
       ]
     },
     {
+      "slug": "PhasorShape",
+      "name": "Phasor Shaper",
+      "description": "Processes phasor signals in interesting ways for sequence modification or phase distortion synthesis.",
+      "tags": [
+        "Waveshaper",
+        "Distortion",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Probability",
       "name": "Probability",
       "description": "Sends one gate to two places randomly.",
