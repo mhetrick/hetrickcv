@@ -322,7 +322,7 @@
     {
       "slug": "PhasorRanger",
       "name": "Phasor Ranger",
-      "description": "Converts HetrickCV phasor signals to other useful voltage ranges.",
+      "description": "Converts HetrickCV phasor signals (and any other unipolar signal) to other useful voltage ranges.",
       "tags": [
         "Utility",
         "Polyphonic"

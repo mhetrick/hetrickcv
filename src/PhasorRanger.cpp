@@ -15,9 +15,9 @@ struct PhasorRanger : HCVModule
 	};
 	enum OutputIds
 	{
-        BIPOLAR5V_OUTPUT,
-        UNIPOLAR10V_OUTPUT,
         BIPOLAR10V_OUTPUT,
+        UNIPOLAR5V_OUTPUT,
+        BIPOLAR5V_OUTPUT,
         UNIPOLAR1V_OUTPUT,
         BIPOLAR1V_OUTPUT,
 		NUM_OUTPUTS
@@ -32,9 +32,9 @@ struct PhasorRanger : HCVModule
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configInput(PHASOR_INPUT, "Phasor");
-        configOutput(BIPOLAR5V_OUTPUT, "+/- 5V Phasor");
-        configOutput(UNIPOLAR10V_OUTPUT, "0-10V Phasor");
         configOutput(BIPOLAR10V_OUTPUT, "+/- 10V Phasor");
+        configOutput(UNIPOLAR5V_OUTPUT, "0-5V Phasor");
+        configOutput(BIPOLAR5V_OUTPUT, "+/- 5V Phasor");
         configOutput(UNIPOLAR1V_OUTPUT, "0-1V Phasor");
         configOutput(BIPOLAR1V_OUTPUT, "+/- 1V Phasor");
 	}
@@ -57,9 +57,9 @@ void PhasorRanger::process(const ProcessArgs &args)
         const float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
         const float bipolarPhasor = (normalizedPhasor * 2.0f) - 1.0f;
 
-        outputs[BIPOLAR5V_OUTPUT].setVoltage(bipolarPhasor * 5.0f, i);
-        outputs[UNIPOLAR10V_OUTPUT].setVoltage(normalizedPhasor * 10.0f, i);
         outputs[BIPOLAR10V_OUTPUT].setVoltage(bipolarPhasor * 10.0f, i);
+        outputs[UNIPOLAR5V_OUTPUT].setVoltage(normalizedPhasor * 5.0f, i);
+        outputs[BIPOLAR5V_OUTPUT].setVoltage(bipolarPhasor * 5.0f, i);
         outputs[UNIPOLAR1V_OUTPUT].setVoltage(normalizedPhasor, i);
         outputs[BIPOLAR1V_OUTPUT].setVoltage(bipolarPhasor, i);
     }

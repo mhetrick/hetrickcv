@@ -8,7 +8,7 @@
 
 static float scaleAndWrapPhasor(float _input)
 {
-    return gam::scl::wrap(_input * 0.2f);
+    return gam::scl::wrap(_input * HCV_PHZ_DOWNSCALE);
 }
 
 class HCVPhasorSlopeDetector
@@ -89,9 +89,9 @@ public:
     void processPhasor(float _inputPhasor)
     {
         float scaledRotation = quantizeRotation ? floorf(rotation * steps)/steps : rotation;
-        const float scaledRamp = gam::scl::wrap(_inputPhasor*0.2f + scaledRotation) * steps;
+        const float scaledRamp = gam::scl::wrap(_inputPhasor*HCV_PHZ_DOWNSCALE + scaledRotation) * steps;
         const float stepWidth = scaledRamp - floorf(scaledRamp);
-        clockOutput = stepWidth < pulseWidth ? outputScale : 0.0f;
+        clockOutput = stepWidth < pulseWidth ? gateScale : 0.0f;
 
         if(fill == 0.0f)
         {
@@ -110,7 +110,7 @@ public:
         const float lengthBeats = nextEvent - currentEvent;
 
         phasorOutput = ((scaledRamp - currentEvent)/lengthBeats);
-        euclidGateOutput = phasorOutput < pulseWidth ? outputScale : 0.0f;
+        euclidGateOutput = phasorOutput < pulseWidth ? gateScale : 0.0f;
 
         
     }
@@ -152,7 +152,8 @@ protected:
     float phasorOutput = 0.0f;
     float euclidGateOutput = 0.0f;
     float clockOutput = 0.0f;
-    const float outputScale = 5.0f;
+    const float outputScale = HCV_PHZ_UPSCALE;
+    const float gateScale = 5.0f;
 };
 
 //static effects

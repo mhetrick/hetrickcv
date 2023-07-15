@@ -61,11 +61,11 @@ void PhasorGeometry::process(const ProcessArgs &args)
         const float x2 = gam::scl::wrap(normalizedPhasor * 2.0f);
         const float x4 = gam::scl::wrap(normalizedPhasor * 4.0f);
 
-        outputs[REVERSE_OUTPUT].setVoltage(reversed * 5.0f, i);
-        outputs[PINGPONG_OUTPUT].setVoltage(pingPong * 5.0f, i);
-        outputs[PONGPING_OUTPUT].setVoltage(pongPing * 5.0f, i);
-        outputs[MULT2_OUTPUT].setVoltage(x2 * 5.0f, i);
-        outputs[MULT4_OUTPUT].setVoltage(x4 * 5.0f, i);
+        outputs[REVERSE_OUTPUT].setVoltage(reversed * HCV_PHZ_UPSCALE, i);
+        outputs[PINGPONG_OUTPUT].setVoltage(pingPong * HCV_PHZ_UPSCALE, i);
+        outputs[PONGPING_OUTPUT].setVoltage(pongPing * HCV_PHZ_UPSCALE, i);
+        outputs[MULT2_OUTPUT].setVoltage(x2 * HCV_PHZ_UPSCALE, i);
+        outputs[MULT4_OUTPUT].setVoltage(x4 * HCV_PHZ_UPSCALE, i);
     }
     
 }

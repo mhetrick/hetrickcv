@@ -8,6 +8,9 @@
 //by Graham Wakefield and Gregory Taylor. Highly recommended!
 //Also inspired by Bitwig Grid and Toybox Nano Pack.
 
+static constexpr float HCV_PHZ_UPSCALE = 10.0f;
+static constexpr float HCV_PHZ_DOWNSCALE = 0.1f;
+
 class HCVPhasorBase
 {
 public:
@@ -39,7 +42,7 @@ public:
     {
         const float scaledPhase = getCurrentPhase() * pulsesPerCycle;
         const float stepWidth = scaledPhase - floorf(scaledPhase);
-        return stepWidth < pulseWidth ? 5.0f : 0.0f;
+        return stepWidth < pulseWidth ? gateScale : 0.0f;
     }
 
     void updateRandomDepth()
@@ -52,7 +55,8 @@ public:
 
 protected:
     float clockFreq = 1.0f;
-    float outputScalar = 5.0f;
+    float outputScalar = HCV_PHZ_UPSCALE;
+    float gateScale = 5.0f;
     float pulseWidth = 0.5f;
     float frozenMult = 1.0f;
     float jitterDepth = 0.0f;
@@ -138,5 +142,4 @@ public:
 
 protected:
     gam::Sweep<gam::phsInc::NShot> phasor;
-    float outputScalar = 5.0f;
 };

@@ -91,7 +91,7 @@ void PhasorShape::process(const ProcessArgs &args)
 
         const float shapedOutput = phasorShape(scaledPhasor, shape, mode);
 
-        outputs[PHASOR_OUTPUT].setVoltage(shapedOutput * 5.0f, i);
+        outputs[PHASOR_OUTPUT].setVoltage(shapedOutput * HCV_PHZ_UPSCALE, i);
     }
 
     int lightMode = (int)modeKnob;
