@@ -310,6 +310,25 @@
       ]
     },
     {
+      "slug": "PhasorGeometry",
+      "name": "Phasor Geometry",
+      "description": "Processes phasor signals with useful waveshapers.",
+      "tags": [
+        "Waveshaper",
+        "Distortion",
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "PhasorRanger",
+      "name": "Phasor Ranger",
+      "description": "Converts HetrickCV phasor signals to other useful voltage ranges.",
+      "tags": [
+        "Utility",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorShape",
       "name": "Phasor Shaper",
       "description": "Processes phasor signals in interesting ways for sequence modification or phase distortion synthesis.",

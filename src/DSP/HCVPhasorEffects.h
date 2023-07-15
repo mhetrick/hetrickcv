@@ -3,12 +3,83 @@
 #include "HCVPhasor.h"
 #include "dsp/common.hpp"
 #include "HCVFunctions.h"
+#include "HCVRandom.h"
 
 
 static float scaleAndWrapPhasor(float _input)
 {
     return gam::scl::wrap(_input * 0.2f);
 }
+
+class HCVPhasorSlopeDetector
+{
+public:
+    float operator()(float _normalizedPhasorIn)
+    {
+        float slope = _normalizedPhasorIn - lastSample;
+        lastSample = _normalizedPhasorIn;
+        return gam::scl::wrap(_normalizedPhasorIn, 0.5f, -0.5f);
+    }
+
+private:
+    float lastSample = 0.0f;
+};
+
+class HCVPhasorStepDetector
+{
+public:
+
+    bool operator()(float _normalizedPhasorIn)
+    {
+        float scaledPhasor = _normalizedPhasorIn * numberSteps;
+        int incomingStep = floorf(scaledPhasor);
+        if(incomingStep != currentStep)
+        {
+            currentStep = incomingStep;
+            return true;
+        }
+
+        return false;
+    }
+
+    int getCurrentStep(){return currentStep;}
+    void setNumberSteps(int _numSteps){numberSteps = std::max(1, _numSteps);}
+
+private:
+    int currentStep = 0;
+    int numberSteps = 1;
+};
+
+class HCVPhasorDivMult
+{
+public:
+
+    float operator()(float _normalizedPhasorIn)
+    {
+        const float inSlope = slope(_normalizedPhasorIn);
+        const float speedScale = multiplier/divider;
+        const float scaledSlope = inSlope * speedScale;
+
+        const float output = gam::scl::wrap(lastPhase + scaledSlope);
+        lastPhase = output;
+        return output;
+    }
+
+    float setMultiplier(float _multiplier){multiplier = _multiplier;}
+    float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
+
+    void reset(){lastPhase = resetPhase;}
+    void enableAutosync(bool _autoSync){autoSync = _autoSync;}
+
+protected:
+    HCVPhasorSlopeDetector slope;
+    float resetPhase = 0.0f;
+    float lastPhase = 0.0f;
+    float multiplier = 1.0f;
+    float divider = 1.0f;
+
+    bool autoSync = false;
+};
 
 
 class HCVPhasorToEuclidean
@@ -214,4 +285,13 @@ private:
         const float unscaled = myErfInv2(2 * x - 1.0f);
         return (unscaled + 3.0f) * (1.0f/6.0f);
     }
+};
+
+class HCVPhasorRandomizer
+{
+public:
+
+protected:
+    HCVPhasorStepDetector stepDetector;
+    HCVRandom randomGen;
 };

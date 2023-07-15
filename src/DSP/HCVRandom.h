@@ -50,6 +50,11 @@ public:
         return nextFloat();
 	}
 
+    int randomInt(int max)
+    {
+        return floorf(nextFloat() * max);
+    }
+
 private:
     gam::RNGMulCon gamRand;
 };

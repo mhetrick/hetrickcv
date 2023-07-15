@@ -97,6 +97,16 @@ struct HCVModule : Module
         return channels;
     }
 
+    int setupPolyphonyForAllOutputs()
+    {
+        int numChannels = getMaxInputPolyphony();
+        for(auto output : outputs)
+        {
+            output.setChannels(numChannels);
+        }
+        return numChannels;
+    }
+
 };
 
 struct HCVModuleWidget : ModuleWidget
