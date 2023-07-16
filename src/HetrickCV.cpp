@@ -41,6 +41,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorEuclidean);
 	p->addModel(modelPhasorGen);
 	p->addModel(modelPhasorGeometry);
+	p->addModel(modelPhasorRandom);
 	p->addModel(modelPhasorRanger);
 	p->addModel(modelPhasorShape);
 	p->addModel(modelProbability);

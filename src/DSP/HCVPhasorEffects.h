@@ -33,6 +33,8 @@ public:
     {
         float scaledPhasor = _normalizedPhasorIn * numberSteps;
         int incomingStep = floorf(scaledPhasor);
+        fractionalStep = scaledPhasor - incomingStep;
+
         if(incomingStep != currentStep)
         {
             currentStep = incomingStep;
@@ -44,10 +46,12 @@ public:
 
     int getCurrentStep(){return currentStep;}
     void setNumberSteps(int _numSteps){numberSteps = std::max(1, _numSteps);}
+    float getFractionalStep(){return fractionalStep;}
 
 private:
     int currentStep = 0;
     int numberSteps = 1;
+    float fractionalStep = 0.0f;
 };
 
 class HCVPhasorDivMult
@@ -291,8 +295,60 @@ private:
 class HCVPhasorRandomizer
 {
 public:
+    float operator()(float _normalizedPhasor)
+    {
+        if(stepDetector(_normalizedPhasor))
+        {
+            randomizing = randomGen.nextProbability(probability);
+            offsetStep = randomGen.randomInt(currentNumSteps);
+            offsetBase = stepFraction * offsetStep;
+        }
+
+        gate = stepDetector.getFractionalStep() < 0.5f ? gateScale : 0.0f;
+
+        if(randomizing)
+        {
+            steppedPhasor = offsetBase;
+            return offsetBase + (stepDetector.getFractionalStep() * stepFraction);
+        }
+
+        steppedPhasor = stepFraction * stepDetector.getCurrentStep();
+        return _normalizedPhasor;
+    }
+
+    void setNumSteps(int _numSteps)
+    {
+        _numSteps = std::max(1, _numSteps);
+        stepDetector.setNumberSteps(_numSteps);
+        stepFraction = 1.0f/_numSteps;
+        currentNumSteps = _numSteps;
+    }
+
+    void setProbability(float _prob)
+    {
+        probability = _prob;
+    }
+
+    float getSteppedPhasor()
+    {
+        return steppedPhasor;
+    }
+
+    float getGateOutput()
+    {
+        return gate;
+    }
 
 protected:
     HCVPhasorStepDetector stepDetector;
     HCVRandom randomGen;
+    bool randomizing = false;
+    float stepFraction = 1.0f;
+    float probability = 0.0f;
+    float offsetBase = 0.0f;
+    float steppedPhasor = 0.0f;
+    float gate = 0.0f;
+    const float gateScale = 5.0f;
+    int offsetStep = 0;
+    int currentNumSteps = 1;
 };

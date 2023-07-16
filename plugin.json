@@ -320,6 +320,15 @@
       ]
     },
     {
+      "slug": "PhasorRandom",
+      "name": "Phasor Randomizer",
+      "description": "Randomizes phasor signals to create different offset patterns for sequencers.",
+      "tags": [
+        "Random",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorRanger",
       "name": "Phasor Ranger",
       "description": "Converts HetrickCV phasor signals (and any other unipolar signal) to other useful voltage ranges.",
