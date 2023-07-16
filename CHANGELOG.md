@@ -5,6 +5,7 @@
     - Add Phasor Generator module.
     - Add Phasor->Euclidean module.
     - Add Phasor Geometry module.
+    - Add Phasor Randomizer module.
     - Add Phasor Ranger module.
     - Add Phasor Shaper module.
 - Add Gate Delay module.

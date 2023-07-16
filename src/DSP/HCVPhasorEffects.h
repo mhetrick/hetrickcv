@@ -300,7 +300,11 @@ public:
         if(stepDetector(_normalizedPhasor))
         {
             randomizing = randomGen.nextProbability(probability);
-            offsetStep = randomGen.randomInt(currentNumSteps);
+            currentRandom = randomGen.nextFloat();
+
+            if(mode == 0) offsetStep = randomGen.randomInt(currentNumSteps);
+            else offsetStep = stepDetector.getCurrentStep();
+
             offsetBase = stepFraction * offsetStep;
         }
 
@@ -309,7 +313,37 @@ public:
         if(randomizing)
         {
             steppedPhasor = offsetBase;
-            return offsetBase + (stepDetector.getFractionalStep() * stepFraction);
+
+            switch (mode)
+            {
+            case 0: //random step
+                return offsetBase + (stepDetector.getFractionalStep() * stepFraction);
+            
+            case 1: //random reverse slice
+                return offsetBase + stepFraction - (stepDetector.getFractionalStep() * stepFraction);
+
+            case 2: //random reverse phasor
+                return (1.0 - offsetBase) - (stepDetector.getFractionalStep() * stepFraction);
+
+            case 3: //random slope
+                return offsetBase + 
+                    gam::scl::clip(stepDetector.getFractionalStep() * stepFraction * currentRandom * 2.0f, stepFraction, 0.0f); 
+
+            case 4: //random stutter
+                return offsetBase + 
+                    gam::scl::wrap(stepDetector.getFractionalStep() * stepFraction * int(1.0f + currentRandom * 7.0f), stepFraction, 0.0f); 
+
+            case 5: //random freeze
+                return offsetBase;
+
+            case 6: //jitter //TODO
+                return _normalizedPhasor;
+
+            default:
+                return _normalizedPhasor;
+            }
+
+            
         }
 
         steppedPhasor = stepFraction * stepDetector.getCurrentStep();
@@ -339,6 +373,11 @@ public:
         return gate;
     }
 
+    void setMode(int _mode)
+    {
+        mode = _mode;
+    }
+
 protected:
     HCVPhasorStepDetector stepDetector;
     HCVRandom randomGen;
@@ -348,7 +387,9 @@ protected:
     float offsetBase = 0.0f;
     float steppedPhasor = 0.0f;
     float gate = 0.0f;
+    float currentRandom = 0.0f;
     const float gateScale = 5.0f;
     int offsetStep = 0;
     int currentNumSteps = 1;
+    int mode = 0;
 };

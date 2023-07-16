@@ -31,18 +31,21 @@ struct PhasorRandom : HCVModule
         NUM_LIGHTS = 0
 	};
 
+    static constexpr float MAX_STEPS = 64.0f;
+    static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
+
 	PhasorRandom()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(CHANCE_PARAM, 0.0, 5.0, 0.0, "Chance");
 		configParam(CHANCE_SCALE_PARAM, -1.0, 1.0, 1.0, "Chance CV Depth");
 
-        configParam(STEPS_PARAM, 1.0, 64.0, 0.0, "Steps");
+        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 0.0, "Steps");
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         
-        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 5.0, 0.0, "Mode",
-        {"Random Slice", "Random Reverse", "Random Slope", "Random Stutter", "Random Skip", "Jitter"});
+        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 6.0, 0.0, "Mode",
+        {"Random Slice", "Random Reverse Slice", "Random Reverse Phasor", "Random Slope", "Random Stutter", "Random Freeze", "Jitter"});
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(PhasorRandom::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
@@ -80,14 +83,25 @@ void PhasorRandom::process(const ProcessArgs &args)
     float chanceKnob = params[CHANCE_PARAM].getValue();
     float chanceCVDepth = params[CHANCE_SCALE_PARAM].getValue();
 
-    //TODO: Modes
+    float modeKnob = params[MODE_PARAM].getValue();
+    float modeCVDepth = params[MODE_SCALE_PARAM].getValue();
 
     for(int i = 0; i < numChannels; i++)
     {
         float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getPolyVoltage(i));
 
-        randomizers[i].setProbability(chanceKnob * 0.2f);
-        randomizers[i].setNumSteps(stepsKnob);
+        float probability = chanceKnob + (chanceCVDepth * inputs[CHANCE_INPUT].getPolyVoltage(i));
+        probability = clamp(probability, 0.0f, 6.0f) * 0.2f;
+
+        float steps = stepsKnob + (stepsCVDepth * inputs[STEPS_INPUT].getPolyVoltage(i) * STEPS_CV_SCALE);
+        steps = floorf(clamp(steps, 1.0f, MAX_STEPS));
+
+        float mode = modeKnob + (modeCVDepth * inputs[MODE_INPUT].getPolyVoltage(i));
+        mode = floorf(clamp(mode, 0.0f, 5.0f));
+
+        randomizers[i].setProbability(probability);
+        randomizers[i].setNumSteps(steps);
+        randomizers[i].setMode(mode);
 
         float outputPhasor = randomizers[i](normalizedPhasor);
 
