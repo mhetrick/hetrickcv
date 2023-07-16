@@ -28,7 +28,7 @@ struct PhasorRandom : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 0
+        NUM_LIGHTS = 6
 	};
 
     static constexpr float MAX_STEPS = 64.0f;
@@ -44,8 +44,8 @@ struct PhasorRandom : HCVModule
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         
-        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 6.0, 0.0, "Mode",
-        {"Random Slice", "Random Reverse Slice", "Random Reverse Phasor", "Random Slope", "Random Stutter", "Random Freeze", "Jitter"});
+        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 5.0, 0.0, "Mode",
+        {"Random Slice", "Random Reverse Slice", "Random Reverse Phasor", "Random Slope", "Random Stutter", "Random Freeze"});
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(PhasorRandom::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
@@ -91,7 +91,7 @@ void PhasorRandom::process(const ProcessArgs &args)
         float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getPolyVoltage(i));
 
         float probability = chanceKnob + (chanceCVDepth * inputs[CHANCE_INPUT].getPolyVoltage(i));
-        probability = clamp(probability, 0.0f, 6.0f) * 0.2f;
+        probability = clamp(probability, 0.0f, 5.0f) * 0.2f;
 
         float steps = stepsKnob + (stepsCVDepth * inputs[STEPS_INPUT].getPolyVoltage(i) * STEPS_CV_SCALE);
         steps = floorf(clamp(steps, 1.0f, MAX_STEPS));
@@ -108,6 +108,14 @@ void PhasorRandom::process(const ProcessArgs &args)
         outputs[RANDOM_OUTPUT].setVoltage(outputPhasor * HCV_PHZ_UPSCALE, i);
         outputs[STEPPED_OUTPUT].setVoltage(randomizers[i].getSteppedPhasor() * HCV_PHZ_UPSCALE, i);
         outputs[CLOCK_OUTPUT].setVoltage(randomizers[i].getGateOutput(), i);
+    }
+
+    int lightMode = modeKnob + modeCVDepth*inputs[MODE_INPUT].getVoltage();
+    lightMode = clamp(lightMode, 0, 5);
+
+    for(int i = 0; i < NUM_LIGHTS; i++)
+    {
+        lights[i].setBrightness(i == lightMode ? 5.0f : 0.0f);
     }
 }
 
@@ -142,7 +150,7 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
 
     for (int i = 0; i < PhasorRandom::NUM_LIGHTS; i++)
     {
-        //createHCVRedLight(130.0, 223 + (i*9.5), i);
+        createHCVRedLight(105.0, 223 + (i*9.5), i);
     }
     
 }

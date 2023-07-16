@@ -336,9 +336,6 @@ public:
             case 5: //random freeze
                 return offsetBase;
 
-            case 6: //jitter //TODO
-                return _normalizedPhasor;
-
             default:
                 return _normalizedPhasor;
             }
@@ -392,4 +389,12 @@ protected:
     int offsetStep = 0;
     int currentNumSteps = 1;
     int mode = 0;
+};
+
+class HCVPhasorJitter
+{
+public:
+
+protected:
+
 };
