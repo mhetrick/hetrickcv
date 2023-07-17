@@ -126,7 +126,14 @@ void PhasorGates::process(const ProcessArgs &args)
 
     const float phasorIn = inputs[PHASOR_INPUT].getVoltage();
     float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
-    int currentIndex = floorf(normalizedPhasor * numSteps);
+    
+    float scaledPhasor = normalizedPhasor * numSteps;
+    int currentIndex = floorf(scaledPhasor);
+    float fractionalIndex = scaledPhasor - floorf(scaledPhasor);
+
+    float gate = fractionalIndex < 0.5f ? 5.0f : 0.0f;
+
+    outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f);
 
     // Gate buttons
     for (int i = 0; i < 8; i++) 
