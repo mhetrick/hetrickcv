@@ -5,7 +5,7 @@
 #include "dsp/digital.hpp"
 #include "HCVFunctions.h"
 #include "HCVRandom.h"
-#include "Gamma/Noise.h"
+
 
 
 static float scaleAndWrapPhasor(float _input)
@@ -57,12 +57,50 @@ private:
     float slope = 0.0f;
 };
 
+class HCVPhasorResetDetector
+{
+public:
+    bool operator()(float _normalizedPhasorIn)
+    {
+        const float difference = _normalizedPhasorIn - lastSample;
+        const float sum = _normalizedPhasorIn + lastSample;
+        if(sum == 0.0f) return false;
+
+        const float proportionalChange = std::abs(difference/sum);
+    
+        const bool resetDetected = proportionalChange > threshold;
+
+        return repeatFilter.process(resetDetected);
+    }
+
+    bool detectSimpleReset(float _normalizedPhasorIn)
+    {
+        return std::abs(slopeDetector.calculateRawSlope(_normalizedPhasorIn)) >= threshold;
+    }
+
+    void setThreshold(float _threshold)
+    {
+        threshold = clamp(_threshold, 0.0f, 1.0f);
+    }
+
+private:
+    float lastSample = 0.0f;
+    float threshold = 0.5f;
+    HCVPhasorSlopeDetector slopeDetector;
+    rack::dsp::BooleanTrigger repeatFilter;
+};
+
 class HCVPhasorStepDetector
 {
 public:
 
     bool operator()(float _normalizedPhasorIn)
     {
+        if(numberSteps == 1)
+        {
+            return resetDetector.detectSimpleReset(_normalizedPhasorIn);
+        }
+
         float scaledPhasor = _normalizedPhasorIn * numberSteps;
         int incomingStep = floorf(scaledPhasor);
         fractionalStep = scaledPhasor - incomingStep;
@@ -84,39 +122,7 @@ private:
     int currentStep = 0;
     int numberSteps = 1;
     float fractionalStep = 0.0f;
-};
-
-class HCVPhasorResetDetector
-{
-public:
-    bool operator()(float _normalizedPhasorIn)
-    {
-        const float difference = _normalizedPhasorIn - lastSample;
-        const float sum = _normalizedPhasorIn + lastSample;
-        if(sum == 0.0f) return false;
-
-        const float proportionalChange = std::abs(difference/sum);
-    
-        const bool resetDetected = proportionalChange > threshold;
-
-        return repeatFilter.process(resetDetected);
-    }
-
-    bool detectSimpleReset(float _normalizedPhasorIn)
-    {
-        return slopeDetector.calculateRawSlope(_normalizedPhasorIn) >= threshold;
-    }
-
-    void setThreshold(float _threshold)
-    {
-        threshold = clamp(_threshold, 0.0f, 1.0f);
-    }
-
-private:
-    float lastSample = 0.0f;
-    float threshold = 0.5f;
-    HCVPhasorSlopeDetector slopeDetector;
-    rack::dsp::BooleanTrigger repeatFilter;
+    HCVPhasorResetDetector resetDetector;
 };
 
 class HCVPhasorDivMult
@@ -124,6 +130,12 @@ class HCVPhasorDivMult
 public:
 
     float operator()(float _normalizedPhasorIn)
+    {
+        if(autoSync) return modulatedSync(_normalizedPhasorIn);
+        else return basicSync(_normalizedPhasorIn);
+    }
+
+    float basicSync(float _normalizedPhasorIn)
     {
         const float inSlope = slope(_normalizedPhasorIn);
         const float speedScale = multiplier/divider;
@@ -134,6 +146,23 @@ public:
         return output;
     }
 
+    float modulatedSync(float _normalizedPhasorIn)
+    {
+        const float inSlope = slope(_normalizedPhasorIn);
+        const float speedScale = multiplier/divider;
+        const float scaledSlope = inSlope * speedScale;
+
+        const float output = gam::scl::wrap(lastPhase + scaledSlope);
+        lastPhase = output;
+        return output;
+    }
+
+    float hardSynced(float _normalizedPhasorIn)
+    {
+        if(resetDetector.detectSimpleReset(_normalizedPhasorIn)) reset();
+        return basicSync(_normalizedPhasorIn);
+    }
+
     float setMultiplier(float _multiplier){multiplier = _multiplier;}
     float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
 
@@ -142,12 +171,13 @@ public:
 
 protected:
     HCVPhasorSlopeDetector slope;
+    HCVPhasorResetDetector resetDetector;
     float resetPhase = 0.0f;
     float lastPhase = 0.0f;
     float multiplier = 1.0f;
     float divider = 1.0f;
 
-    bool autoSync = false;
+    bool autoSync = true;
 };
 
 
@@ -366,6 +396,8 @@ public:
         {
             randomizing = randomGen.nextProbability(probability);
             currentRandom = randomGen.nextFloat();
+            randomFreqMult = gam::scl::mapLin(currentRandom, 0.0f, 1.0f, 0.95f, 1.05f);
+            subPhasor.setMultiplier(randomFreqMult);
 
             if(mode == 0) offsetStep = randomGen.randomInt(currentNumSteps);
             else offsetStep = stepDetector.getCurrentStep();
@@ -378,7 +410,7 @@ public:
 
         if(mode == 6) //jitter mode
         {
-            float jitteryPhasor = clamp(_normalizedPhasor + std::abs(brownNoise() * 0.005f), 0.0f, 1.0f);
+            float jitteryPhasor = subPhasor.hardSynced(_normalizedPhasor);
             return LERP(probability, jitteryPhasor, _normalizedPhasor);
         }
 
@@ -448,6 +480,7 @@ public:
 protected:
     HCVPhasorStepDetector stepDetector;
     HCVRandom randomGen;
+    HCVPhasorDivMult subPhasor;
     bool randomizing = false;
     float stepFraction = 1.0f;
     float probability = 0.0f;
@@ -455,11 +488,11 @@ protected:
     float steppedPhasor = 0.0f;
     float gate = 0.0f;
     float currentRandom = 0.0f;
+    float randomFreqMult = 1.0f;
     const float gateScale = 5.0f;
     int offsetStep = 0;
     int currentNumSteps = 1;
     int mode = 0;
-    gam::NoiseBrown<> brownNoise;
 };
 
 class HCVPhasorJitter
