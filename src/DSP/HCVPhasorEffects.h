@@ -6,7 +6,7 @@
 #include "HCVFunctions.h"
 #include "HCVRandom.h"
 
-
+using rack::math::clamp;
 
 static float scaleAndWrapPhasor(float _input)
 {
@@ -96,14 +96,15 @@ public:
 
     bool operator()(float _normalizedPhasorIn)
     {
-        if(numberSteps == 1)
-        {
-            return resetDetector.detectSimpleReset(_normalizedPhasorIn);
-        }
-
         float scaledPhasor = _normalizedPhasorIn * numberSteps;
         int incomingStep = floorf(scaledPhasor);
         fractionalStep = scaledPhasor - incomingStep;
+
+        if(numberSteps == 1)
+        {
+            currentStep = 0;
+            return resetDetector.detectSimpleReset(_normalizedPhasorIn);
+        }
 
         if(incomingStep != currentStep)
         {
@@ -177,7 +178,7 @@ protected:
     float multiplier = 1.0f;
     float divider = 1.0f;
 
-    bool autoSync = true;
+    bool autoSync = false;
 };
 
 
@@ -396,8 +397,6 @@ public:
         {
             randomizing = randomGen.nextProbability(probability);
             currentRandom = randomGen.nextFloat();
-            randomFreqMult = gam::scl::mapLin(currentRandom, 0.0f, 1.0f, 0.95f, 1.05f);
-            subPhasor.setMultiplier(randomFreqMult);
 
             if(mode == 0) offsetStep = randomGen.randomInt(currentNumSteps);
             else offsetStep = stepDetector.getCurrentStep();
@@ -407,12 +406,6 @@ public:
 
         gate = stepDetector.getFractionalStep() < 0.5f ? gateScale : 0.0f;
         steppedPhasor = stepFraction * stepDetector.getCurrentStep();
-
-        if(mode == 6) //jitter mode
-        {
-            float jitteryPhasor = subPhasor.hardSynced(_normalizedPhasor);
-            return LERP(probability, jitteryPhasor, _normalizedPhasor);
-        }
 
         if(randomizing)
         {
@@ -480,7 +473,6 @@ public:
 protected:
     HCVPhasorStepDetector stepDetector;
     HCVRandom randomGen;
-    HCVPhasorDivMult subPhasor;
     bool randomizing = false;
     float stepFraction = 1.0f;
     float probability = 0.0f;
@@ -488,7 +480,6 @@ protected:
     float steppedPhasor = 0.0f;
     float gate = 0.0f;
     float currentRandom = 0.0f;
-    float randomFreqMult = 1.0f;
     const float gateScale = 5.0f;
     int offsetStep = 0;
     int currentNumSteps = 1;
