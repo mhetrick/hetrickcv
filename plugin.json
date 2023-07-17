@@ -297,6 +297,16 @@
       ]
     },
     {
+      "slug": "PhasorGates",
+      "name": "Phasor to Gates",
+      "description": "A gate sequencer driven by a phasor.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorGen",
       "name": "Phasor Generator",
       "description": "Generates a phasor along with time-synced gates.",

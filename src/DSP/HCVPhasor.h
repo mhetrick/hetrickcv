@@ -77,7 +77,7 @@ public:
 
     float operator()()
     {
-        phasor.freqMul(reverseMult * frozenMult + (jitterValue*jitterDepth));        
+        phasor.freqMul(reverseMult * frozenMult + (jitterValue*jitterDepth));    
         updateRandomDepth();
         return phasor() * outputScalar;
     }

@@ -34,6 +34,23 @@ public:
         return slope;
     }
 
+    float getSlopeInHz()
+    {
+        return slope * gam::Domain::master().spu(); //multiply slope by sample rate
+    }
+
+    float getSlopeInBPM()
+    {
+        return getSlopeInHz() * 60.0f;
+    }
+
+    float getSlopeDirection()
+    {
+        if(slope > 0.0f) return 1.0f;
+        if(slope < 0.0f) return -1.0f;
+        return 0.0f;
+    }
+
 private:
     float lastSample = 0.0f;
     float slope = 0.0f;
