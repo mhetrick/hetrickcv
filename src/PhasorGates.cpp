@@ -37,6 +37,7 @@ struct PhasorGates : HCVModule
 
     bool gates[NUM_STEPS] = {};
     dsp::BooleanTrigger gateTriggers[NUM_STEPS];
+    HCVPhasorSlopeDetector slopeDetector;
 
 	PhasorGates()
 	{
@@ -131,7 +132,11 @@ void PhasorGates::process(const ProcessArgs &args)
     int currentIndex = floorf(scaledPhasor);
     float fractionalIndex = scaledPhasor - floorf(scaledPhasor);
 
-    float gate = fractionalIndex < 0.5f ? 5.0f : 0.0f;
+    bool reversePhasor = slopeDetector(normalizedPhasor) < 0.0f;
+
+    float gate;
+    if (reversePhasor) gate = fractionalIndex > 0.5f ? 5.0f : 0.0f;
+    else gate = fractionalIndex < 0.5f ? 5.0f : 0.0f;
 
     outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f);
 

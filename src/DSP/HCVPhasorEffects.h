@@ -5,6 +5,7 @@
 #include "dsp/digital.hpp"
 #include "HCVFunctions.h"
 #include "HCVRandom.h"
+#include "Gamma/Noise.h"
 
 
 static float scaleAndWrapPhasor(float _input)
@@ -373,6 +374,13 @@ public:
         }
 
         gate = stepDetector.getFractionalStep() < 0.5f ? gateScale : 0.0f;
+        steppedPhasor = stepFraction * stepDetector.getCurrentStep();
+
+        if(mode == 6) //jitter mode
+        {
+            float jitteryPhasor = clamp(_normalizedPhasor + std::abs(brownNoise() * 0.005f), 0.0f, 1.0f);
+            return LERP(probability, jitteryPhasor, _normalizedPhasor);
+        }
 
         if(randomizing)
         {
@@ -404,10 +412,8 @@ public:
                 return _normalizedPhasor;
             }
 
-            
         }
 
-        steppedPhasor = stepFraction * stepDetector.getCurrentStep();
         return _normalizedPhasor;
     }
 
@@ -453,6 +459,7 @@ protected:
     int offsetStep = 0;
     int currentNumSteps = 1;
     int mode = 0;
+    gam::NoiseBrown<> brownNoise;
 };
 
 class HCVPhasorJitter

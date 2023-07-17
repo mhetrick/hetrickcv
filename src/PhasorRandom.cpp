@@ -28,7 +28,7 @@ struct PhasorRandom : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 6
+        NUM_LIGHTS = 7
 	};
 
     static constexpr float MAX_STEPS = 64.0f;
@@ -44,8 +44,8 @@ struct PhasorRandom : HCVModule
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         
-        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 5.0, 0.0, "Mode",
-        {"Random Slice", "Random Reverse Slice", "Random Reverse Phasor", "Random Slope", "Random Stutter", "Random Freeze"});
+        configSwitch(PhasorRandom::MODE_PARAM, 0.0, 6.0, 0.0, "Mode",
+        {"Random Slice", "Random Reverse Slice", "Random Reverse Phasor", "Random Slope", "Random Stutter", "Random Freeze", "Jitter"});
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 		configParam(PhasorRandom::MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Mode CV Depth");
 
@@ -97,7 +97,7 @@ void PhasorRandom::process(const ProcessArgs &args)
         steps = floorf(clamp(steps, 1.0f, MAX_STEPS));
 
         float mode = modeKnob + (modeCVDepth * inputs[MODE_INPUT].getPolyVoltage(i));
-        mode = floorf(clamp(mode, 0.0f, 5.0f));
+        mode = floorf(clamp(mode, 0.0f, 6.0f));
 
         randomizers[i].setProbability(probability);
         randomizers[i].setNumSteps(steps);
@@ -111,7 +111,7 @@ void PhasorRandom::process(const ProcessArgs &args)
     }
 
     int lightMode = modeKnob + modeCVDepth*inputs[MODE_INPUT].getVoltage();
-    lightMode = clamp(lightMode, 0, 5);
+    lightMode = clamp(lightMode, 0, 6);
 
     for(int i = 0; i < NUM_LIGHTS; i++)
     {
