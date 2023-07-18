@@ -17,13 +17,15 @@ struct PhasorRandom : HCVModule
         STEPS_INPUT,
         CHANCE_INPUT,
         MODE_INPUT,
+        FORCE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
 	{
 		RANDOM_OUTPUT,
         STEPPED_OUTPUT,
-        CLOCK_OUTPUT,
+        RANDOMPHASE_OUTPUT,
+        RANDOMGATE_OUTPUT,
 		NUM_OUTPUTS
 	};
     enum LightIds
@@ -51,6 +53,7 @@ struct PhasorRandom : HCVModule
 
 
         configInput(PHASOR_INPUT, "Phasor");
+        configInput(FORCE_INPUT, "Force Randomization");
 
         configInput(CHANCE_INPUT, "Chance CV");
         configInput(STEPS_INPUT, "Steps CV");
@@ -58,7 +61,8 @@ struct PhasorRandom : HCVModule
 
         configOutput(RANDOM_OUTPUT, "Randomized Phasor");
         configOutput(STEPPED_OUTPUT, "Stepped Phasor");
-        configOutput(CLOCK_OUTPUT, "Step Clock");
+        configOutput(RANDOMPHASE_OUTPUT, "Random Phasors");
+        configOutput(RANDOMGATE_OUTPUT, "Random Gates");
 
         random::init();
 	}
@@ -99,15 +103,19 @@ void PhasorRandom::process(const ProcessArgs &args)
         float mode = modeKnob + (modeCVDepth * inputs[MODE_INPUT].getPolyVoltage(i));
         mode = floorf(clamp(mode, 0.0f, 5.0f));
 
+        bool forceRandom = inputs[FORCE_INPUT].getPolyVoltage(i) > 1.0f;
+
         randomizers[i].setProbability(probability);
         randomizers[i].setNumSteps(steps);
         randomizers[i].setMode(mode);
+        randomizers[i].enableForceRandomization(forceRandom);
 
         float outputPhasor = randomizers[i](normalizedPhasor);
 
         outputs[RANDOM_OUTPUT].setVoltage(outputPhasor * HCV_PHZ_UPSCALE, i);
         outputs[STEPPED_OUTPUT].setVoltage(randomizers[i].getSteppedPhasor() * HCV_PHZ_UPSCALE, i);
-        outputs[CLOCK_OUTPUT].setVoltage(randomizers[i].getGateOutput(), i);
+        outputs[RANDOMPHASE_OUTPUT].setVoltage(randomizers[i].getRandomPhasor() * HCV_PHZ_UPSCALE, i);
+        outputs[RANDOMGATE_OUTPUT].setVoltage(randomizers[i].getRandomGate(), i);
     }
 
     int lightMode = modeKnob + modeCVDepth*inputs[MODE_INPUT].getVoltage();
@@ -135,17 +143,19 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
     createParamComboHorizontal(knobX, knobY + 50, PhasorRandom::CHANCE_PARAM, PhasorRandom::CHANCE_SCALE_PARAM, PhasorRandom::CHANCE_INPUT);
     createParamComboHorizontal(knobX, knobY + 100, PhasorRandom::MODE_PARAM, PhasorRandom::MODE_SCALE_PARAM, PhasorRandom::MODE_INPUT);
 
-
-    const float switchY = 238.0f;
-
-    const float jackY = 305.0f;
+    const float inJackY = 240.0f;
+    const float outJackY = 305.0f;
+    const float jack1 = 13.0f;
+    const float jack2 = 55.0f;
 	//////INPUTS//////
-    createInputPort(11.0f, jackY, PhasorRandom::PHASOR_INPUT);
+    createInputPort(jack1, inJackY, PhasorRandom::PHASOR_INPUT);
+    createInputPort(jack2, inJackY, PhasorRandom::FORCE_INPUT);
 
 	//////OUTPUTS//////
-    createOutputPort(62.0f, jackY, PhasorRandom::RANDOM_OUTPUT);
-    createOutputPort(104.0f, jackY, PhasorRandom::STEPPED_OUTPUT);
-    createOutputPort(146.0f, jackY, PhasorRandom::CLOCK_OUTPUT);
+    createOutputPort(jack1, outJackY, PhasorRandom::RANDOM_OUTPUT);
+    createOutputPort(jack2, outJackY, PhasorRandom::RANDOMPHASE_OUTPUT);
+    createOutputPort(97.0f, outJackY, PhasorRandom::RANDOMGATE_OUTPUT);
+    createOutputPort(139.0f, outJackY, PhasorRandom::STEPPED_OUTPUT);
 
 
     for (int i = 0; i < PhasorRandom::NUM_LIGHTS; i++)

@@ -242,12 +242,12 @@ public:
 
     float getRandomPhasor()
     {
-        return randomizing ? stepDetector.getFractionalStep() : 0.0f;
+        return (randomizing || forceRandomization) ? stepDetector.getFractionalStep() : 0.0f;
     }
 
     float getRandomGate()
     {
-        return randomizing ? gate : 0.0f;
+        return (randomizing || forceRandomization) ? gate : 0.0f;
     }
 
     float getGateOutput()
@@ -258,6 +258,11 @@ public:
     void setMode(int _mode)
     {
         mode = _mode;
+    }
+
+    void enableForceRandomization(bool _forceRandomization)
+    {
+        forceRandomization = _forceRandomization;
     }
 
 protected:
@@ -276,6 +281,8 @@ protected:
     int offsetStep = 0;
     int currentNumSteps = 1;
     int mode = 0;
+
+    bool forceRandomization = false;
 };
 
 class HCVPhasorJitter

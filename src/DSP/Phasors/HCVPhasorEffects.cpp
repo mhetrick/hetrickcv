@@ -77,7 +77,7 @@ float HCVPhasorRandomizer::operator()(float _normalizedPhasor)
     gate = stepDetector.getFractionalStep() < 0.5f ? gateScale : 0.0f;
     steppedPhasor = stepFraction * stepDetector.getCurrentStep();
 
-    if(randomizing)
+    if(randomizing || forceRandomization)
     {
         steppedPhasor = offsetBase;
 
