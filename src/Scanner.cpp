@@ -1,4 +1,5 @@
 #include "HetrickCV.hpp"
+#include "DSP/HCVScanner.h"
 
 struct Scanner : HCVModule
 {
@@ -65,11 +66,8 @@ struct Scanner : HCVModule
 
 		NUM_LIGHTS
 	};
-
-    float ins[8] = {};
-    float outs[8] = {};
-    float inMults[8] = {};
-    float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+    
+    HCVScanner scanners[16];
 
 	Scanner()
 	{
@@ -106,69 +104,66 @@ struct Scanner : HCVModule
 
 void Scanner::process(const ProcessArgs &args)
 {
-    float allInValue = 0.0f;
-    if(inputs[ALLIN_INPUT].isConnected()) allInValue = inputs[ALLIN_INPUT].getVoltage();
-    else if(params[OFFSET_PARAM].getValue() != 0.0f) allInValue = 5.0f;
+    const float mixScale = params[MIXSCALE_PARAM].getValue();
+    const float stagesKnob = params[STAGES_PARAM].getValue();
+    const float widthKnob = params[WIDTH_PARAM].getValue();
+    const float scanKnob = params[SCAN_PARAM].getValue();
+    const float slopeKnob = params[SLOPE_PARAM].getValue();
+    const float offsetValue = params[OFFSET_PARAM].getValue() * 5.0f;
 
-    for(int i = 0; i < 8; i++)
+    const int numChannels = setupPolyphonyForAllOutputs();
+
+    for(int channel = 0; channel < numChannels; channel++)
     {
-        if(!inputs[IN1_INPUT + i].isConnected()) ins[i] = allInValue;
-        else ins[i] = inputs[IN1_INPUT + i].getVoltage();
+        float allInValue = offsetValue;
+        if(inputs[ALLIN_INPUT].isConnected()) allInValue = inputs[ALLIN_INPUT].getPolyVoltage(channel);
+
+        for(int i = 0; i < 8; i++)
+        {
+            if(!inputs[IN1_INPUT + i].isConnected()) scanners[channel].setInput(i, allInValue);
+            else scanners[channel].setInput(i, inputs[IN1_INPUT + i].getPolyVoltage(channel)); 
+        }
+
+        int stages = round(stagesKnob + inputs[STAGES_INPUT].getPolyVoltage(channel));
+        stages = clampInt(stages, 0, 6) + 2;
+        scanners[channel].setNumStages(stages);
+
+        float widthControl =  widthKnob + inputs[WIDTH_INPUT].getPolyVoltage(channel);
+        widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
+        scanners[channel].setWidthParameter(widthControl);
+
+        float scanControl = scanKnob + inputs[SCAN_INPUT].getPolyVoltage(channel);
+        scanControl = clamp(scanControl, 0.0f, 5.0f) * 0.2f;
+        scanners[channel].setScanParameter(scanControl);
+
+        float slopeControl = slopeKnob + inputs[SLOPE_INPUT].getPolyVoltage(channel);
+        slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
+        scanners[channel].setSlopeParameter(slopeControl);
+
+        float mix = 0.0f;
+
+        scanners[channel].process();
+
+        for(int i = 0; i < 8; i++)
+        {
+            const float channelOut = scanners[channel].getOutput(i);
+            outputs[i].setVoltage(channelOut, channel);
+
+            mix = mix + channelOut;
+        }
+
+        outputs[MIX_OUTPUT].setVoltage(mix * mixScale, channel);
     }
 
-    int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getVoltage());
-    stages = clampInt(stages, 0, 6) + 2;
-    const float invStages = 1.0f/stages;
-    const float halfStages = stages * 0.5f;
-    const float remainInvStages = 1.0f - invStages;
-
-    float widthControl = params[WIDTH_PARAM].getValue() + inputs[WIDTH_INPUT].getVoltage();
-    widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
-    widthControl = widthControl * widthControl * widthTable[stages];
-
-    float scanControl = params[SCAN_PARAM].getValue() + inputs[SCAN_INPUT].getVoltage();
-    scanControl = clamp(scanControl, 0.0f, 5.0f) * 0.2f;
-
-    float slopeControl = params[SLOPE_PARAM].getValue() + inputs[SLOPE_INPUT].getVoltage();
-    slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
-
-    float scanFactor1 = LERP(widthControl, halfStages, invStages);
-    float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
-    float scanFinal = LERP(scanControl, scanFactor2, scanFactor1);
-
-    float invWidth = 1.0f/(LERP(widthControl, float(stages), invStages+invStages));
-
-    float subStage = 0.0f;
-    for(int i = 0; i < 8; i++)
+    //lights
+    for(int i = 0; i < 8; i ++)
     {
-        inMults[i] = (scanFinal + subStage) * invWidth;
-        subStage = subStage - invStages;
+        const float channelOut = scanners[0].getOutput(i);
+        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, scanners[0].getMult(i)), 10);
+
+        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * 0.2f), 10);
+        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * -0.2f), 10);
     }
-
-    for(int i = 0; i < 8; i++)
-    {
-        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
-        inMults[i] = triShape(inMults[i]);
-        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
-
-        const float shaped = (2.0f - inMults[i]) * inMults[i];
-        inMults[i] = LERP(slopeControl, shaped, inMults[i]);
-    }
-
-    outputs[MIX_OUTPUT].setVoltage(0.0f);
-
-    for(int i = 0; i < 8; i++)
-    {
-        outputs[i].setVoltage(ins[i] * inMults[i]);
-
-        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]), 10);
-
-        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / 5.0), 10);
-        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].value / -5.0), 10);
-        outputs[MIX_OUTPUT].setVoltage(outputs[MIX_OUTPUT].value + outputs[i].value);
-    }
-
-    outputs[MIX_OUTPUT].setVoltage(outputs[MIX_OUTPUT].value * params[MIXSCALE_PARAM].getValue());
 }
 
 
