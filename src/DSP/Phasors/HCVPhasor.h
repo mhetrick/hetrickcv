@@ -54,7 +54,7 @@ public:
 protected:
     float clockFreq = 1.0f;
     float outputScalar = HCV_PHZ_UPSCALE;
-    float gateScale = 5.0f;
+    float gateScale = HCV_PHZ_GATESCALE;
     float pulseWidth = 0.5f;
     float frozenMult = 1.0f;
     float jitterDepth = 0.0f;

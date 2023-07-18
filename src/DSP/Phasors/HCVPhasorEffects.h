@@ -1,126 +1,10 @@
 #pragma once
 
 #include "HCVPhasor.h"
-#include "dsp/common.hpp"
-#include "dsp/digital.hpp"
-#include "../HCVFunctions.h"
+#include "HCVPhasorAnalyzers.h"
+
 #include "../HCVRandom.h"
 #include "HCVPhasorCommon.h"
-
-using rack::math::clamp;
-
-class HCVPhasorSlopeDetector
-{
-public:
-    float operator()(float _normalizedPhasorIn)
-    {
-        return calculateSteadySlope(_normalizedPhasorIn);
-    }
-
-    float calculateSteadySlope(float _normalizedPhasorIn)
-    {
-        slope = _normalizedPhasorIn - lastSample;
-        lastSample = _normalizedPhasorIn;
-        return gam::scl::wrap(slope, 0.5f, -0.5f);
-    }
-
-    float calculateRawSlope(float _normalizedPhasorIn)
-    {
-        slope = _normalizedPhasorIn - lastSample;
-        lastSample = _normalizedPhasorIn;
-        return slope;
-    }
-
-    float getSlopeInHz()
-    {
-        return slope * gam::Domain::master().spu(); //multiply slope by sample rate
-    }
-
-    float getSlopeInBPM()
-    {
-        return getSlopeInHz() * 60.0f;
-    }
-
-    float getSlopeDirection()
-    {
-        if(slope > 0.0f) return 1.0f;
-        if(slope < 0.0f) return -1.0f;
-        return 0.0f;
-    }
-
-private:
-    float lastSample = 0.0f;
-    float slope = 0.0f;
-};
-
-class HCVPhasorResetDetector
-{
-public:
-    bool operator()(float _normalizedPhasorIn)
-    {
-        const float difference = _normalizedPhasorIn - lastSample;
-        const float sum = _normalizedPhasorIn + lastSample;
-        if(sum == 0.0f) return false;
-
-        const float proportionalChange = std::abs(difference/sum);
-    
-        const bool resetDetected = proportionalChange > threshold;
-
-        return repeatFilter.process(resetDetected);
-    }
-
-    bool detectSimpleReset(float _normalizedPhasorIn)
-    {
-        return std::abs(slopeDetector.calculateRawSlope(_normalizedPhasorIn)) >= threshold;
-    }
-
-    void setThreshold(float _threshold)
-    {
-        threshold = clamp(_threshold, 0.0f, 1.0f);
-    }
-
-private:
-    float lastSample = 0.0f;
-    float threshold = 0.5f;
-    HCVPhasorSlopeDetector slopeDetector;
-    rack::dsp::BooleanTrigger repeatFilter;
-};
-
-class HCVPhasorStepDetector
-{
-public:
-
-    bool operator()(float _normalizedPhasorIn)
-    {
-        float scaledPhasor = _normalizedPhasorIn * numberSteps;
-        int incomingStep = floorf(scaledPhasor);
-        fractionalStep = scaledPhasor - incomingStep;
-
-        if(numberSteps == 1)
-        {
-            currentStep = 0;
-            return resetDetector.detectSimpleReset(_normalizedPhasorIn);
-        }
-
-        if(incomingStep != currentStep)
-        {
-            currentStep = incomingStep;
-            return true;
-        }
-
-        return false;
-    }
-
-    int getCurrentStep(){return currentStep;}
-    void setNumberSteps(int _numSteps){numberSteps = std::max(1, _numSteps);}
-    float getFractionalStep(){return fractionalStep;}
-
-private:
-    int currentStep = 0;
-    int numberSteps = 1;
-    float fractionalStep = 0.0f;
-    HCVPhasorResetDetector resetDetector;
-};
 
 class HCVPhasorDivMult
 {
@@ -132,33 +16,9 @@ public:
         else return basicSync(_normalizedPhasorIn);
     }
 
-    float basicSync(float _normalizedPhasorIn)
-    {
-        const float inSlope = slope(_normalizedPhasorIn);
-        const float speedScale = multiplier/divider;
-        const float scaledSlope = inSlope * speedScale;
-
-        const float output = gam::scl::wrap(lastPhase + scaledSlope);
-        lastPhase = output;
-        return output;
-    }
-
-    float modulatedSync(float _normalizedPhasorIn)
-    {
-        const float inSlope = slope(_normalizedPhasorIn);
-        const float speedScale = multiplier/divider;
-        const float scaledSlope = inSlope * speedScale;
-
-        const float output = gam::scl::wrap(lastPhase + scaledSlope);
-        lastPhase = output;
-        return output;
-    }
-
-    float hardSynced(float _normalizedPhasorIn)
-    {
-        if(resetDetector.detectSimpleReset(_normalizedPhasorIn)) reset();
-        return basicSync(_normalizedPhasorIn);
-    }
+    float basicSync(float _normalizedPhasorIn);
+    float modulatedSync(float _normalizedPhasorIn);
+    float hardSynced(float _normalizedPhasorIn);
 
     float setMultiplier(float _multiplier){multiplier = _multiplier;}
     float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
@@ -182,34 +42,7 @@ class HCVPhasorToEuclidean
 {
 public:
 
-    void processPhasor(float _inputPhasor)
-    {
-        float scaledRotation = quantizeRotation ? floorf(rotation * steps)/steps : rotation;
-        const float scaledRamp = gam::scl::wrap(_inputPhasor*HCV_PHZ_DOWNSCALE + scaledRotation) * steps;
-        const float stepWidth = scaledRamp - floorf(scaledRamp);
-        clockOutput = stepWidth < pulseWidth ? gateScale : 0.0f;
-
-        if(fill == 0.0f)
-        {
-            phasorOutput = 0.0f;
-            euclidGateOutput = 0.0f;
-            return;
-        }
-
-        const float currentStep = floorf(scaledRamp);
-        const float fillRatio = fill/steps;
-
-        const float previousEvent = floorf(currentStep * fillRatio);
-        const float nextEvent = ceilf((previousEvent + 1.0f)/fillRatio);
-        const float currentEvent = ceilf(previousEvent/fillRatio);
-
-        const float lengthBeats = nextEvent - currentEvent;
-
-        phasorOutput = ((scaledRamp - currentEvent)/lengthBeats);
-        euclidGateOutput = phasorOutput < pulseWidth ? gateScale : 0.0f;
-
-        
-    }
+    void processPhasor(float _inputPhasor);
 
     void setBeats(float _beats)
     {
@@ -249,7 +82,7 @@ protected:
     float euclidGateOutput = 0.0f;
     float clockOutput = 0.0f;
     const float outputScale = HCV_PHZ_UPSCALE;
-    const float gateScale = 5.0f;
+    const float gateScale = HCV_PHZ_GATESCALE;
 };
 
 //static effects
@@ -387,56 +220,7 @@ private:
 class HCVPhasorRandomizer
 {
 public:
-    float operator()(float _normalizedPhasor)
-    {
-        if(stepDetector(_normalizedPhasor))
-        {
-            randomizing = randomGen.nextProbability(probability);
-            currentRandom = randomGen.nextFloat();
-
-            if(mode == 0) offsetStep = randomGen.randomInt(currentNumSteps);
-            else offsetStep = stepDetector.getCurrentStep();
-
-            offsetBase = stepFraction * offsetStep;
-        }
-
-        gate = stepDetector.getFractionalStep() < 0.5f ? gateScale : 0.0f;
-        steppedPhasor = stepFraction * stepDetector.getCurrentStep();
-
-        if(randomizing)
-        {
-            steppedPhasor = offsetBase;
-
-            switch (mode)
-            {
-            case 0: //random step
-                return offsetBase + (stepDetector.getFractionalStep() * stepFraction);
-            
-            case 1: //random reverse slice
-                return offsetBase + stepFraction - (stepDetector.getFractionalStep() * stepFraction);
-
-            case 2: //random reverse phasor
-                return (1.0 - offsetBase) - (stepDetector.getFractionalStep() * stepFraction);
-
-            case 3: //random slope
-                return offsetBase + 
-                    gam::scl::clip(stepDetector.getFractionalStep() * stepFraction * currentRandom * 2.0f, stepFraction, 0.0f); 
-
-            case 4: //random stutter
-                return offsetBase + 
-                    gam::scl::wrap(stepDetector.getFractionalStep() * stepFraction * int(1.0f + currentRandom * 7.0f), stepFraction, 0.0f); 
-
-            case 5: //random freeze
-                return offsetBase;
-
-            default:
-                return _normalizedPhasor;
-            }
-
-        }
-
-        return _normalizedPhasor;
-    }
+    float operator()(float _normalizedPhasor);
 
     void setNumSteps(int _numSteps)
     {
@@ -476,7 +260,7 @@ protected:
     float steppedPhasor = 0.0f;
     float gate = 0.0f;
     float currentRandom = 0.0f;
-    const float gateScale = 5.0f;
+    const float gateScale = HCV_PHZ_GATESCALE;
     int offsetStep = 0;
     int currentNumSteps = 1;
     int mode = 0;

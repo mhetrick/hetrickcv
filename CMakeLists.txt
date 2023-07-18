@@ -13,7 +13,7 @@ message(STATUS "HetrickCV for Rack Build Process" )
 message(STATUS "Special Thanks to baconpaul" )
 message(STATUS "Installing into '${CMAKE_INSTALL_PREFIX}'")
 
-file(GLOB SOURCES src/*.cpp src/DSP/*.cpp)
+file(GLOB SOURCES src/*.cpp src/DSP/*.cpp src/DSP/Phasors/*.cpp)
 add_compile_options(-fvisibility=hidden -fvisibility-inlines-hidden)
 
 target_include_directories(${RACK_PLUGIN_LIB} PRIVATE src)

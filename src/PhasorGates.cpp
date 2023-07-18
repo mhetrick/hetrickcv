@@ -1,5 +1,5 @@
 #include "HetrickCV.hpp"
-#include "DSP/Phasors/HCVPhasorEffects.h"
+#include "DSP/Phasors/HCVPhasorAnalyzers.h"
 
 struct PhasorGates : HCVModule
 {

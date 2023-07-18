@@ -5,6 +5,7 @@ CXXFLAGS +=
 
 SOURCES += $(wildcard src/*.cpp)
 SOURCES += $(wildcard src/DSP/*.cpp)
+SOURCES += $(wildcard src/DSP/Phasors/*.cpp)
 SOURCES += Gamma/src/arr.cpp
 SOURCES += Gamma/src/Domain.cpp
 SOURCES += Gamma/src/scl.cpp

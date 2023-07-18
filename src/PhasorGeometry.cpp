@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 
-#include "DSP/Phasors/HCVPhasorEffects.h"
+#include "DSP/Phasors/HCVPhasorCommon.h"
 
 struct PhasorGeometry : HCVModule
 {
