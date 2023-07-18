@@ -240,6 +240,16 @@ public:
         return steppedPhasor;
     }
 
+    float getRandomPhasor()
+    {
+        return randomizing ? stepDetector.getFractionalStep() : 0.0f;
+    }
+
+    float getRandomGate()
+    {
+        return randomizing ? gate : 0.0f;
+    }
+
     float getGateOutput()
     {
         return gate;
@@ -260,6 +270,8 @@ protected:
     float steppedPhasor = 0.0f;
     float gate = 0.0f;
     float currentRandom = 0.0f;
+    float randomPhasor = 0.0f;
+
     const float gateScale = HCV_PHZ_GATESCALE;
     int offsetStep = 0;
     int currentNumSteps = 1;
