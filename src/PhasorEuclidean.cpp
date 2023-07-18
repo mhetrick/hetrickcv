@@ -1,5 +1,5 @@
 #include "HetrickCV.hpp"
-#include "DSP/HCVPhasorEffects.h"
+#include "DSP/Phasors/HCVPhasorEffects.h"
 
 struct PhasorEuclidean : HCVModule
 {

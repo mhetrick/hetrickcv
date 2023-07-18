@@ -1,6 +1,6 @@
 #include "HetrickCV.hpp"
 #include "DSP/HCVTiming.h" 
-#include "DSP/HCVPhasor.h"
+#include "DSP/Phasors/HCVPhasor.h"
 #include "dsp/approx.hpp"
 
 struct PhasorGen : HCVModule

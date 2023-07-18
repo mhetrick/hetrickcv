@@ -2,14 +2,12 @@
 
 #include "Gamma/Oscillator.h"
 #include "dsp/digital.hpp"
-#include "HCVRandom.h"
+#include "../HCVRandom.h"
+#include "HCVPhasorCommon.h"
 
 //Phasor processing tricks learned from "Generating Sound and Organizing Time"
 //by Graham Wakefield and Gregory Taylor. Highly recommended!
 //Also inspired by Bitwig Grid and Toybox Nano Pack.
-
-static constexpr float HCV_PHZ_UPSCALE = 10.0f;
-static constexpr float HCV_PHZ_DOWNSCALE = 0.1f;
 
 class HCVPhasorBase
 {

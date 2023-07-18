@@ -3,15 +3,11 @@
 #include "HCVPhasor.h"
 #include "dsp/common.hpp"
 #include "dsp/digital.hpp"
-#include "HCVFunctions.h"
-#include "HCVRandom.h"
+#include "../HCVFunctions.h"
+#include "../HCVRandom.h"
+#include "HCVPhasorCommon.h"
 
 using rack::math::clamp;
-
-static float scaleAndWrapPhasor(float _input)
-{
-    return gam::scl::wrap(_input * HCV_PHZ_DOWNSCALE);
-}
 
 class HCVPhasorSlopeDetector
 {

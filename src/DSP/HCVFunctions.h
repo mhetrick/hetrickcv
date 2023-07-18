@@ -1,8 +1,12 @@
 #pragma once
 
+#include "dsp/common.hpp"
+
 constexpr auto HALF_PI = 1.57079632679f;
 constexpr auto PI = 3.14159265359f;
 constexpr auto TWO_PI = 6.28318530718f;
+
+using rack::math::clamp;
 
 template <typename T = float>
 inline T LERP(const float _amountOfA, const T _inA, const T _inB)
