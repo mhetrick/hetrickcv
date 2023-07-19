@@ -75,27 +75,27 @@ void Boolean3::process(const ProcessArgs &args)
     inB = ins[1].process(inputs[INB_INPUT].getVoltage());
     inC = ins[2].process(inputs[INC_INPUT].getVoltage());
 
-    lights[INA_LIGHT].value = inA ? HCV_GATE_MAG : 0.0f;
-    lights[INB_LIGHT].value = inB ? HCV_GATE_MAG : 0.0f;
-    lights[INC_LIGHT].value = inC ? HCV_GATE_MAG : 0.0f;
+    lights[INA_LIGHT].value = inA ? HCV_LEGACYGATE_MAG : 0.0f;
+    lights[INB_LIGHT].value = inB ? HCV_LEGACYGATE_MAG : 0.0f;
+    lights[INC_LIGHT].value = inC ? HCV_LEGACYGATE_MAG : 0.0f;
 
     if(inputs[INC_INPUT].isConnected())
     {
-        outs[0] = ((inA || inB) || inC) ? HCV_GATE_MAG : 0.0f;
-        outs[1] = ((inA && inB) && inC) ? HCV_GATE_MAG : 0.0f;
-        outs[2] = (!inA && (inB ^ inC)) || (inA && !(inB || inC)) ? HCV_GATE_MAG : 0.0f;
-        outs[3] = HCV_GATE_MAG - outs[0];
-        outs[4] = HCV_GATE_MAG - outs[1];
-        outs[5] = HCV_GATE_MAG - outs[2];
+        outs[0] = ((inA || inB) || inC) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[1] = ((inA && inB) && inC) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[2] = (!inA && (inB ^ inC)) || (inA && !(inB || inC)) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[3] = HCV_LEGACYGATE_MAG - outs[0];
+        outs[4] = HCV_LEGACYGATE_MAG - outs[1];
+        outs[5] = HCV_LEGACYGATE_MAG - outs[2];
     }
     else
     {
-        outs[0] = (inA || inB) ? HCV_GATE_MAG : 0.0f;
-        outs[1] = (inA && inB) ? HCV_GATE_MAG : 0.0f;
-        outs[2] = (inA != inB) ? HCV_GATE_MAG : 0.0f;
-        outs[3] = HCV_GATE_MAG - outs[0];
-        outs[4] = HCV_GATE_MAG - outs[1];
-        outs[5] = HCV_GATE_MAG - outs[2];
+        outs[0] = (inA || inB) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[1] = (inA && inB) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[2] = (inA != inB) ? HCV_LEGACYGATE_MAG : 0.0f;
+        outs[3] = HCV_LEGACYGATE_MAG - outs[0];
+        outs[4] = HCV_LEGACYGATE_MAG - outs[1];
+        outs[5] = HCV_LEGACYGATE_MAG - outs[2];
     }
 
 

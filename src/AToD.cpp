@@ -186,14 +186,14 @@ void AnalogToDigital::processUni8(float _input)
     clamp(_input, 0.0f, 1.0f);
     uint8_t bits = round(_input * 255);
 
-    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[7] = (bits & 0b10000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
+    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[7] = (bits & 0b10000000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
 }
 
 void AnalogToDigital::processBiOff(float _input)
@@ -202,31 +202,31 @@ void AnalogToDigital::processBiOff(float _input)
     _input = (_input + 1.0f) * 0.5f;
     uint8_t bits = round(_input * 255);
 
-    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[7] = (bits & 0b10000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
+    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[7] = (bits & 0b10000000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
 }
 
 void AnalogToDigital::processBiSig(float _input)
 {
-    outs[7] = _input < 0.0f ? HCV_GATE_MAG : 0.0f;
+    outs[7] = _input < 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
 
     clamp(_input, -1.0f, 1.0f);
     _input = std::abs(_input);
     uint8_t bits = round(_input * 127);
 
-    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
+    outs[0] = (bits & 0b00000001) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[1] = (bits & 0b00000010) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[2] = (bits & 0b00000100) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[3] = (bits & 0b00001000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[4] = (bits & 0b00010000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[5] = (bits & 0b00100000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
+    outs[6] = (bits & 0b01000000) > 0.0f ? HCV_LEGACYGATE_MAG : 0.0f;
 }
 
 

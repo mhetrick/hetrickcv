@@ -90,13 +90,13 @@ void Delta::process(const ProcessArgs &args)
 	float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
 	boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
 
-	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(rising) ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(falling) ? HCV_GATE_MAG : 0.0f);
-	outputs[GT_GATE_OUTPUT].setVoltage(rising  ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_GATE_OUTPUT].setVoltage(falling ? HCV_GATE_MAG : 0.0f);
+	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(rising) ? HCV_LEGACYGATE_MAG : 0.0f);
+	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(falling) ? HCV_LEGACYGATE_MAG : 0.0f);
+	outputs[GT_GATE_OUTPUT].setVoltage(rising  ? HCV_LEGACYGATE_MAG : 0.0f);
+	outputs[LT_GATE_OUTPUT].setVoltage(falling ? HCV_LEGACYGATE_MAG : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
+	allTrigs = clamp(allTrigs, 0.0f, HCV_LEGACYGATE_MAG);
 
     const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);
 

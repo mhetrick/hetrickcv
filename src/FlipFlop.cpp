@@ -50,8 +50,8 @@ struct FlipFlop : HCVModule
         lights[DATA_LIGHT].value = 0.0f;
         outs[0] = 0.0f;
         outs[1] = lights[DATA_LIGHT].value;
-        outs[2] = HCV_GATE_MAG;
-        outs[3] = HCV_GATE_MAG;
+        outs[2] = HCV_LEGACYGATE_MAG;
+        outs[3] = HCV_LEGACYGATE_MAG;
     }
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -64,18 +64,18 @@ struct FlipFlop : HCVModule
 void FlipFlop::process(const ProcessArgs &args)
 {
     dataIn = (inputs[IND_INPUT].getVoltage() >= 1.0f);
-    lights[DATA_LIGHT].value = dataIn ? HCV_GATE_MAG : 0.0f;
-    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
+    lights[DATA_LIGHT].value = dataIn ? HCV_LEGACYGATE_MAG : 0.0f;
+    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? HCV_LEGACYGATE_MAG : 0.0f;
 
     if (clockTrigger.process(inputs[INT_INPUT].getVoltage()))
     {
         toggle = !toggle;
 
-        outs[0] = toggle ? HCV_GATE_MAG : 0.0f;
+        outs[0] = toggle ? HCV_LEGACYGATE_MAG : 0.0f;
         outs[1] = lights[DATA_LIGHT].value;
 
-        outs[2] = HCV_GATE_MAG - outs[0];
-        outs[3] = HCV_GATE_MAG - outs[1];
+        outs[2] = HCV_LEGACYGATE_MAG - outs[0];
+        outs[3] = HCV_LEGACYGATE_MAG - outs[1];
     }
 
     outputs[FFT_OUTPUT].setVoltage(outs[0]);

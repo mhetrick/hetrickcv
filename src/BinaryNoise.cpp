@@ -81,7 +81,7 @@ void BinaryNoise::process(const ProcessArgs &args)
         if(params[POLARITY_PARAM].getValue() == 0.0f) //bipolar
             lastOut = (on ? 5.0f : -5.0f);
         else
-            lastOut = (on ? HCV_GATE_MAG : 0.0f);
+            lastOut = (on ? HCV_LEGACYGATE_MAG : 0.0f);
 
         slew.setTargetValue(lastOut);
     }   
