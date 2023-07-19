@@ -1,5 +1,6 @@
 #include "HetrickCV.hpp"
 #include "DSP/Phasors/HCVPhasorAnalyzers.h"
+#include "DSP/HCVTiming.h"
 
 struct PhasorGates : HCVModule
 {
@@ -42,6 +43,7 @@ struct PhasorGates : HCVModule
 
     HCVPhasorSlopeDetector slopeDetectors[16];
     HCVPhasorStepDetector stepDetectors[16];
+    HCVTriggeredGate triggers[16];
 
 	PhasorGates()
 	{
@@ -163,8 +165,8 @@ void PhasorGates::process(const ProcessArgs &args)
 
             outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
 
-            bool trigger = stepDetectors[i](normalizedPhasor);
-            outputs[TRIGS_OUTPUT].setVoltage(trigger && gates[currentIndex] ? HCV_PHZ_GATESCALE : 0.0f, i);
+            bool trigger = stepDetectors[i](normalizedPhasor) && gates[currentIndex];
+            outputs[TRIGS_OUTPUT].setVoltage(triggers[i].process(trigger) ? HCV_PHZ_GATESCALE : 0.0f, i);
         }
         else
         {
@@ -195,15 +197,16 @@ PhasorGatesWidget::PhasorGatesWidget(PhasorGates *module)
     initializeWidget(module);
     
     //////PARAMS//////
-
-    //////INPUTS//////
-    int jackX = 49;
-    createInputPort(jackX, 248, PhasorGates::PHASOR_INPUT);
     int knobY = 60;
     createParamComboVertical(15, knobY, PhasorGates::WIDTH_PARAM, PhasorGates::WIDTHCV_PARAM, PhasorGates::WIDTHCV_INPUT);
     createParamComboVertical(70, knobY, PhasorGates::STEPS_PARAM, PhasorGates::STEPSCV_PARAM, PhasorGates::STEPSCV_INPUT);
     
-    createOutputPort(20, 310, PhasorGates::GATES_OUTPUT);
+    //////INPUTS//////
+    int jackX = 20;
+    createInputPort(jackX, 248, PhasorGates::PHASOR_INPUT);
+
+    //////OUTPUTS/////
+    createOutputPort(jackX, 310, PhasorGates::GATES_OUTPUT);
     createOutputPort(78, 310, PhasorGates::TRIGS_OUTPUT);
 
     for (int i = 0; i < PhasorGates::NUM_STEPS; i++)

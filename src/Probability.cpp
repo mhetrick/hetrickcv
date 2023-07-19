@@ -1,5 +1,6 @@
 #include "HetrickCV.hpp"
 #include "DSP/HCVRandom.h"
+#include "DSP/HCVTiming.h"
 
 struct Probability : HCVModule
 {
@@ -42,7 +43,7 @@ struct Probability : HCVModule
 
     dsp::SchmittTrigger probButtonTrigger, outButtonTrigger;
     dsp::SchmittTrigger clockTrigger[16];
-    HCVTriggerGenerator triggerA[16], triggerB[16];
+    HCVTriggeredGate triggerA[16], triggerB[16];
     bool outALogic[16];
     bool outBLogic[16];
     int probMode = 0;
@@ -167,15 +168,15 @@ void Probability::process(const ProcessArgs &args)
             }
         }
 
-        float aOut = outALogic[i] ? HCV_LEGACYGATE_MAG : 0.0f;
-        float bOut = outBLogic[i] ? HCV_LEGACYGATE_MAG : 0.0f;
+        float aOut = outALogic[i] ? HCV_GATE_MAG : 0.0f;
+        float bOut = outBLogic[i] ? HCV_GATE_MAG : 0.0f;
         bool clockHigh = inputs[GATE_INPUT].getPolyVoltage(i) > 0.9f;
 
         switch(outMode)
         {
             case 0: //trigger mode
-            outputs[OUTA_OUTPUT].setVoltage(triggerA[i].process() ? HCV_LEGACYGATE_MAG : 0.0f, i);
-            outputs[OUTB_OUTPUT].setVoltage(triggerB[i].process() ? HCV_LEGACYGATE_MAG : 0.0f, i);
+            outputs[OUTA_OUTPUT].setVoltage(triggerA[i].process() ? HCV_GATE_MAG : 0.0f, i);
+            outputs[OUTB_OUTPUT].setVoltage(triggerB[i].process() ? HCV_GATE_MAG : 0.0f, i);
             break;
 
             case 1: //hold mode

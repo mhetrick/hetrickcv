@@ -178,14 +178,14 @@ struct GateJunction : HCVModule
 
 void GateJunction::process(const ProcessArgs &args)
 {
-    ins[0] = (inputs[IN1_INPUT].getVoltage() >= 1.0f) ? HCV_LEGACYGATE_MAG : 0.0f;
+    ins[0] = (inputs[IN1_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
 
     for(int i = 1; i < 8; i++)
     {
         const int thisInput = IN1_INPUT + i;
         if(inputs[thisInput].isConnected())
         {
-            ins[i] = (inputs[thisInput].getVoltage() >= 1.0f) ? HCV_LEGACYGATE_MAG : 0.0f;
+            ins[i] = (inputs[thisInput].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
         }
         else
         {
@@ -198,7 +198,7 @@ void GateJunction::process(const ProcessArgs &args)
         if (muteTrigger[i].process(params[MUTE1_PARAM + i].getValue())) muteState[i] ^= true;
         if (invTrigger[i].process(params[INV1_PARAM + i].getValue())) invState[i] ^= true;
 
-        if(invState[i]) ins[i] = HCV_LEGACYGATE_MAG - ins[i];
+        if(invState[i]) ins[i] = HCV_GATE_MAG - ins[i];
         if(muteState[i]) ins[i] = 0.0f;
 
         outputs[OUT1_OUTPUT + i].setVoltage(ins[i]);

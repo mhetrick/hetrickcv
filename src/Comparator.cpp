@@ -1,4 +1,5 @@
 #include "HetrickCV.hpp"
+#include "DSP/HCVTiming.h"
 
 struct Comparator : HCVModule
 {
@@ -47,7 +48,7 @@ struct Comparator : HCVModule
 		configOutput(ZEROX_OUTPUT, "Crossing Trigger");
 	}
 
-	TriggerGenWithSchmitt ltTrig, gtTrig;
+	HCVTriggeredGate ltTrig, gtTrig;
 
 	void process(const ProcessArgs &args) override;
 
@@ -68,13 +69,13 @@ void Comparator::process(const ProcessArgs &args)
 	const bool greaterThan = (input > compare);
 	const bool lessThan = (input < compare);
 
-	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? HCV_LEGACYGATE_MAG : 0.0f);
-	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? HCV_LEGACYGATE_MAG : 0.0f);
-	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_LEGACYGATE_MAG : 0.0f);
-	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_LEGACYGATE_MAG : 0.0f);
+	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? HCV_GATE_MAG : 0.0f);
+	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? HCV_GATE_MAG : 0.0f);
+	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f);
+	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clamp(allTrigs, 0.0f, HCV_LEGACYGATE_MAG);
+	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 
