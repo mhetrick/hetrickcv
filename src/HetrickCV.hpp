@@ -66,6 +66,7 @@ extern Model *modelPhasorGeometry;
 extern Model *modelPhasorRandom;
 extern Model *modelPhasorRanger;
 extern Model *modelPhasorShape;
+extern Model *modelPhasorToLFO;
 extern Model *modelProbability;
 extern Model *modelRandomGates;
 extern Model *modelRotator;

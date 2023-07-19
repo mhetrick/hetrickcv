@@ -331,7 +331,7 @@ public:
     }
     void setPhaseParam(float _phase)
     {
-        phase = clamp(_phase, 0.0001f, 0.9999f);
+        phase = clamp(_phase, -1.0f, 1.0f);
     }
     void setSinusoidParam(float _sinusoid)
     {
@@ -340,9 +340,9 @@ public:
 
     float operator()(float _normalizedPhasor)
     {
-        float trianglePhasor = HCVPhasorEffects::triangleShaper(_normalizedPhasor, phase);
+        trianglePhasor = 1.0f - HCVPhasorEffects::triangleShaper(_normalizedPhasor, phase);
 
-        const float offsetPhasor = (1.0f - trianglePhasor) - width;
+        const float offsetPhasor = trianglePhasor - width;
 
         if(trapezoidShape > 0.999f) return offsetPhasor > 0.0f ? 1.0f : 0.0f;
 
@@ -351,7 +351,19 @@ public:
 
         const float sineShaped = (1.0f - cosf(trapezoidShaped * M_PI)) * 0.5f;
 
+        pulse = _normalizedPhasor < (1.0f - width) ? HCV_PHZ_GATESCALE : 0.0f;
+
         return LERP(sinusoid, sineShaped, trapezoidShaped);
+    }
+
+    float getTriangle()
+    {
+        return trianglePhasor;
+    }
+
+    float getPulse()
+    {
+        return pulse;
     }
 
 protected:
@@ -359,4 +371,7 @@ protected:
     float trapezoidShape = 0.0f;
     float phase = 0.0001f;
     float sinusoid = 0.0f;
+
+    float trianglePhasor = 0.0f;
+    float pulse = 0.0f;
 };

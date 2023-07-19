@@ -45,6 +45,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorRandom);
 	p->addModel(modelPhasorRanger);
 	p->addModel(modelPhasorShape);
+	p->addModel(modelPhasorToLFO);
 	p->addModel(modelProbability);
 	p->addModel(modelRandomGates);
 	p->addModel(modelRotator);

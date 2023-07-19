@@ -359,6 +359,16 @@
       ]
     },
     {
+      "slug": "PhasorToLFO",
+      "name": "Phasor to LFO",
+      "description": "Shapes incoming phasor signals to useful LFO waveshapes. These waveforms are not anti-aliased, hence the LFO designation.",
+      "tags": [
+        "Waveshaper",
+        "Low-frequency Oscillator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Probability",
       "name": "Probability",
       "description": "Sends one gate to two places randomly.",

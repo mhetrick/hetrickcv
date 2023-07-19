@@ -83,27 +83,25 @@ struct PhasorEuclidean : HCVModule
 
 void PhasorEuclidean::process(const ProcessArgs &args)
 {
-    int numChannels = getMaxInputPolyphony();
-    outputs[PHASOR_OUTPUT].setChannels(numChannels);
-    outputs[GATE_OUTPUT].setChannels(numChannels);
+    int numChannels = setupPolyphonyForAllOutputs();
 
     float beatKnob = params[BEATS_PARAM].getValue();
     float fillKnob = params[FILL_PARAM].getValue();
     float rotateKnob = params[ROTATE_PARAM].getValue();
     float pwKnob = params[PW_PARAM].getValue();
 
-    float beatCVDepth = params[BEATS_SCALE_PARAM].getValue();
-    float fillCVDepth = params[FILL_SCALE_PARAM].getValue();
+    float beatCVDepth = params[BEATS_SCALE_PARAM].getValue() * BEATS_CV_SCALE;
+    float fillCVDepth = params[FILL_SCALE_PARAM].getValue() * BEATS_CV_SCALE;
     float rotateCVDepth = params[ROTATE_SCALE_PARAM].getValue();
     float pwCVDepth = params[PW_SCALE_PARAM].getValue();
 
     for (int i = 0; i < numChannels; i++)
     {
-        float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i) * BEATS_CV_SCALE);
+        float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i));
         beats = clamp(beats, 1.0f, MAX_BEATS);
         euclidean[i].setBeats(beats);
 
-        float fill = fillKnob + (fillCVDepth * inputs[FILL_INPUT].getPolyVoltage(i) * BEATS_CV_SCALE);
+        float fill = fillKnob + (fillCVDepth * inputs[FILL_INPUT].getPolyVoltage(i));
         fill = clamp(fill, 0.0f, MAX_BEATS);
         euclidean[i].setFill(fill);
 
@@ -157,7 +155,7 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     createOutputPort(100.0f, jackY, PhasorEuclidean::GATE_OUTPUT);
     createOutputPort(140.0f, jackY, PhasorEuclidean::CLOCK_OUTPUT);
 
-    createHCVRedLight(130.0, 223.0, PhasorEuclidean::GATE_LIGHT);
+    createHCVRedLight(130.0, 300.0, PhasorEuclidean::GATE_LIGHT);
     
 }
 
