@@ -26,10 +26,10 @@ struct PhasorShape : HCVModule
 
     enum LightIds
     {
-        NUM_LIGHTS = 8
+        NUM_LIGHTS = 10
 	};
 
-    static constexpr float MODE_CV_SCALE = 7.0f/5.0f;
+    static constexpr float MODE_CV_SCALE = 9.0f/5.0f;
 
 	PhasorShape()
 	{
@@ -38,8 +38,8 @@ struct PhasorShape : HCVModule
         configParam(SHAPE_PARAM, -5.0, 5.0, 0.0, "Phasor Shape");
         configParam(SHAPECV_PARAM, -1.0, 1.0, 1.0, "Phasor Shape CV Depth");
 
-        configSwitch(MODE_PARAM, 0.0, 7.0, 0.0, "Shape Mode", 
-        {"Curve", "S-Curve", "Kink", "Split", "Shift", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
+        configSwitch(MODE_PARAM, 0.0, 9.0, 0.0, "Shape Mode", 
+        {"Curve", "S-Curve", "Kink", "Split", "Shift", "Triangle", "Arc", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
         configParam(MODECV_PARAM, -1.0, 1.0, 1.0, "Shape Mode CV Depth");
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 
@@ -83,8 +83,8 @@ void PhasorShape::process(const ProcessArgs &args)
         float shape = shapeKnob + (shapeDepth * inputs[SHAPECV_INPUT].getPolyVoltage(i));
         shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
 
-        float modeMode = modeKnob + (modeDepth * inputs[MODECV_INPUT].getPolyVoltage(i));
-        int mode = (int)clamp(modeKnob, 0.0f, 7.0f);
+        float modeMod = modeKnob + (modeDepth * inputs[MODECV_INPUT].getPolyVoltage(i));
+        int mode = (int)clamp(modeMod, 0.0f, 9.0f);
 
         const float phasorInput = inputs[PHASOR_INPUT].getPolyVoltage(i);
         const float scaledPhasor = scaleAndWrapPhasor(phasorInput);
@@ -94,7 +94,8 @@ void PhasorShape::process(const ProcessArgs &args)
         outputs[PHASOR_OUTPUT].setVoltage(shapedOutput * HCV_PHZ_UPSCALE, i);
     }
 
-    int lightMode = (int)modeKnob;
+    float modeMod = modeKnob + (modeDepth * inputs[MODECV_INPUT].getVoltage());
+    int lightMode = (int)clamp(modeMod, 0.0f, 9.0f);
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
         lights[i].setBrightness(lightMode == i ? 5.0f : 0.0f);
@@ -111,9 +112,11 @@ float PhasorShape::phasorShape(float _phasor, float _parameter, int _mode)
     case 2: return HCVPhasorEffects::phasorKink(_phasor, _parameter); //kink
     case 3: return HCVPhasorEffects::phasorSplit(_phasor, _parameter); //split
     case 4: return HCVPhasorEffects::phasorShift(_phasor, _parameter); //phase shift
-    case 5: return HCVPhasorEffects::speedClip(_phasor, _parameter); //speed clip
-    case 6: return HCVPhasorEffects::speedWrap(_phasor, _parameter); //speed wrap
-    case 7: return HCVPhasorEffects::speedFold(_phasor, _parameter); //speed fold
+    case 5: return HCVPhasorEffects::triangleShaper(_phasor, _parameter); //triangle
+    case 6: return HCVPhasorEffects::arcShaper(_phasor, _parameter); //arc
+    case 7: return HCVPhasorEffects::speedClip(_phasor, _parameter); //speed clip
+    case 8: return HCVPhasorEffects::speedWrap(_phasor, _parameter); //speed wrap
+    case 9: return HCVPhasorEffects::speedFold(_phasor, _parameter); //speed fold
     
     default: return _phasor;
     }
@@ -137,11 +140,12 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
     
     createOutputPort(70, jackY, PhasorShape::PHASOR_OUTPUT);
 
-    for (int i = 0; i < 4; i++)
+    int halfLights = PhasorShape::NUM_LIGHTS/2;
+    for (int i = 0; i < halfLights; i++)
     {
         float lightY = 236 + i*10.0f;
         createHCVRedLight(52, lightY, i);
-        createHCVRedLight(63, lightY, i + 4);
+        createHCVRedLight(63, lightY, i + halfLights);
     }
     
     

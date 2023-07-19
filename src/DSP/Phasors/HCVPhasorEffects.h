@@ -186,6 +186,26 @@ public:
         return clamp(_phasorIn / mult, 0.0f, 1.0f); //no need to fold
     }
 
+    static float triangleShaper(float _phasorIn, float _parameterIn)
+    {
+        const float skew = clamp((_parameterIn + 1.0f) * 0.5f, 0.0001f, 0.9999f);
+        const float s = 1.0f/skew;
+        const float t = 1.0f/(1.0f - skew);
+
+        const float trianglePhasor = std::min(s*_phasorIn, t * (1.0f - _phasorIn));
+        return trianglePhasor;
+    }
+
+    static float arcShaper(float _phasorIn, float _parameterIn)
+    {
+        if(_parameterIn > 0.9999f) return 1.0f;
+        const float skew = clamp((_parameterIn + 1.0f) * 0.5f, 0.0f, 0.9999f);
+
+        const float curve = (2.0f/3.0f) * (2.0f * skew - skew*skew)/(1.0f - skew);
+
+        return (_phasorIn * curve) / (1.0f + _phasorIn * (curve - 1.0f));
+    }
+
 private:
 
     static float myErfInv2(float x) 
@@ -291,4 +311,52 @@ public:
 
 protected:
 
+};
+
+
+//Designed by Graham Wakefield and Gregory Taylor
+//Generating Sound and Organizing Time
+//in Chapter 3: Unit Shaping
+
+class HCVPhasorLFO
+{
+public:
+    void setWidthParam(float _width)
+    {
+        width = 1.0f - clamp(_width, 0.0f, 1.0f);
+    }
+    void setTrapezoidParam(float _trapezoidShape)
+    {
+        trapezoidShape = clamp(_trapezoidShape, 0.0f, 1.0f);
+    }
+    void setPhaseParam(float _phase)
+    {
+        phase = clamp(_phase, 0.0001f, 0.9999f);
+    }
+    void setSinusoidParam(float _sinusoid)
+    {
+        sinusoid = clamp(_sinusoid, 0.0f, 1.0f);
+    }
+
+    float operator()(float _normalizedPhasor)
+    {
+        float trianglePhasor = HCVPhasorEffects::triangleShaper(_normalizedPhasor, phase);
+
+        const float offsetPhasor = (1.0f - trianglePhasor) - width;
+
+        if(trapezoidShape > 0.999f) return offsetPhasor > 0.0f ? 1.0f : 0.0f;
+
+        const float steepness = 1.0f / (1.0f - trapezoidShape);
+        const float trapezoidShaped = clamp(offsetPhasor * steepness + width, 0.0f, 1.0f);
+
+        const float sineShaped = (1.0f - cosf(trapezoidShaped * M_PI)) * 0.5f;
+
+        return LERP(sinusoid, sineShaped, trapezoidShaped);
+    }
+
+protected:
+    float width = 0.0f;
+    float trapezoidShape = 0.0f;
+    float phase = 0.0001f;
+    float sinusoid = 0.0f;
 };

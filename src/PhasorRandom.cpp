@@ -82,7 +82,7 @@ void PhasorRandom::process(const ProcessArgs &args)
     int numChannels = setupPolyphonyForAllOutputs();
 
     float stepsKnob = params[STEPS_PARAM].getValue();
-    float stepsCVDepth = params[STEPS_SCALE_PARAM].getValue();
+    float stepsCVDepth = params[STEPS_SCALE_PARAM].getValue() * STEPS_CV_SCALE;
 
     float chanceKnob = params[CHANCE_PARAM].getValue();
     float chanceCVDepth = params[CHANCE_SCALE_PARAM].getValue();
@@ -97,7 +97,7 @@ void PhasorRandom::process(const ProcessArgs &args)
         float probability = chanceKnob + (chanceCVDepth * inputs[CHANCE_INPUT].getPolyVoltage(i));
         probability = clamp(probability, 0.0f, 5.0f) * 0.2f;
 
-        float steps = stepsKnob + (stepsCVDepth * inputs[STEPS_INPUT].getPolyVoltage(i) * STEPS_CV_SCALE);
+        float steps = stepsKnob + (stepsCVDepth * inputs[STEPS_INPUT].getPolyVoltage(i));
         steps = floorf(clamp(steps, 1.0f, MAX_STEPS));
 
         float mode = modeKnob + (modeCVDepth * inputs[MODE_INPUT].getPolyVoltage(i));
