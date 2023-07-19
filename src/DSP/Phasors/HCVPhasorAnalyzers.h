@@ -45,6 +45,9 @@ public:
         return 0.0f;
     }
 
+    float getSlope() {return slope;}
+    bool isPhasorAdvancing() { return slope != 0.0f;}
+
 private:
     float lastSample = 0.0f;
     float slope = 0.0f;

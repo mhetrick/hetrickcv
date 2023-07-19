@@ -4,6 +4,7 @@
 struct PhasorGates : HCVModule
 {
     static constexpr int NUM_STEPS = 8;
+    static constexpr float STEPS_CV_SCALE = (NUM_STEPS - 1)/5.0f;
 
 	enum ParamIds
 	{
@@ -37,7 +38,8 @@ struct PhasorGates : HCVModule
 
     bool gates[NUM_STEPS] = {};
     dsp::BooleanTrigger gateTriggers[NUM_STEPS];
-    HCVPhasorSlopeDetector slopeDetector;
+
+    HCVPhasorSlopeDetector slopeDetectors[16];
 
 	PhasorGates()
 	{
@@ -120,25 +122,45 @@ struct PhasorGates : HCVModule
 
 void PhasorGates::process(const ProcessArgs &args)
 {
-    const float numSteps = params[STEPS_PARAM].getValue();
+    const float stepsKnob = params[STEPS_PARAM].getValue();
+    const float stepsDepth = params[STEPSCV_PARAM].getValue() * STEPS_CV_SCALE;
 
     const float widthKnob = params[WIDTH_PARAM].getValue();
     const float widthDepth = params[WIDTHCV_PARAM].getValue();
 
-    const float phasorIn = inputs[PHASOR_INPUT].getVoltage();
-    float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
-    
-    float scaledPhasor = normalizedPhasor * numSteps;
-    int currentIndex = floorf(scaledPhasor);
-    float fractionalIndex = scaledPhasor - floorf(scaledPhasor);
+    int numChannels = setupPolyphonyForAllOutputs();
+    int lightIndex = 0;
 
-    bool reversePhasor = slopeDetector(normalizedPhasor) < 0.0f;
+    for (int i = 0; i < numChannels; i++)
+    {
+        float numSteps = stepsKnob + (stepsDepth * inputs[STEPSCV_INPUT].getPolyVoltage(i));
+        numSteps = clamp(numSteps, 1.0f, float(NUM_STEPS));
 
-    float gate;
-    if (reversePhasor) gate = fractionalIndex > 0.5f ? 5.0f : 0.0f;
-    else gate = fractionalIndex < 0.5f ? 5.0f : 0.0f;
+        float pulseWidth = widthKnob + (widthDepth * inputs[WIDTHCV_INPUT].getPolyVoltage(i));
+        pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
 
-    outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f);
+        const float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
+        float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
+
+        float scaledPhasor = normalizedPhasor * numSteps;
+        int currentIndex = floorf(scaledPhasor);
+        float fractionalIndex = scaledPhasor - floorf(scaledPhasor);
+
+        bool reversePhasor = slopeDetectors[i](normalizedPhasor) < 0.0f;
+        bool isZero = scaledPhasor == 0.0f;
+
+        if(slopeDetectors[i].isPhasorAdvancing() || !isZero)
+        {
+            float gate;
+            if (reversePhasor) gate = (1.0f - fractionalIndex) < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
+            else gate = fractionalIndex < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
+
+            outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
+        }
+        else outputs[GATES_OUTPUT].setVoltage(0.0f, i);
+
+        if(i == 0) lightIndex = currentIndex;
+    }
 
     // Gate buttons
     for (int i = 0; i < 8; i++) 
@@ -146,9 +168,9 @@ void PhasorGates::process(const ProcessArgs &args)
         if (gateTriggers[i].process(params[GATE_PARAMS + i].getValue())) {
             gates[i] ^= true;
         }
-        lights[GATE_LIGHTS + 3 * i + 0].setBrightness(i >= numSteps); //red
+        lights[GATE_LIGHTS + 3 * i + 0].setBrightness(i >= stepsKnob); //red
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
-        lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(currentIndex == i, args.sampleTime); //blue
+        lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(lightIndex == i, args.sampleTime); //blue
     }
 }
 
