@@ -76,12 +76,9 @@ void BinaryNoise::process(const ProcessArgs &args)
     {
         float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM);
         bool on = random::uniform() < prob;
+        float offset = (1.0f - params[POLARITY_PARAM].getValue()) * -5.0f;
 
-        //bad hack to preserve previous voltage range behavior
-        if(params[POLARITY_PARAM].getValue() == 0.0f) //bipolar
-            lastOut = (on ? 5.0f : -5.0f);
-        else
-            lastOut = (on ? HCV_GATE_MAG : 0.0f);
+        lastOut = (on ? HCV_GATE_MAG + offset : offset);
 
         slew.setTargetValue(lastOut);
     }   
