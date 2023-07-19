@@ -11,6 +11,8 @@ struct PhasorToLFO : HCVModule
         SHAPE_PARAM, SHAPE_SCALE_PARAM,
         CURVE_PARAM, CURVE_SCALE_PARAM,
 
+        BIPOLAR_PARAM,
+
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -55,6 +57,8 @@ struct PhasorToLFO : HCVModule
         configParam(CURVE_PARAM, -5.0f, 5.0f, 0.0, "Curve");
 		configParam(CURVE_SCALE_PARAM, -1.0, 1.0, 1.0, "Curve CV Depth");
 
+        configSwitch(BIPOLAR_PARAM, 0.0f, 1.0f, 0.0f, "Polarity", {"Unipolar", "Bipolar"});
+
         configInput(PHASOR_INPUT, "Phasor");
 
         configInput(SKEW_INPUT, "Skew CV");
@@ -90,6 +94,7 @@ void PhasorToLFO::process(const ProcessArgs &args)
     float widthCVDepth = params[WIDTH_SCALE_PARAM].getValue();
     float shapeCVDepth = params[SHAPE_SCALE_PARAM].getValue();
     float curveCVDepth = params[CURVE_SCALE_PARAM].getValue();
+    float offset = -5.0f * params[BIPOLAR_PARAM].getValue();
 
     for (int i = 0; i < numChannels; i++)
     {
@@ -112,9 +117,9 @@ void PhasorToLFO::process(const ProcessArgs &args)
         const float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getVoltage(i));
         const float mainLFO = lfos[i](normalizedPhasor);
 
-        outputs[MAIN_OUTPUT].setVoltage(mainLFO * HCV_PHZ_UPSCALE, i);
-        outputs[TRI_OUTPUT].setVoltage(lfos[i].getTriangle() * HCV_PHZ_UPSCALE, i);
-        outputs[PULSE_OUTPUT].setVoltage(lfos[i].getPulse(), i);
+        outputs[MAIN_OUTPUT].setVoltage(mainLFO * HCV_PHZ_UPSCALE + offset, i);
+        outputs[TRI_OUTPUT].setVoltage(lfos[i].getTriangle() * HCV_PHZ_UPSCALE + offset, i);
+        outputs[PULSE_OUTPUT].setVoltage(lfos[i].getPulse() + offset, i);
     }
 
     lights[LFO_LIGHT].setBrightness(outputs[MAIN_OUTPUT].getVoltage());

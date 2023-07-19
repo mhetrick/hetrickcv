@@ -4,6 +4,7 @@
 #include "engine/Engine.hpp"
 #include "dsp/digital.hpp"
 #include "Gamma/Domain.h"
+#include "HCVFunctions.h"
 
 class HCVClockSync
 {
@@ -101,11 +102,6 @@ public:
         bool triggered = schmitt.process(firstTrigger && delayTrig);
         zeroTrigger = false;
         return delayedGate.process(triggered);
-    }
-
-    float processFloat()
-    {
-        return process() ? 5.0f : 0.0f;
     }
 
     void trigger()

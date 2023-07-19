@@ -68,13 +68,13 @@ void Comparator::process(const ProcessArgs &args)
 	const bool greaterThan = (input > compare);
 	const bool lessThan = (input < compare);
 
-	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? 5.0f : 0.0f);
-	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? 5.0f : 0.0f);
-	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? 5.0f : 0.0f);
-	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? 5.0f : 0.0f);
+	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? HCV_GATE_MAG : 0.0f);
+	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? HCV_GATE_MAG : 0.0f);
+	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f);
+	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f);
 
 	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
-	allTrigs = clamp(allTrigs, 0.0f, 5.0f);
+	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 

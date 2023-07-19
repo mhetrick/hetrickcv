@@ -51,7 +51,7 @@ struct HCVModule : Module
 
     inline float boolToGate(bool _input)
     {
-        return _input ? 5.0f : 0.0f;
+        return _input ? HCV_GATE_MAG : 0.0f;
     }
 
     inline float getModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
@@ -107,6 +107,8 @@ struct HCVModule : Module
         return numChannels;
     }
 
+    //TODO: Add context menu to change between legacy +5V behavior and VCV-standard +10V behavior.
+    float HCV_GATE_MAG = 5.0f;
 };
 
 struct HCVModuleWidget : ModuleWidget
@@ -234,11 +236,6 @@ struct HCVTriggerGenerator
         }
         return false;
 	}
-
-    float processFloat()
-    {
-        return process() ? 5.0f : 0.0f;
-    }
 
     void trigger() 
     {

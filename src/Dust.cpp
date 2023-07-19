@@ -68,7 +68,7 @@ void Dust::process(const ProcessArgs &args)
 		else
 		{
 			const float scale = (threshold > 0.0f) ? 1.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].setVoltage(clamp(noiseValue * scale * 5.0f, 0.0f, 5.0f));
+			outputs[DUST_OUTPUT].setVoltage(clamp(noiseValue * scale * HCV_GATE_MAG, 0.0f, HCV_GATE_MAG));
 		}
 	}
 	else

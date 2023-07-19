@@ -72,7 +72,7 @@ void BinaryGate::process(const ProcessArgs &args)
         gateState = !gateState;
     }
 
-    outputs[GATE_OUTPUT].setVoltage(gateState ? 5.0 : 0.0);
+    outputs[GATE_OUTPUT].setVoltage(gateState ? HCV_GATE_MAG : 0.0);
 
     lights[GATE_LIGHT].setBrightness(gateState ? 1.0 : 0.0);
 }

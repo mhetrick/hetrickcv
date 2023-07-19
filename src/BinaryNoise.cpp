@@ -52,7 +52,6 @@ struct BinaryNoise : HCVModule
 	void process(const ProcessArgs &args) override;
 
     float lastOut = 0.0f;
-    bool bipolar = true;
     rack::dsp::SchmittTrigger clockTrigger;
 
     HCVSampleRate sRate;
@@ -67,30 +66,33 @@ struct BinaryNoise : HCVModule
 
 void BinaryNoise::process(const ProcessArgs &args)
 {
-   double sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM);
-   sRate.setSampleRateFactor(sr);
+    double sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM);
+    sRate.setSampleRateFactor(sr);
 
-   bool isReady = sRate.readyForNextSample();
-   if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
+    bool isReady = sRate.readyForNextSample();
+    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
 
-   if(isReady)
-   {
-       bipolar = params[POLARITY_PARAM].getValue() == 0.0f;
+    if(isReady)
+    {
+        float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM);
+        bool on = random::uniform() < prob;
 
-       float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM);
-       bool on = random::uniform() < prob;
-       lastOut = on ? 5.0f : (bipolar ? -5.0f : 0.0f);
+        //bad hack to preserve previous voltage range behavior
+        if(params[POLARITY_PARAM].getValue() == 0.0f) //bipolar
+            lastOut = (on ? 5.0f : -5.0f);
+        else
+            lastOut = (on ? HCV_GATE_MAG : 0.0f);
 
-       slew.setTargetValue(lastOut);
-   }
+        slew.setTargetValue(lastOut);
+    }   
 
-   if(params[SLEW_PARAM].getValue() == 1.0f)
-   {
-       slew.setSRFactor(sRate.getSampleRateFactor());
-       lastOut = slew();
-   }
+    if(params[SLEW_PARAM].getValue() == 1.0f)
+    {
+        slew.setSRFactor(sRate.getSampleRateFactor());
+        lastOut = slew();
+    }
 
-   outputs[MAIN_OUTPUT].setVoltage(lastOut);
+    outputs[MAIN_OUTPUT].setVoltage(lastOut);
 }
 
 
