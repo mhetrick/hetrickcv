@@ -51,7 +51,7 @@ struct HCVModule : Module
 
     inline float boolToGate(bool _input)
     {
-        return _input ? HCV_GATE_MAG : 0.0f;
+        return _input ? HCV_LEGACYGATE_MAG : 0.0f;
     }
 
     inline float getModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
@@ -90,7 +90,7 @@ struct HCVModule : Module
     int getMaxInputPolyphony()
     {
         int channels = 1;
-        for (auto input : inputs)
+        for (auto& input : inputs)
         {
             channels = std::max(channels, input.getChannels());
         }
@@ -100,7 +100,7 @@ struct HCVModule : Module
     int setupPolyphonyForAllOutputs()
     {
         int numChannels = getMaxInputPolyphony();
-        for(auto output : outputs)
+        for(auto& output : outputs)
         {
             output.setChannels(numChannels);
         }
@@ -108,7 +108,8 @@ struct HCVModule : Module
     }
 
     //TODO: Add context menu to change between legacy +5V behavior and VCV-standard +10V behavior.
-    float HCV_GATE_MAG = 5.0f;
+    float HCV_LEGACYGATE_MAG = 5.0f;
+    float HCV_GATE_MAG = 10.0f;
 };
 
 struct HCVModuleWidget : ModuleWidget
