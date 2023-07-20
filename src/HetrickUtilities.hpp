@@ -228,56 +228,6 @@ struct HCVModuleWidget : ModuleWidget
 
 };
 
-/*
-struct HCVTriggerGenerator
-{
-    bool triggered = false;
-
-    bool process() 
-    {
-		if (triggered)
-        {
-            triggered = false;
-            return true;
-        }
-        return false;
-	}
-
-    void trigger() 
-    {
-		triggered = true;
-	}
-
-    void reset()
-    {
-        triggered = false;
-    }
-};
-
-struct TriggerGenWithSchmitt
-{
-	HCVTriggerGenerator trigGen;
-	rack::dsp::SchmittTrigger schmitt;
-
-	bool process(bool _trigger)
-	{
-		if(schmitt.process(_trigger ? 2.0f : 0.0f)) trigGen.trigger();
-		return trigGen.process();
-	}
-
-    bool process(float _comparator)
-    {
-        if(schmitt.process(_comparator)) trigGen.trigger();
-		return trigGen.process();
-    }
-
-    void reset()
-    {
-        trigGen.reset();
-        schmitt.reset();
-    }
-};
-*/
 
 struct HysteresisGate
 {
