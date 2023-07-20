@@ -107,6 +107,12 @@ struct HCVModule : Module
         return numChannels;
     }
 
+    void setBipolarLightBrightness(int _initialLightIndex, float _normalizedValue)
+    {
+        lights[_initialLightIndex].setBrightness(fmaxf(0.0f, _normalizedValue));
+        lights[_initialLightIndex + 1].setBrightness(fmaxf(0.0f, _normalizedValue * -1.0f));
+    }
+
     //TODO: Add context menu to change between legacy +5V behavior and VCV-standard +10V behavior.
     float HCV_LEGACYGATE_MAG = 5.0f;
     float HCV_GATE_MAG = 10.0f;

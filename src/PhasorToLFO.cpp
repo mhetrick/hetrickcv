@@ -35,9 +35,9 @@ struct PhasorToLFO : HCVModule
 	};
     enum LightIds
     {
-        LFO_LIGHT,
-        TRI_LIGHT,
-        PULSE_LIGHT,
+        LFO_POS_LIGHT, LFO_NEG_LIGHT,
+        TRI_POS_LIGHT, TRI_NEG_LIGHT,
+        PULSE_POS_LIGHT, PULSE_NEG_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -122,9 +122,9 @@ void PhasorToLFO::process(const ProcessArgs &args)
         outputs[PULSE_OUTPUT].setVoltage(lfos[i].getPulse() + offset, i);
     }
 
-    lights[LFO_LIGHT].setBrightness(outputs[MAIN_OUTPUT].getVoltage());
-    lights[TRI_LIGHT].setBrightness(outputs[TRI_OUTPUT].getVoltage());
-    lights[PULSE_LIGHT].setBrightness(outputs[PULSE_OUTPUT].getVoltage());
+    setBipolarLightBrightness(LFO_POS_LIGHT, outputs[MAIN_OUTPUT].getVoltage() * 0.2f);
+    setBipolarLightBrightness(TRI_POS_LIGHT, outputs[TRI_OUTPUT].getVoltage() * 0.2f);
+    setBipolarLightBrightness(PULSE_POS_LIGHT, outputs[PULSE_OUTPUT].getVoltage() * 0.2f);
 }
 
 
@@ -154,10 +154,12 @@ PhasorToLFOWidget::PhasorToLFOWidget(PhasorToLFO *module)
     createOutputPort(100.0f, jackY, PhasorToLFO::TRI_OUTPUT);
     createOutputPort(140.0f, jackY, PhasorToLFO::PULSE_OUTPUT);
 
+    createHCVSwitchHoriz(80.0f, 263.0f, PhasorToLFO::BIPOLAR_PARAM);
+
     const float lightY = 300.0f;
-    createHCVRedLight(85.0, lightY, PhasorToLFO::LFO_LIGHT);
-    createHCVRedLight(125.0, lightY, PhasorToLFO::TRI_LIGHT);
-    createHCVRedLight(165.0, lightY, PhasorToLFO::PULSE_LIGHT);
+    createHCVBipolarLight(85.0, lightY, PhasorToLFO::LFO_POS_LIGHT);
+    createHCVBipolarLight(125.0, lightY, PhasorToLFO::TRI_POS_LIGHT);
+    createHCVBipolarLight(165.0, lightY, PhasorToLFO::PULSE_POS_LIGHT);
     
 }
 
