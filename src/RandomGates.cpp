@@ -1,4 +1,5 @@
 #include "HetrickCV.hpp"
+#include "DSP/HCVTiming.h"
 
 struct RandomGates : HCVModule
 {
@@ -83,7 +84,7 @@ struct RandomGates : HCVModule
     dsp::SchmittTrigger clockTrigger;
     dsp::SchmittTrigger modeTrigger;
 
-    HCVTriggerGenerator trigger[8];
+    HCVTriggeredGate trigger[8];
     dsp::SchmittTrigger trigOut[8];
 
     bool active[8] = {};
@@ -164,21 +165,21 @@ void RandomGates::process(const ProcessArgs &args)
                 trigger[i].trigger();
                 active[i] = false;
             }
-            outputs[i].setVoltage((trigger[i].process() ? HCV_LEGACYGATE_MAG : 0.0f));
+            outputs[i].setVoltage((trigger[i].process() ? HCV_GATE_MAG : 0.0f));
         }
         break;
 
         case 1: //hold mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].setVoltage((active[i] ? HCV_LEGACYGATE_MAG : 0.0f));
+            outputs[i].setVoltage((active[i] ? HCV_GATE_MAG : 0.0f));
         }
         break;
 
         case 2: //gate mode
         for(int i = 0; i < 8; i++)
         {
-            outputs[i].setVoltage(((active[i] && clockHigh) ? HCV_LEGACYGATE_MAG : 0.0f));
+            outputs[i].setVoltage(((active[i] && clockHigh) ? HCV_GATE_MAG : 0.0f));
         }
         break;
 

@@ -138,7 +138,7 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
     createParamComboVertical(15, knobY, PhasorShape::SHAPE_PARAM, PhasorShape::SHAPECV_PARAM, PhasorShape::SHAPECV_INPUT);
     createParamComboVertical(70, knobY, PhasorShape::MODE_PARAM, PhasorShape::MODECV_PARAM, PhasorShape::MODECV_INPUT);
     
-    createOutputPort(70, jackY, PhasorShape::PHASOR_OUTPUT);
+    createOutputPort(79, jackY, PhasorShape::PHASOR_OUTPUT);
 
     int halfLights = PhasorShape::NUM_LIGHTS/2;
     for (int i = 0; i < halfLights; i++)

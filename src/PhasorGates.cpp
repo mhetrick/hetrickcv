@@ -1,5 +1,6 @@
 #include "HetrickCV.hpp"
 #include "DSP/Phasors/HCVPhasorAnalyzers.h"
+#include "DSP/HCVTiming.h"
 
 struct PhasorGates : HCVModule
 {
@@ -27,6 +28,7 @@ struct PhasorGates : HCVModule
 	enum OutputIds
 	{
         GATES_OUTPUT,
+        TRIGS_OUTPUT,
 		NUM_OUTPUTS
     };
 
@@ -40,6 +42,8 @@ struct PhasorGates : HCVModule
     dsp::BooleanTrigger gateTriggers[NUM_STEPS];
 
     HCVPhasorSlopeDetector slopeDetectors[16];
+    HCVPhasorStepDetector stepDetectors[16];
+    HCVTriggeredGate triggers[16];
 
 	PhasorGates()
 	{
@@ -58,6 +62,7 @@ struct PhasorGates : HCVModule
         configInput(PHASOR_INPUT, "Phasor CV");
 
         configOutput(GATES_OUTPUT, "Gate Sequence");
+        configOutput(TRIGS_OUTPUT, "Trigger Sequence");
 
         for (int i = 0; i < NUM_STEPS; i++) 
         {
@@ -142,6 +147,9 @@ void PhasorGates::process(const ProcessArgs &args)
         const float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
         float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
+        stepDetectors[i].setNumberSteps(numSteps);
+
+        //do this outside of stepDetectors so that triggers wait for phasor
         float scaledPhasor = normalizedPhasor * numSteps;
         int currentIndex = floorf(scaledPhasor);
         float fractionalIndex = scaledPhasor - floorf(scaledPhasor);
@@ -156,8 +164,15 @@ void PhasorGates::process(const ProcessArgs &args)
             else gate = fractionalIndex < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
 
             outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
+
+            bool trigger = stepDetectors[i](normalizedPhasor) && gates[currentIndex];
+            outputs[TRIGS_OUTPUT].setVoltage(triggers[i].process(trigger) ? HCV_PHZ_GATESCALE : 0.0f, i);
         }
-        else outputs[GATES_OUTPUT].setVoltage(0.0f, i);
+        else
+        {
+            outputs[GATES_OUTPUT].setVoltage(0.0f, i);
+            outputs[TRIGS_OUTPUT].setVoltage(0.0f, i);
+        }
 
         if(i == 0) lightIndex = currentIndex;
     }
@@ -182,15 +197,17 @@ PhasorGatesWidget::PhasorGatesWidget(PhasorGates *module)
     initializeWidget(module);
     
     //////PARAMS//////
-
-    //////INPUTS//////
-    int jackX = 49;
-    createInputPort(jackX, 248, PhasorGates::PHASOR_INPUT);
     int knobY = 60;
     createParamComboVertical(15, knobY, PhasorGates::WIDTH_PARAM, PhasorGates::WIDTHCV_PARAM, PhasorGates::WIDTHCV_INPUT);
     createParamComboVertical(70, knobY, PhasorGates::STEPS_PARAM, PhasorGates::STEPSCV_PARAM, PhasorGates::STEPSCV_INPUT);
     
+    //////INPUTS//////
+    int jackX = 20;
+    createInputPort(jackX, 248, PhasorGates::PHASOR_INPUT);
+
+    //////OUTPUTS/////
     createOutputPort(jackX, 310, PhasorGates::GATES_OUTPUT);
+    createOutputPort(78, 310, PhasorGates::TRIGS_OUTPUT);
 
     for (int i = 0; i < PhasorGates::NUM_STEPS; i++)
     {
