@@ -51,7 +51,7 @@ public:
 	}
     bool process(bool _trigger)
     {
-        if(_trigger) trigger();
+        if(schmittBoolean.process(_trigger)) trigger();
         return gate.process(APP->engine->getSampleTime());
     }
     bool process(float _comparator)
@@ -83,6 +83,7 @@ private:
     float gateLengthInSeconds = 0.001f;
     rack::dsp::PulseGenerator gate;
     rack::dsp::SchmittTrigger schmitt;
+    rack::dsp::BooleanTrigger schmittBoolean;
 };
 
 class HCVTriggerDelay

@@ -46,6 +46,7 @@ public:
     }
 
     float getSlope() {return slope;}
+
     bool isPhasorAdvancing() { return slope != 0.0f;}
 
 private:
@@ -85,14 +86,20 @@ class HCVPhasorStepDetector
 public:
 
     bool operator()(float _normalizedPhasorIn);
+    bool detectStepTransitionSmart(float _normalizedPhasorIn);
 
     int getCurrentStep(){return currentStep;}
     void setNumberSteps(int _numSteps){numberSteps = std::max(1, _numSteps);}
     float getFractionalStep(){return fractionalStep;}
+    bool getStepChangedThisSample() {return stepChanged;}
+    bool getIsPlaying() {return isPlaying;}
 
-private:
+protected:
     int currentStep = 0;
     int numberSteps = 1;
+    bool stepChanged = false;
+    bool isPlaying = false;
     float fractionalStep = 0.0f;
     HCVPhasorResetDetector resetDetector;
+    HCVPhasorSlopeDetector slopeDetector;
 };

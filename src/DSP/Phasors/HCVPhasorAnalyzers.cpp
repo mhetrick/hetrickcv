@@ -22,14 +22,43 @@ bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)
     if(numberSteps == 1)
     {
         currentStep = 0;
-        return resetDetector.detectSimpleReset(_normalizedPhasorIn);
+        stepChanged = resetDetector.detectSimpleReset(_normalizedPhasorIn);
+        return stepChanged;
     }
 
     if(incomingStep != currentStep)
     {
         currentStep = incomingStep;
-        return true;
+        stepChanged = true;
+        return stepChanged;
     }
 
-    return false;
+    stepChanged = false;
+    return stepChanged;
+}
+
+//TODO
+bool HCVPhasorStepDetector::detectStepTransitionSmart(float _normalizedPhasorIn)
+{
+    float scaledPhasor = _normalizedPhasorIn * numberSteps;
+
+    int incomingStep = floorf(scaledPhasor);
+    fractionalStep = scaledPhasor - incomingStep;
+
+    if(numberSteps == 1)
+    {
+        currentStep = 0;
+        stepChanged = resetDetector.detectSimpleReset(_normalizedPhasorIn);
+        return stepChanged;
+    }
+
+    if(incomingStep != currentStep)
+    {
+        currentStep = incomingStep;
+        stepChanged = true;
+        return stepChanged;
+    }
+
+    stepChanged = false;
+    return stepChanged;
 }
