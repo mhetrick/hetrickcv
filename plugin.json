@@ -299,7 +299,27 @@
     {
       "slug": "PhasorGates",
       "name": "Phasor to Gates",
-      "description": "A gate sequencer driven by a phasor.",
+      "description": "An 8-step gate sequencer driven by a phasor.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "PhasorGates32",
+      "name": "Phasor to Gates 32",
+      "description": "A 32-step gate sequencer driven by a phasor.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "PhasorGates64",
+      "name": "Phasor to Gates 64",
+      "description": "A 64-step gate sequencer driven by a phasor.",
       "tags": [
         "Clock Modulator",
         "Sequencer",

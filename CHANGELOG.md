@@ -3,12 +3,15 @@
 ## 2.3.0 (in progress)
 - Version 2.3.0 introduces a suite of phasor-based sequencing and Phase Distortion synthesis tools.
     - Add Phasor Generator module.
-    - Add Phasor->Euclidean module.
     - Add Phasor Geometry module.
-    - Add Phasor->LFO module. (TODO: Add bipolar toggle)
     - Add Phasor Randomizer module.
     - Add Phasor Ranger module.
     - Add Phasor Shaper module.
+    - Add Phasor->Euclidean module.
+    - Add Phasor->Gates module.
+    - Add Phasor->Gates 32 module.
+    - Add Phasor->Gates 64 module.
+    - Add Phasor->LFO module.
 - Add Gate Delay module.
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
 - Make Mode knobs on 1-Op Chaos, 2-Op Chaos, Chaotic Attactors, and Clocked Noise snap to values and print the current mode.

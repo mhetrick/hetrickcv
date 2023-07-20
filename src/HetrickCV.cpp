@@ -40,6 +40,8 @@ void init(rack::Plugin *p) {
 	p->addModel(modelMinMax);
 	p->addModel(modelPhasorEuclidean);
 	p->addModel(modelPhasorGates);
+	p->addModel(modelPhasorGates32);
+	p->addModel(modelPhasorGates64);
 	p->addModel(modelPhasorGen);
 	p->addModel(modelPhasorGeometry);
 	p->addModel(modelPhasorRandom);
