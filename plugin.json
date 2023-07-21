@@ -368,6 +368,15 @@
       ]
     },
     {
+      "slug": "PhasorReset",
+      "name": "Phasor Reset",
+      "description": "Duplicates an incoming phasor, but allows you to reset it independently of the input.",
+      "tags": [
+        "Utility",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorShape",
       "name": "Phasor Shaper",
       "description": "Processes phasor signals in interesting ways for sequence modification or phase distortion synthesis.",

@@ -23,13 +23,12 @@ public:
     float setMultiplier(float _multiplier){multiplier = _multiplier;}
     float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
 
-    void reset(){lastPhase = resetPhase;}
+    void reset(float _resetPhase = 0.0f){lastPhase = _resetPhase;}
     void enableAutosync(bool _autoSync){autoSync = _autoSync;}
 
 protected:
     HCVPhasorSlopeDetector slope;
     HCVPhasorResetDetector resetDetector;
-    float resetPhase = 0.0f;
     float lastPhase = 0.0f;
     float multiplier = 1.0f;
     float divider = 1.0f;

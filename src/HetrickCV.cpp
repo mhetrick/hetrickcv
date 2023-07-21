@@ -46,6 +46,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorGeometry);
 	p->addModel(modelPhasorRandom);
 	p->addModel(modelPhasorRanger);
+	p->addModel(modelPhasorReset);
 	p->addModel(modelPhasorShape);
 	p->addModel(modelPhasorToLFO);
 	p->addModel(modelProbability);
