@@ -287,6 +287,16 @@
       ]
     },
     {
+      "slug": "PhaseDrivenSequencer",
+      "name": "Phase Driven Sequencer",
+      "description": "A gate and voltage sequencer driven by a phasor.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorEuclidean",
       "name": "Phasor to Euclidean",
       "description": "Generates a Euclidean rhythm via a 0-5V Phasor input",

@@ -5,7 +5,7 @@ HetrickCV is a collection of [VCV Rack](https://vcvrack.com/) modules by Michael
 
 ### Releases
 
-HetrickCV is compatible with VCV Rack 1.0.0. Releases can be found on the [Release Page](https://github.com/mhetrick/hetrickcv/releases)
+HetrickCV is compatible with VCV Rack 2.0.0 and later. Releases can be found on the [Release Page](https://github.com/mhetrick/hetrickcv/releases), including auto-generated "Nightly" releases from the latest commit. There is a "v1" branch for code compatible with VCV Rack versions prior to 2.0.0.
 
 ## Contributing
 

@@ -59,6 +59,7 @@ extern Model *modelGingerbread;
 extern Model *modelLogicCombine;
 extern Model *modelMidSide;
 extern Model *modelMinMax;
+extern Model *modelPhaseDrivenSequencer;
 extern Model *modelPhasorEuclidean;
 extern Model *modelPhasorGates;
 extern Model *modelPhasorGates32;

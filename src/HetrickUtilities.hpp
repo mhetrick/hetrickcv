@@ -151,6 +151,11 @@ struct HCVModuleWidget : ModuleWidget
         addParam(createParam<Trimpot>(Vec(_x, _y), module, _paramID));
     }
 
+    void createHCVTrimpotCentered(float _x, float _y, int _paramID)
+    {
+        addParam(createParamCentered<Trimpot>(Vec(_x, _y), module, _paramID));
+    }
+
     void createHCVSwitchVert(float _x, float _y, int _paramID)
     {
         addParam(createParam<CKSS>(Vec(_x, _y), module, _paramID));
