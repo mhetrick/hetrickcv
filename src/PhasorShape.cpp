@@ -75,8 +75,7 @@ void PhasorShape::process(const ProcessArgs &args)
     const float modeKnob = params[MODE_PARAM].getValue();
     const float modeDepth = params[MODECV_PARAM].getValue() * MODE_CV_SCALE;
 
-    int numChannels = getMaxInputPolyphony();
-    outputs[PHASOR_OUTPUT].setChannels(numChannels);
+    int numChannels = setupPolyphonyForAllOutputs();
 
     for (int i = 0; i < numChannels; i++)
     {

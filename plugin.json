@@ -388,6 +388,17 @@
       ]
     },
     {
+      "slug": "PhasorSubstepShape",
+      "name": "Phasor Sub-Step Shaper",
+      "description": "Processes individual steps of phasor signals in interesting ways for sequence modification or phase distortion synthesis.",
+      "tags": [
+        "Waveshaper",
+        "Distortion",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorToLFO",
       "name": "Phasor to LFO",
       "description": "Shapes incoming phasor signals to useful LFO waveshapes. These waveforms are not anti-aliased, hence the LFO designation.",
