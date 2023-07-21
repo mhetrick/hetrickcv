@@ -20,10 +20,14 @@ public:
     float modulatedSync(float _normalizedPhasorIn);
     float hardSynced(float _normalizedPhasorIn);
 
-    float setMultiplier(float _multiplier){multiplier = _multiplier;}
+    float setMultiplier(float _multiplier){multiplier = std::max(0.0001f, _multiplier);}
     float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
 
-    void reset(float _resetPhase = 0.0f){lastPhase = _resetPhase;}
+    void reset(float _resetPhase = 0.0f)
+    {
+        lastPhase = _resetPhase;
+        waitingToSync = false;    
+    }
     void enableAutosync(bool _autoSync){autoSync = _autoSync;}
 
 protected:
@@ -33,7 +37,17 @@ protected:
     float multiplier = 1.0f;
     float divider = 1.0f;
 
+    float threshold = 1.0f/64.0f;
+    float lastSpeedScale = 1.0f;
+
     bool autoSync = false;
+    bool waitingToSync = false;
+
+    float roundTruncMultiple( float value, float multiple )
+    {
+        if (multiple == 0) return value;
+        return std::trunc(value/multiple)*multiple;
+    }
 };
 
 

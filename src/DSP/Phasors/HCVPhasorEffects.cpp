@@ -19,7 +19,24 @@ float HCVPhasorDivMult::modulatedSync(float _normalizedPhasorIn)
     const float speedScale = multiplier/divider;
     const float scaledSlope = inSlope * speedScale;
 
-    const float output = gam::scl::wrap(lastPhase + scaledSlope);
+    const float speedScaleDifference = std::abs((lastSpeedScale - speedScale)/(lastSpeedScale + speedScale));
+    if(speedScaleDifference > threshold) waitingToSync = true;
+
+    const float scaledPhase = _normalizedPhasorIn * speedScale;
+    const float nextScaledPhase = lastPhase + scaledSlope;
+
+    const float scaledPhaseDiff = nextScaledPhase - scaledPhase;
+    const float roundedPhaseDiff = roundTruncMultiple(scaledPhaseDiff, speedScale); //TODO: Round to nearest multiple of speedScale
+
+    bool inputReset = resetDetector.detectSimpleReset(_normalizedPhasorIn);
+
+    float resetPhase = trunc(roundedPhaseDiff) + scaledPhase; 
+
+    float selectedPhase;
+    if(inputReset && waitingToSync) selectedPhase = resetPhase;
+    else selectedPhase = nextScaledPhase;
+
+    const float output = gam::scl::wrap(selectedPhase);
     lastPhase = output;
     return output;
 }
