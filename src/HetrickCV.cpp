@@ -39,6 +39,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelMidSide);
 	p->addModel(modelMinMax);
 	p->addModel(modelPhaseDrivenSequencer);
+	p->addModel(modelPhaseDrivenSequencer32);
 	p->addModel(modelPhasorEuclidean);
 	p->addModel(modelPhasorGates);
 	p->addModel(modelPhasorGates32);

@@ -60,6 +60,7 @@ extern Model *modelLogicCombine;
 extern Model *modelMidSide;
 extern Model *modelMinMax;
 extern Model *modelPhaseDrivenSequencer;
+extern Model *modelPhaseDrivenSequencer32;
 extern Model *modelPhasorEuclidean;
 extern Model *modelPhasorGates;
 extern Model *modelPhasorGates32;

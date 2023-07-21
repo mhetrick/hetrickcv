@@ -289,7 +289,17 @@
     {
       "slug": "PhaseDrivenSequencer",
       "name": "Phase Driven Sequencer",
-      "description": "A gate and voltage sequencer driven by a phasor.",
+      "description": "A 16-step gate and voltage sequencer driven by a phasor.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "PhaseDrivenSequencer32",
+      "name": "Phase Driven Sequencer 32",
+      "description": "A 32-step gate and voltage sequencer driven by a phasor.",
       "tags": [
         "Clock Modulator",
         "Sequencer",
