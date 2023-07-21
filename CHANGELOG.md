@@ -7,6 +7,7 @@
     - Add Phasor Randomizer module.
     - Add Phasor Ranger module.
     - Add Phasor Shaper module.
+    - Add Phasor Sub-Step Shaper module.
     - Add Phasor->Euclidean module.
     - Add Phasor->Gates module.
     - Add Phasor->Gates 32 module.

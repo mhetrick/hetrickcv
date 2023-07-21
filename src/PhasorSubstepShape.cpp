@@ -45,7 +45,7 @@ struct PhasorSubstepShape : HCVModule
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         
         configSwitch(MODE_PARAM, 0.0, 9.0, 0.0, "Shape Mode", 
-        {"Curve", "S-Curve", "Kink", "Split", "Shift", "Triangle", "Arc", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
+        {"Curve", "S-Curve", "Split", "Swing", "Shift", "Triangle", "Arc", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
         configParam(MODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Shape Mode CV Depth");
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 

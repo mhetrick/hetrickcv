@@ -39,7 +39,7 @@ struct PhasorShape : HCVModule
         configParam(SHAPECV_PARAM, -1.0, 1.0, 1.0, "Phasor Shape CV Depth");
 
         configSwitch(MODE_PARAM, 0.0, 9.0, 0.0, "Shape Mode", 
-        {"Curve", "S-Curve", "Kink", "Split", "Shift", "Triangle", "Arc", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
+        {"Curve", "S-Curve", "Split", "Swing", "Shift", "Triangle", "Arc", "Speed - Clip", "Speed - Wrap", "Speed - Fold"});
         configParam(MODECV_PARAM, -1.0, 1.0, 1.0, "Shape Mode CV Depth");
         paramQuantities[MODE_PARAM]->snapEnabled = true;
 
