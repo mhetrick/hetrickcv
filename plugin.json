@@ -370,6 +370,26 @@
       ]
     },
     {
+      "slug": "PhasorOctature",
+      "name": "Phasor Octature",
+      "description": "Takes a phasor and rotates it at 45 degree intervals.",
+      "tags": [
+        "Waveshaper",
+        "Low-frequency Oscillator",
+        "Polyphonic"
+      ]
+    },
+    {
+      "slug": "PhasorQuadrature",
+      "name": "Phasor Quadrature",
+      "description": "Shapes a phasor into a sine, and outputs both phasors and sines at 90 degree intervals.",
+      "tags": [
+        "Waveshaper",
+        "Low-frequency Oscillator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorRandom",
       "name": "Phasor Randomizer",
       "description": "Randomizes phasor signals to create different offset patterns for sequencers.",
