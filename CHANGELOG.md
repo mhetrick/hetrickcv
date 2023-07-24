@@ -17,6 +17,9 @@
     - Add Phase Driven Sequencer module.
     - Add Phase Driven Sequencer 32 module.
     - Add Phasor->Waveforms module.
+    - Add Phasor Quadrature module.
+    - Add Phasor Octature module.
+    - Add Phasor Timetable module.
 - Add Gate Delay module.
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
 - Make Mode knobs on 1-Op Chaos, 2-Op Chaos, Chaotic Attactors, and Clocked Noise snap to values and print the current mode.

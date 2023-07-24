@@ -20,9 +20,14 @@ public:
     float modulatedSync(float _normalizedPhasorIn);
     float hardSynced(float _normalizedPhasorIn);
 
-    float setMultiplier(float _multiplier){multiplier = std::max(0.0001f, _multiplier);}
-    float setDivider(float _divider){divider = std::max(0.0001f, _divider);} //maybe clamp upper limit to prevent denormals?
-
+    void setMultiplier(const float _multiplier)
+    {
+        multiplier = std::max(0.0001f, _multiplier);
+    }
+    void setDivider(const float _divider)
+    {
+        divider = std::max(0.0001f, _divider);
+    }
     void reset(float _resetPhase = 0.0f)
     {
         lastPhase = _resetPhase;
