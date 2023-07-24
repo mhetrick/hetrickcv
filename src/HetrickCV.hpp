@@ -73,6 +73,7 @@ extern Model *modelPhasorReset;
 extern Model *modelPhasorShape;
 extern Model *modelPhasorSubstepShape;
 extern Model *modelPhasorToLFO;
+extern Model *modelPhasorToWaveforms;
 extern Model *modelProbability;
 extern Model *modelRandomGates;
 extern Model *modelRotator;
