@@ -73,6 +73,7 @@ extern Model *modelPhasorRandom;
 extern Model *modelPhasorRanger;
 extern Model *modelPhasorReset;
 extern Model *modelPhasorShape;
+extern Model *modelPhasorStutter;
 extern Model *modelPhasorSubstepShape;
 extern Model *modelPhasorTimetable;
 extern Model *modelPhasorToLFO;

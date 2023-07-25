@@ -428,6 +428,16 @@
       ]
     },
     {
+      "slug": "PhasorStutter",
+      "name": "Phasor Stutter",
+      "description": "Processes phasor signals and adds stutters/ratchets/repeats within substeps.",
+      "tags": [
+        "Waveshaper",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorSubstepShape",
       "name": "Phasor Sub-Step Shaper",
       "description": "Processes individual steps of phasor signals in interesting ways for sequence modification or phase distortion synthesis.",
