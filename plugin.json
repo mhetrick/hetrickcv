@@ -307,6 +307,15 @@
       ]
     },
     {
+      "slug": "PhasorDivMult",
+      "name": "Phasor Div/Mult",
+      "description": "Processes a phasor signal and outputs a phasor at a precise, variable time multiple or division.",
+      "tags": [
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorEuclidean",
       "name": "Phasor to Euclidean",
       "description": "Generates a Euclidean rhythm via a 0-5V Phasor input",

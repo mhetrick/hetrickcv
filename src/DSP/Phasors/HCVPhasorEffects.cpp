@@ -8,6 +8,11 @@ float HCVPhasorDivMult::basicSync(float _normalizedPhasorIn)
     const float speedScale = multiplier/divider;
     const float scaledSlope = inSlope * speedScale;
 
+    if(waitingToSync)
+    {
+        reset(_normalizedPhasorIn);
+    }
+
     const float output = gam::scl::wrap(lastPhase + scaledSlope);
     lastPhase = output;
     return output;
@@ -21,6 +26,7 @@ float HCVPhasorDivMult::modulatedSync(float _normalizedPhasorIn)
 
     const float speedScaleDifference = std::abs((lastSpeedScale - speedScale)/(lastSpeedScale + speedScale));
     if(speedScaleDifference > threshold) waitingToSync = true;
+    lastSpeedScale = speedScale;
 
     const float scaledPhase = _normalizedPhasorIn * speedScale;
     const float nextScaledPhase = lastPhase + scaledSlope;
@@ -33,7 +39,11 @@ float HCVPhasorDivMult::modulatedSync(float _normalizedPhasorIn)
     float resetPhase = trunc(roundedPhaseDiff) + scaledPhase; 
 
     float selectedPhase;
-    if(inputReset && waitingToSync) selectedPhase = resetPhase;
+    if(inputReset && waitingToSync)
+    {
+        selectedPhase = resetPhase;
+        waitingToSync = false;
+    } 
     else selectedPhase = nextScaledPhase;
 
     const float output = gam::scl::wrap(selectedPhase);

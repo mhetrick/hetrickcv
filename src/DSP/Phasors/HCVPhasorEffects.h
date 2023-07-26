@@ -33,6 +33,11 @@ public:
         lastPhase = _resetPhase;
         waitingToSync = false;    
     }
+    void resync()
+    {
+        waitingToSync = true;
+    }
+
     void enableAutosync(bool _autoSync){autoSync = _autoSync;}
 
     static float roundTruncMultiple( float value, float multiple )
