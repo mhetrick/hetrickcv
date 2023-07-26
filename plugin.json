@@ -428,6 +428,15 @@
       ]
     },
     {
+      "slug": "PhasorShift",
+      "name": "Phasor Shift",
+      "description": "Processes phasor signals and provides a phase shifted output, optionally quantized to step distances.",
+      "tags": [
+        "Waveshaper",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorStutter",
       "name": "Phasor Stutter",
       "description": "Processes phasor signals and adds stutters/ratchets/repeats within substeps.",

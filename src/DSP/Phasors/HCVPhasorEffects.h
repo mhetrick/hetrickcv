@@ -35,6 +35,12 @@ public:
     }
     void enableAutosync(bool _autoSync){autoSync = _autoSync;}
 
+    static float roundTruncMultiple( float value, float multiple )
+    {
+        if (multiple == 0) return value;
+        return std::trunc(value/multiple)*multiple;
+    }
+
 protected:
     HCVPhasorSlopeDetector slope;
     HCVPhasorResetDetector resetDetector;
@@ -47,12 +53,6 @@ protected:
 
     bool autoSync = false;
     bool waitingToSync = false;
-
-    float roundTruncMultiple( float value, float multiple )
-    {
-        if (multiple == 0) return value;
-        return std::trunc(value/multiple)*multiple;
-    }
 };
 
 
