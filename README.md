@@ -11,7 +11,7 @@ HetrickCV is compatible with VCV Rack 2.0.0 and later. Releases can be found on 
 
 I welcome Issues and Pull Requests to this repository if you have suggestions for improvement.
 
-![HetrickCV](/HetrickCV.PNG)
+![HetrickCV](/HetrickCVUpdated.PNG)
 
 # HetrickCV User Manual
 
