@@ -1,3 +1,5 @@
+![Module](../Images/Modules/FlipPan.png)
+
 ### Flip Pan
 This is a useful mixing module inspired by [Segue by Nonlinear Circuits](http://nonlinearcircuits.blogspot.com/2015/08/segue-vactrol-version.html) and [MMVCA by WMD](https://www.wmdevices.com/products/multimode-vca). It can function as a mono-to-stereo panner, a stereo-to-stereo "flip" panner, a dual crossfader, a VCA, and more. Despite its flexibility, it maintains a simple control set for experimentation.
 The heart of the circuit is simple: The PAN control will pan the Left input on the outputs in the expected left-to-right fashion. However, the twist is that the Right input will pan in the opposite direction.

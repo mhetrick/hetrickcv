@@ -1,3 +1,5 @@
+![AToD](../Images/Modules/AToD.png)
+
 ### Analog to Digital
 This module takes a signal and turns it into an 8-bit representation. The eight outputs represent the state of the bits (+5V if the bit is 1, 0V if the bit is 0). If a signal is present on the Sync input, the bits will only be updated upon the reception of a positive gate. The signal runs through a rectification stage before being sent to the encoder. There are multiple rectification modes:
 - Half: Negative signals are replaced with 0V.

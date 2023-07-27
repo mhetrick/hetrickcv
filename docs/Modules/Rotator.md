@@ -1,3 +1,5 @@
+![Module](../Images/Modules/Rotator.png)
+
 ### Rotator
 This module was inspired by the [4ms Rotating Clock Divider](http://www.4mspedals.com/rcd.php). Unlike the RCD, this takes up to eight arbitrary inputs and rotates them around the eight outputs. The STAGES control determines how many inputs are used (and repeated), while the ROTATE control is what determines their output positions.
 

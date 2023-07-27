@@ -1,3 +1,5 @@
+![Module](../Images/Modules/Compare.png)
+
 ### Comparator
 This is a tool for comparing one signal against a specific voltage. It can be used for many purposes, including clock extraction or distortion. The Threshold knob sets the voltage that is used for comparison against the main Input. If the Input is greater than the Threshold voltage, the `>` outputs will fire. If the Input is less than the Threshold voltage, then the `<` outputs will fire.
 

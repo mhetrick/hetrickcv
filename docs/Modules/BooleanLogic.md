@@ -1,3 +1,5 @@
+![Module](../Images/Modules/BooleanLogic.png)
+
 ### Boolean Logic
 These modules take in 2 or 3 gate inputs and produce 6 gates that represent the true-or-false states of the inputs. The input is considered true if it is currently above 1V (gates do not need to be used, but they provide the most predictable behavior... still, try throwing in all sorts of signals). The various outputs are as follows:
 - OR: This output is true if any input is true.

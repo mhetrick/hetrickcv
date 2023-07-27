@@ -1,3 +1,5 @@
+![Module](../Images/Modules/Delta.png)
+
 ### Delta
 This is a tool that extracts a signal's rate of change. It compares a signal's current value against its previous value. The amount of change is multiplied by the Delta Boost parameter and sent to the Delta output. Slow moving signals will have very small rates of change and will need a lot of Boost. Fast, audio-rate signals will need very little boost.
 
