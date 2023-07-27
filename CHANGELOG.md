@@ -24,6 +24,7 @@
     - Add Phasor Shift module.
     - Add Phasor Divider & Multiplier module.
 - Add Gate Delay module.
+- Complete revision of User Manual and Documentation.
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
 - Make Mode knobs on 1-Op Chaos, 2-Op Chaos, Chaotic Attactors, and Clocked Noise snap to values and print the current mode.
 - Add "Low-frequency Oscillator" tag to Feedback Sine Chaos.
