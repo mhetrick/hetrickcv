@@ -3,7 +3,7 @@
 
 struct PhasorEuclidean : HCVModule
 {
-    static constexpr float MAX_BEATS = 16.0f;
+    static constexpr float MAX_BEATS = 64.0f;
     static constexpr float BEATS_CV_SCALE = MAX_BEATS/5.0f;
 
 	enum ParamIds

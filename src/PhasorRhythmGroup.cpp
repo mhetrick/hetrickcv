@@ -122,17 +122,17 @@ void PhasorRhythmGroup::process(const ProcessArgs &args)
         steps = clamp(steps, 1.0f, MAX_STEPS);
         stepDetectors[i].setNumberSteps(steps);
 
-        float groupSteps = groupStepsKnob + (groupStepsCVDepth * inputs[GROUPSTEPS_INPUT].getPolyVoltage(i));
-        groupSteps = clamp(groupSteps, 1.0f, MAX_STEPS);
-
-        float subgroupSteps = subgroupStepsKnob + (subgroupStepsCVDepth * inputs[GROUPSTEPS_INPUT].getPolyVoltage(i));
-        subgroupSteps = clamp(subgroupSteps, 1.0f, MAX_STEPS);
-
         float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getPolyVoltage(i));
 
         const bool mainStepTriggered = stepDetectors[i](normalizedPhasor);
         if(mainStepTriggered)   //quantize rhythm changes to main clock
         {
+            float groupSteps = groupStepsKnob + (groupStepsCVDepth * inputs[GROUPSTEPS_INPUT].getPolyVoltage(i));
+            groupSteps = clamp(groupSteps, 1.0f, MAX_STEPS);
+
+            float subgroupSteps = subgroupStepsKnob + (subgroupStepsCVDepth * inputs[SUBGROUPSTEPS_INPUT].getPolyVoltage(i));
+            subgroupSteps = clamp(subgroupSteps, 1.0f, MAX_STEPS);
+
             currentGroupSteps[i] = std::max(groupSteps, subgroupSteps);
             currentSubgroupSteps[i] = std::min(groupSteps, subgroupSteps);
         }
@@ -145,13 +145,13 @@ void PhasorRhythmGroup::process(const ProcessArgs &args)
         const float normalizedGroupPhasor = groupPhasor/currentGroupSteps[i];
 
         bool groupTriggered = groupResetDetectors[i](normalizedGroupPhasor);
-        float groupTrig = groupTrigs[i].process(groupTriggered) ? HCV_GATE_MAG : 0.0f;
+        float groupTrig = groupTrigs[i].process(groupTriggered) && mainStepTrig ? HCV_GATE_MAG : 0.0f;
 
         const float subgroupPhasor = gam::scl::wrap(groupPhasor, currentSubgroupSteps[i], 0.0f);
         const float normalizedSubgroupPhasor = subgroupPhasor/currentSubgroupSteps[i];
 
         bool subgroupTriggered = subgroupResetDetectors[i](normalizedSubgroupPhasor);
-        float subgroupTrig = subgroupTrigs[i].process(subgroupTriggered) ? HCV_GATE_MAG : 0.0f;
+        float subgroupTrig = subgroupTrigs[i].process(subgroupTriggered) && mainStepTrig ? HCV_GATE_MAG : 0.0f;
 
         outputs[MAINPHASOR_OUTPUT].setVoltage(mainStepPhasor * HCV_PHZ_UPSCALE, i);
         outputs[MAINTRIG_OUTPUT].setVoltage(mainStepTrig, i);

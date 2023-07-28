@@ -11,8 +11,8 @@ bool HCVPhasorResetDetector::detectProportionalReset(float _normalizedPhasorIn)
 
     const bool resetDetected = proportionalChange > threshold;
 
-    return resetDetected;
-    //return repeatFilter.process(resetDetected);
+    //return resetDetected;
+    return repeatFilter.process(resetDetected);
 }
 
 bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)
