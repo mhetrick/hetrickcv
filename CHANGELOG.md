@@ -25,6 +25,7 @@
     - Add Phasor Divider & Multiplier module.
     - Add Phasor->Clock module.
     - Add Phasor Rhythm Group module.
+    - Add Phasor Analyzer module.
 - Add Gate Delay module.
 - Complete revision of User Manual and Documentation.
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).

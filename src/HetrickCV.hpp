@@ -61,6 +61,7 @@ extern Model *modelMidSide;
 extern Model *modelMinMax;
 extern Model *modelPhaseDrivenSequencer;
 extern Model *modelPhaseDrivenSequencer32;
+extern Model *modelPhasorAnalyzer;
 extern Model *modelPhasorDivMult;
 extern Model *modelPhasorEuclidean;
 extern Model *modelPhasorGates;
