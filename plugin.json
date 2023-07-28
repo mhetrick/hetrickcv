@@ -477,6 +477,16 @@
       ]
     },
     {
+      "slug": "PhasorToClock",
+      "name": "Phasor To Clock",
+      "description": "Generates a clock by dividing a phasor into a series of gates.",
+      "tags": [
+        "Clock Generator",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorToLFO",
       "name": "Phasor to LFO",
       "description": "Shapes incoming phasor signals to useful, morphing LFO waveshapes. These waveforms are not anti-aliased, hence the LFO designation.",

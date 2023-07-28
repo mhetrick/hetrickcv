@@ -78,6 +78,7 @@ extern Model *modelPhasorShift;
 extern Model *modelPhasorStutter;
 extern Model *modelPhasorSubstepShape;
 extern Model *modelPhasorTimetable;
+extern Model *modelPhasorToClock;
 extern Model *modelPhasorToLFO;
 extern Model *modelPhasorToWaveforms;
 extern Model *modelProbability;

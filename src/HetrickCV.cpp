@@ -57,6 +57,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorStutter);
 	p->addModel(modelPhasorSubstepShape);
 	p->addModel(modelPhasorTimetable);
+	p->addModel(modelPhasorToClock);
 	p->addModel(modelPhasorToLFO);
 	p->addModel(modelPhasorToWaveforms);
 	p->addModel(modelProbability);

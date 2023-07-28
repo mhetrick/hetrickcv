@@ -23,6 +23,7 @@
     - Add Phasor Stutter module.
     - Add Phasor Shift module.
     - Add Phasor Divider & Multiplier module.
+    - Add Phasor->Clock module
 - Add Gate Delay module.
 - Complete revision of User Manual and Documentation.
 - Add Thomas chaotic attractor to 1-Op Chaos (https://sprott.physics.wisc.edu/chaos/symmetry.htm).
