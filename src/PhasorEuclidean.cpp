@@ -35,7 +35,9 @@ struct PhasorEuclidean : HCVModule
 	};
     enum LightIds
     {
+        PHASOR_LIGHT,
         GATE_LIGHT,
+        CLOCK_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -120,7 +122,9 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         outputs[CLOCK_OUTPUT].setVoltage(euclidean[i].getClockOutput(), i);
     }
 
-    //lights[GATE_LIGHT].set
+    lights[PHASOR_LIGHT].setBrightness(outputs[PHASOR_OUTPUT].getVoltage() * 0.1f);
+    lights[GATE_LIGHT].setBrightness(outputs[GATE_OUTPUT].getVoltage() * 0.1f);
+    lights[CLOCK_LIGHT].setBrightness(outputs[CLOCK_OUTPUT].getVoltage() * 0.1f);
 }
 
 
@@ -147,16 +151,25 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
 
 
     const float jackY = 305.0f;
+    float xSpacing = 41.0f;
+
+    float jackX2 = 63.0;
+    float jackX3 = jackX2 + xSpacing;
+    float jackX4 = jackX3 + xSpacing;
 	//////INPUTS//////
-    createInputPort(11.0f, jackY, PhasorEuclidean::PHASOR_INPUT);
+    createInputPort(13.0f, jackY, PhasorEuclidean::PHASOR_INPUT);
 
 	//////OUTPUTS//////
-    createOutputPort(60.0f, jackY, PhasorEuclidean::PHASOR_OUTPUT);
-    createOutputPort(100.0f, jackY, PhasorEuclidean::GATE_OUTPUT);
-    createOutputPort(140.0f, jackY, PhasorEuclidean::CLOCK_OUTPUT);
+    createOutputPort(jackX2, jackY, PhasorEuclidean::PHASOR_OUTPUT);
+    createOutputPort(jackX3, jackY, PhasorEuclidean::GATE_OUTPUT);
+    createOutputPort(jackX4, jackY, PhasorEuclidean::CLOCK_OUTPUT);
 
-    createHCVRedLight(130.0, 300.0, PhasorEuclidean::GATE_LIGHT);
-    
+    const float lightOffsetX = -5.0f;
+    const float lightOffsetY = -2.0f;
+
+    createHCVRedLight(jackX2 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::PHASOR_LIGHT);
+    createHCVRedLight(jackX3 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::GATE_LIGHT);
+    createHCVRedLight(jackX4 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::CLOCK_LIGHT);
 }
 
 Model *modelPhasorEuclidean = createModel<PhasorEuclidean, PhasorEuclideanWidget>("PhasorEuclidean");
