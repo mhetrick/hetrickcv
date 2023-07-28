@@ -125,7 +125,7 @@ PhasorToClockWidget::PhasorToClockWidget(PhasorToClock *module)
     int rightX = 76;
     int topJackY = 245;
     int bottomJackY = 310;
-    createInputPort(leftX, topJackY, PhasorToClock::PHASOR_INPUT);
+    createInputPort(48, topJackY, PhasorToClock::PHASOR_INPUT);
     
     createOutputPort(leftX, bottomJackY, PhasorToClock::CLOCK_OUTPUT);
     createOutputPort(rightX, bottomJackY, PhasorToClock::PHASOR_OUTPUT);
