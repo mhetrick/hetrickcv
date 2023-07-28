@@ -41,10 +41,13 @@ bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)
 
 float HCVPhasorGateDetector::getSmartGate(float normalizedPhasor)
 {
-    bool reversePhasor = slopeDetector(normalizedPhasor) < 0.0f;
+    //only change reverse direction detection if phasor is moving, otherwise high frequency noise will result ;)
+    const float slope = slopeDetector(normalizedPhasor);
+    const bool phasorIsAdvancing = slopeDetector.isPhasorAdvancing();
+    if(phasorIsAdvancing) reversePhasor = slope < 0.0f;
     bool isZero = normalizedPhasor == 0.0f;
 
-    if(slopeDetector.isPhasorAdvancing() || !isZero)
+    if(phasorIsAdvancing || !isZero)
     {
         float gate;
         if (reversePhasor) gate = (1.0f - normalizedPhasor) < gateWidth ? HCV_PHZ_GATESCALE : 0.0f;

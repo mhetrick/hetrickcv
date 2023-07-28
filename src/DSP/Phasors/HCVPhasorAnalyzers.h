@@ -47,7 +47,7 @@ public:
 
     float getSlope() {return slope;}
 
-    bool isPhasorAdvancing() { return slope != 0.0f;}
+    bool isPhasorAdvancing() { return std::abs(slope) > 0.0f;}
 
 private:
     float lastSample = 0.0f;
@@ -133,4 +133,5 @@ private:
     float gateWidth = 0.5f;
     HCVPhasorSlopeDetector slopeDetector;
     bool smartMode = false;
+    bool reversePhasor = false;
 };
