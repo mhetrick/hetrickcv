@@ -426,6 +426,16 @@
       ]
     },
     {
+      "slug": "PhasorRhythmGroup",
+      "name": "Phasor Rhythm Group",
+      "description": "Generates a clock by dividing a phasor into a series of triggers, and then groups the clock into two subrhythms.",
+      "tags": [
+        "Clock Generator",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorShape",
       "name": "Phasor Shaper",
       "description": "Processes phasor signals in interesting ways for sequence modification or phase distortion synthesis.",

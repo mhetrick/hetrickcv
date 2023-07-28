@@ -4,13 +4,15 @@ bool HCVPhasorResetDetector::detectProportionalReset(float _normalizedPhasorIn)
 {
     const float difference = _normalizedPhasorIn - lastSample;
     const float sum = _normalizedPhasorIn + lastSample;
+    lastSample = _normalizedPhasorIn;
     if(sum == 0.0f) return false;
 
     const float proportionalChange = std::abs(difference/sum);
 
     const bool resetDetected = proportionalChange > threshold;
 
-    return repeatFilter.process(resetDetected);
+    return resetDetected;
+    //return repeatFilter.process(resetDetected);
 }
 
 bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)

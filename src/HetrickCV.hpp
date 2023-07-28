@@ -73,6 +73,7 @@ extern Model *modelPhasorQuadrature;
 extern Model *modelPhasorRandom;
 extern Model *modelPhasorRanger;
 extern Model *modelPhasorReset;
+extern Model *modelPhasorRhythmGroup;
 extern Model *modelPhasorShape;
 extern Model *modelPhasorShift;
 extern Model *modelPhasorStutter;
