@@ -9,6 +9,7 @@ struct PhasorToClock : HCVModule
         STEPSCV_PARAM,
         WIDTH_PARAM,
         WIDTHCV_PARAM,
+        DETECTION_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -48,6 +49,8 @@ struct PhasorToClock : HCVModule
         configParam(WIDTH_PARAM, -5.0, 5.0, 0.0, "Gate Width");
         configParam(WIDTHCV_PARAM, -1.0, 1.0, 1.0, "Gate Width CV Depth");
 
+        configSwitch(DETECTION_PARAM, 0.0, 1.0, 1.0, "Detection Mode", {"Raw", "Smart (Detect Playback and Reverse)"});
+
         configInput(PHASOR_INPUT, "Phasor");
         configInput(STEPSCV_INPUT, "Steps CV");
         configInput(WIDTHCV_INPUT, "Width CV");
@@ -56,12 +59,6 @@ struct PhasorToClock : HCVModule
         configOutput(CLOCK_OUTPUT, "Clock Gates");
 
 		onReset();
-
-        for (int i = 0; i < 16; i++)
-        {
-            gateDetectors[i].setSmartMode(true);
-        }
-        
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -88,6 +85,8 @@ void PhasorToClock::process(const ProcessArgs &args)
     const float widthKnob = params[WIDTH_PARAM].getValue();
     const float widthDepth = params[WIDTHCV_PARAM].getValue();
 
+    const bool smartDetection = params[DETECTION_PARAM].getValue() > 0.0f;
+
     for (int i = 0; i < numChannels; i++)
     {
         float steps = stepsKnob + (stepsCVDepth * inputs[STEPSCV_INPUT].getPolyVoltage(i));
@@ -97,6 +96,8 @@ void PhasorToClock::process(const ProcessArgs &args)
 
         float pulseWidth = widthKnob + (widthDepth * inputs[WIDTHCV_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
+
+        gateDetectors[i].setSmartMode(smartDetection);
         gateDetectors[i].setGateWidth(pulseWidth);
 
         float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getPolyVoltage(i));
@@ -127,13 +128,14 @@ PhasorToClockWidget::PhasorToClockWidget(PhasorToClock *module)
     createParamComboVertical(15, knobY, PhasorToClock::STEPS_PARAM, PhasorToClock::STEPSCV_PARAM, PhasorToClock::STEPSCV_INPUT);
     createParamComboVertical(70, knobY, PhasorToClock::WIDTH_PARAM, PhasorToClock::WIDTHCV_PARAM, PhasorToClock::WIDTHCV_INPUT);
 
+    createHCVSwitchVert(89, 252, PhasorToClock::DETECTION_PARAM);
 
     //////INPUTS//////
     int leftX = 21;
     int rightX = 76;
     int topJackY = 245;
     int bottomJackY = 310;
-    createInputPort(48, topJackY, PhasorToClock::PHASOR_INPUT);
+    createInputPort(leftX, topJackY, PhasorToClock::PHASOR_INPUT);
     
     createOutputPort(leftX, bottomJackY, PhasorToClock::CLOCK_OUTPUT);
     createOutputPort(rightX, bottomJackY, PhasorToClock::PHASOR_OUTPUT);

@@ -65,7 +65,7 @@ class HCVPhasorToEuclidean
 {
 public:
 
-    void processPhasor(float _inputPhasor);
+    void processPhasor(float _normalizedPhasor);
 
     void setBeats(float _beats)
     {
@@ -74,17 +74,30 @@ public:
 
     void setFill(float _fill)
     {
-        fill = std::max(0.0f, _fill);
+        pendingFill = std::max(0.0f, _fill);
     }
 
     void setRotation(float _rotate)
     {
-        rotation = rack::math::clamp(_rotate, -1.0f, 1.0f);
+        pendingRotation = rack::math::clamp(_rotate, -1.0f, 1.0f);
     }
 
     void setPulseWidth(float _pulseWidth)
     {
         pulseWidth = rack::math::clamp(_pulseWidth, 0.0f, 1.0f);
+        clockGateDetector.setGateWidth(pulseWidth);
+        euclidGateDetector.setGateWidth(pulseWidth);
+    }
+
+    void enableSmartDetection(bool smartModeEnabled)
+    {
+        clockGateDetector.setSmartMode(smartModeEnabled);
+        euclidGateDetector.setSmartMode(smartModeEnabled);
+    }
+
+    void setParameterChangeQuantization(bool quantizationEnabled)
+    {
+        quantizeParameterChanges = quantizationEnabled;
     }
 
     float getPhasorOutput() { return phasorOutput * outputScale; }
@@ -96,16 +109,21 @@ protected:
 
     //these are traditionally ints, but we use floats for calculations
     float steps = 16; //N
-    float fill = 4; //K
-    float rotation = 0; //S
+    float fill = 4, pendingFill = 4; //K
+    float rotation = 0, pendingRotation = 0; //S
+
+    float lastStep = 0.0f;
 
     bool quantizeRotation = true;
+    bool quantizeParameterChanges = true;
 
     float phasorOutput = 0.0f;
     float euclidGateOutput = 0.0f;
     float clockOutput = 0.0f;
     const float outputScale = HCV_PHZ_UPSCALE;
     const float gateScale = HCV_PHZ_GATESCALE;
+    HCVPhasorGateDetector euclidGateDetector;
+    HCVPhasorGateDetector clockGateDetector;
 };
 
 //static effects

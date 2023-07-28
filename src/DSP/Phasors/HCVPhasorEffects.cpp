@@ -59,12 +59,20 @@ float HCVPhasorDivMult::hardSynced(float _normalizedPhasorIn)
 
 ////////EUCLIDEAN
 
-void HCVPhasorToEuclidean::processPhasor(float _inputPhasor)
+void HCVPhasorToEuclidean::processPhasor(float _normalizedPhasor)
 {
     float scaledRotation = quantizeRotation ? floorf(rotation * steps)/steps : rotation;
-    const float scaledRamp = gam::scl::wrap(_inputPhasor*HCV_PHZ_DOWNSCALE + scaledRotation) * steps;
+    const float scaledRamp = gam::scl::wrap(_normalizedPhasor + scaledRotation) * steps;
     const float stepWidth = scaledRamp - floorf(scaledRamp);
-    clockOutput = stepWidth < pulseWidth ? gateScale : 0.0f;
+    clockOutput = clockGateDetector(stepWidth);
+
+    const float currentStep = floorf(scaledRamp);
+    if((lastStep != currentStep) || !quantizeParameterChanges)
+    {
+        lastStep = currentStep;
+        fill = pendingFill;
+        rotation = pendingRotation;
+    }
 
     if(fill == 0.0f)
     {
@@ -73,7 +81,6 @@ void HCVPhasorToEuclidean::processPhasor(float _inputPhasor)
         return;
     }
 
-    const float currentStep = floorf(scaledRamp);
     const float fillRatio = fill/steps;
 
     const float previousEvent = floorf(currentStep * fillRatio);
@@ -83,7 +90,7 @@ void HCVPhasorToEuclidean::processPhasor(float _inputPhasor)
     const float lengthBeats = nextEvent - currentEvent;
 
     phasorOutput = ((scaledRamp - currentEvent)/lengthBeats);
-    euclidGateOutput = phasorOutput < pulseWidth ? gateScale : 0.0f;
+    euclidGateOutput = euclidGateDetector(phasorOutput);
 }
 
 

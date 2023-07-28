@@ -13,6 +13,8 @@ struct PhasorEuclidean : HCVModule
         ROTATE_PARAM, ROTATE_SCALE_PARAM,
         PW_PARAM, PW_SCALE_PARAM,
 
+        DETECTION_PARAM,
+
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -59,8 +61,9 @@ struct PhasorEuclidean : HCVModule
 
         paramQuantities[BEATS_PARAM]->snapEnabled = true;
         paramQuantities[FILL_PARAM]->snapEnabled = true;
-        
 
+        configSwitch(DETECTION_PARAM, 0.0, 1.0, 1.0, "Detection Mode", {"Raw", "Smart (Detect Playback and Reverse)"});
+        
         configInput(PHASOR_INPUT, "Phasor");
 
         configInput(BEATS_INPUT, "Beats CV");
@@ -76,7 +79,6 @@ struct PhasorEuclidean : HCVModule
 	void process(const ProcessArgs &args) override;
 
     HCVPhasorToEuclidean euclidean[16];
-    HCVPhasorSlopeDetector slopeDetectors[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -98,8 +100,12 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     float rotateCVDepth = params[ROTATE_SCALE_PARAM].getValue();
     float pwCVDepth = params[PW_SCALE_PARAM].getValue();
 
+    const bool smartDetection = params[DETECTION_PARAM].getValue() > 0.0f;
+
     for (int i = 0; i < numChannels; i++)
     {
+        euclidean[i].enableSmartDetection(smartDetection);
+
         float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i));
         beats = clamp(beats, 1.0f, MAX_BEATS);
         euclidean[i].setBeats(beats);
@@ -116,15 +122,12 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         rotation = clamp(rotation, -5.0f, 5.0f) * 0.2f;
         euclidean[i].setRotation(rotation);
 
-        float fullPhasor = inputs[PHASOR_INPUT].getVoltage(i);
-        euclidean[i].processPhasor(fullPhasor);
-
-        float slope = slopeDetectors[i](fullPhasor);
-        bool phasorIsMoving = slopeDetectors[i].isPhasorAdvancing();
+        float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getVoltage(i));
+        euclidean[i].processPhasor(normalizedPhasor);
 
         outputs[PHASOR_OUTPUT].setVoltage(euclidean[i].getPhasorOutput(), i);
         outputs[GATE_OUTPUT].setVoltage(euclidean[i].getEuclideanGateOutput(), i);
-        outputs[CLOCK_OUTPUT].setVoltage(phasorIsMoving ? euclidean[i].getClockOutput() : 0.0f, i);
+        outputs[CLOCK_OUTPUT].setVoltage(euclidean[i].getClockOutput(), i);
     }
 
     lights[PHASOR_LIGHT].setBrightness(outputs[PHASOR_OUTPUT].getVoltage() * 0.1f);
@@ -149,11 +152,6 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     createParamComboHorizontal(knobX, knobY + 100, PhasorEuclidean::ROTATE_PARAM, PhasorEuclidean::ROTATE_SCALE_PARAM, PhasorEuclidean::ROTATE_INPUT);
     createParamComboHorizontal(knobX, knobY + 150, PhasorEuclidean::PW_PARAM, PhasorEuclidean::PW_SCALE_PARAM, PhasorEuclidean::PW_INPUT);
 
-    const float switchY = 238.0f;
-    //createHCVSwitchVert(15.0f, switchY, PhasorEuclidean::RANGE_PARAM);
-    //createHCVSwitchVert(55.0f, switchY, PhasorEuclidean::SLEW_PARAM);
-    //createHCVSwitchVert(96.0f, switchY, PhasorEuclidean::DC_PARAM);
-
 
     const float jackY = 305.0f;
     float xSpacing = 41.0f;
@@ -161,6 +159,11 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     float jackX2 = 63.0;
     float jackX3 = jackX2 + xSpacing;
     float jackX4 = jackX3 + xSpacing;
+
+    createHCVSwitchVert(jackX4 + 5, 262, PhasorEuclidean::DETECTION_PARAM);
+
+
+    
 	//////INPUTS//////
     createInputPort(13.0f, jackY, PhasorEuclidean::PHASOR_INPUT);
 
