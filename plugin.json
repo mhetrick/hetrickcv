@@ -308,7 +308,7 @@
     },
     {
       "slug": "PhasorDivMult",
-      "name": "Phasor Div/Mult",
+      "name": "Phasor Divide & Multiply",
       "description": "Processes a phasor signal and outputs a phasor at a precise, variable time multiple or division.",
       "tags": [
         "Clock Modulator",

@@ -52,6 +52,23 @@ I welcome Issues and Pull Requests to this repository if you have suggestions fo
 - [Gingerbread Chaos](./docs/Topics/Chaos.md)
 - [Mid-Side Converter](./docs/Modules/MidSide.md)
 - [Min-Max](./docs/Modules/MinMax.md)
+- [Phase Driven Sequencer](./docs/Modules/PhaseDrivenSequencer.md)
+- [Phasor Divide & Multiply](./docs/Modules/PhasorDivMult.md)
+- [Phasor Generator](./docs/Modules/PhaseGen.md)
+- [Phasor Geometry](./docs/Modules/PhasorGeometry.md)
+- [Phasor Octature](./docs/Modules/PhasorQuadrature.md)
+- [Phasor Quadrature](./docs/Modules/PhasorQuadrature.md)
+- [Phasor Randomizer](./docs/Modules/PhasorRandom.md)
+- [Phasor Ranger](./docs/Modules/PhasorRanger.md)
+- [Phasor Reset](./docs/Modules/PhasorReset.md)
+- [Phasor Shaper](./docs/Modules/PhasorShape.md)
+- [Phasor Shifter](./docs/Modules/PhasorShifter.md)
+- [Phasor Stutter](./docs/Modules/PhasorStutter.md)
+- [Phasor Substep Shaper](./docs/Modules/PhasorShape.md)
+- [Phasor Timetable](./docs/Modules/PhasorTimetable.md)
+- [Phasor to Euclidean](./docs/Modules/PhasorEuclidean.md)
+- [Phasor to Gates](./docs/Modules/PhaseToGates.md)
+- [Phasor to LFO](./docs/Modules/PhasorToLFO.md)
 - [Probability](./docs/Modules/Probability.md)
 - [Random Gates](./docs/Modules/RandomGates.md)
 - [Rotator](./docs/Modules/Rotator.md)
@@ -59,20 +76,4 @@ I welcome Issues and Pull Requests to this repository if you have suggestions fo
 - [Scanner](./docs/Modules/Scanner.md)
 - [XY to Polar](./docs/Modules/XYToPolar.md)
 - [Waveshaper](./docs/Modules/Waveshaper.md)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

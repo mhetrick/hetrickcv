@@ -16,6 +16,7 @@ HetrickCV contains a wide number of modules with chaotic or pseudorandom behavio
 - [Binary Noise](../Modules/BinaryNoise.md)
 - [Clocked Noise](../Modules/ClockedNoise.md)
 - [Dust](../Modules/Dust.md)
+- [Phasor Randomizer](../Modules/PhasorRandom.md)
 - [Probability](../Modules/Probability.md)
 - [Random Gates](../Modules/RandomGates)
 
