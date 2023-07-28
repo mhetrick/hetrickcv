@@ -86,7 +86,6 @@ class HCVPhasorStepDetector
 public:
 
     bool operator()(float _normalizedPhasorIn);
-    bool detectStepTransitionSmart(float _normalizedPhasorIn);
 
     int getCurrentStep(){return currentStep;}
     void setNumberSteps(int _numSteps){numberSteps = std::max(1, _numSteps);}
@@ -102,4 +101,36 @@ protected:
     float fractionalStep = 0.0f;
     HCVPhasorResetDetector resetDetector;
     HCVPhasorSlopeDetector slopeDetector;
+};
+
+class HCVPhasorGateDetector
+{
+public:
+
+    void setGateWidth(float _width)
+    {
+        gateWidth = _width;
+    }
+    void setSmartMode(bool _smartModeEnabled)
+    {
+        smartMode = _smartModeEnabled;
+    }
+
+    float getBasicGate(float _normalizedPhasor)
+    {
+        return _normalizedPhasor < gateWidth ? HCV_PHZ_GATESCALE : 0.0f;
+    }
+
+    float getSmartGate(float _normalizedPhasor);
+
+    float operator()(float _normalizedPhasor)
+    {
+        if(smartMode) return getSmartGate(_normalizedPhasor);
+        return getBasicGate(_normalizedPhasor);
+    }
+
+private:
+    float gateWidth = 0.5f;
+    HCVPhasorSlopeDetector slopeDetector;
+    bool smartMode = false;
 };

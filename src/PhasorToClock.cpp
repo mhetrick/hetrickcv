@@ -35,6 +35,7 @@ struct PhasorToClock : HCVModule
     static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
 
     HCVPhasorStepDetector stepDetectors[16];
+    HCVPhasorGateDetector gateDetectors[16];
 
 	PhasorToClock()
 	{
@@ -55,6 +56,12 @@ struct PhasorToClock : HCVModule
         configOutput(CLOCK_OUTPUT, "Clock Gates");
 
 		onReset();
+
+        for (int i = 0; i < 16; i++)
+        {
+            gateDetectors[i].setSmartMode(true);
+        }
+        
 	}
 
 	void process(const ProcessArgs &args) override;
@@ -90,16 +97,17 @@ void PhasorToClock::process(const ProcessArgs &args)
 
         float pulseWidth = widthKnob + (widthDepth * inputs[WIDTHCV_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
+        gateDetectors[i].setGateWidth(pulseWidth);
 
         float normalizedPhasor = scaleAndWrapPhasor(inputs[PHASOR_INPUT].getPolyVoltage(i));
 
         bool stepAdvanced = stepDetectors[i](normalizedPhasor);
 
         const float fractionalStep = stepDetectors[i].getFractionalStep();
-        bool gate = fractionalStep < pulseWidth;
+        float gate = gateDetectors[i](fractionalStep);
 
         outputs[PHASOR_OUTPUT].setVoltage(fractionalStep * HCV_PHZ_UPSCALE, i);
-        outputs[CLOCK_OUTPUT].setVoltage(gate ? HCV_PHZ_GATESCALE : 0.0f, i);
+        outputs[CLOCK_OUTPUT].setVoltage(gate, i);
     }
 
     lights[CLOCK_LIGHT].setBrightness(outputs[CLOCK_OUTPUT].getVoltage());
@@ -130,7 +138,7 @@ PhasorToClockWidget::PhasorToClockWidget(PhasorToClock *module)
     createOutputPort(leftX, bottomJackY, PhasorToClock::CLOCK_OUTPUT);
     createOutputPort(rightX, bottomJackY, PhasorToClock::PHASOR_OUTPUT);
 
-    createHCVRedLight(leftX + 30, bottomJackY, PhasorToClock::CLOCK_LIGHT);
+    createHCVRedLight(leftX - 5, bottomJackY - 2, PhasorToClock::CLOCK_LIGHT);
     
 }
 

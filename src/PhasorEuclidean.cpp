@@ -76,6 +76,7 @@ struct PhasorEuclidean : HCVModule
 	void process(const ProcessArgs &args) override;
 
     HCVPhasorToEuclidean euclidean[16];
+    HCVPhasorSlopeDetector slopeDetectors[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -115,11 +116,15 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         rotation = clamp(rotation, -5.0f, 5.0f) * 0.2f;
         euclidean[i].setRotation(rotation);
 
-        euclidean[i].processPhasor(inputs[PHASOR_INPUT].getVoltage(i));
+        float fullPhasor = inputs[PHASOR_INPUT].getVoltage(i);
+        euclidean[i].processPhasor(fullPhasor);
+
+        float slope = slopeDetectors[i](fullPhasor);
+        bool phasorIsMoving = slopeDetectors[i].isPhasorAdvancing();
 
         outputs[PHASOR_OUTPUT].setVoltage(euclidean[i].getPhasorOutput(), i);
         outputs[GATE_OUTPUT].setVoltage(euclidean[i].getEuclideanGateOutput(), i);
-        outputs[CLOCK_OUTPUT].setVoltage(euclidean[i].getClockOutput(), i);
+        outputs[CLOCK_OUTPUT].setVoltage(phasorIsMoving ? euclidean[i].getClockOutput() : 0.0f, i);
     }
 
     lights[PHASOR_LIGHT].setBrightness(outputs[PHASOR_OUTPUT].getVoltage() * 0.1f);

@@ -192,9 +192,9 @@ PhasorRhythmGroupWidget::PhasorRhythmGroupWidget(PhasorRhythmGroup *module)
 
     float xSpacing = 43.0f;
     float jackX1 = 13.0f;
-    float jackX2 = jackX1 + xSpacing;
+    float jackX2 = jackX1 + xSpacing - 1;
     float jackX3 = jackX2 + xSpacing;
-    float jackX4 = jackX3 + xSpacing;
+    float jackX4 = jackX3 + xSpacing - 2;
 
 	//////INPUTS//////
     createInputPort(30.0f, jackY1, PhasorRhythmGroup::PHASOR_INPUT);

@@ -39,28 +39,19 @@ bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)
     return stepChanged;
 }
 
-//TODO
-bool HCVPhasorStepDetector::detectStepTransitionSmart(float _normalizedPhasorIn)
+float HCVPhasorGateDetector::getSmartGate(float normalizedPhasor)
 {
-    float scaledPhasor = _normalizedPhasorIn * numberSteps;
+    bool reversePhasor = slopeDetector(normalizedPhasor) < 0.0f;
+    bool isZero = normalizedPhasor == 0.0f;
 
-    int incomingStep = floorf(scaledPhasor);
-    fractionalStep = scaledPhasor - incomingStep;
-
-    if(numberSteps == 1)
+    if(slopeDetector.isPhasorAdvancing() || !isZero)
     {
-        currentStep = 0;
-        stepChanged = resetDetector.detectSimpleReset(_normalizedPhasorIn);
-        return stepChanged;
-    }
+        float gate;
+        if (reversePhasor) gate = (1.0f - normalizedPhasor) < gateWidth ? HCV_PHZ_GATESCALE : 0.0f;
+        else gate = normalizedPhasor < gateWidth ? HCV_PHZ_GATESCALE : 0.0f;
 
-    if(incomingStep != currentStep)
-    {
-        currentStep = incomingStep;
-        stepChanged = true;
-        return stepChanged;
+        return gate;
     }
-
-    stepChanged = false;
-    return stepChanged;
+    
+    return 0.0f;
 }
