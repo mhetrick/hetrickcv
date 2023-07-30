@@ -38,6 +38,7 @@ struct PhasorShift : HCVModule
 	PhasorShift()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configBypass(PHASOR_INPUT, PHASOR_OUTPUT);
 
         configParam(STEPS_PARAM, 1.0, MAX_STEPS, 0.0, "Steps");
 		configParam(STEPSCV_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");

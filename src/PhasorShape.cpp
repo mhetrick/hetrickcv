@@ -34,6 +34,7 @@ struct PhasorShape : HCVModule
 	PhasorShape()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configBypass(PHASOR_INPUT, PHASOR_OUTPUT);
 
         configParam(SHAPE_PARAM, -5.0, 5.0, 0.0, "Phasor Shape");
         configParam(SHAPECV_PARAM, -1.0, 1.0, 1.0, "Phasor Shape CV Depth");

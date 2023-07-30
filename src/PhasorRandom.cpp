@@ -39,6 +39,7 @@ struct PhasorRandom : HCVModule
 	PhasorRandom()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configBypass(PHASOR_INPUT, RANDOM_OUTPUT);
 		configParam(CHANCE_PARAM, 0.0, 5.0, 0.0, "Chance");
 		configParam(CHANCE_SCALE_PARAM, -1.0, 1.0, 1.0, "Chance CV Depth");
 

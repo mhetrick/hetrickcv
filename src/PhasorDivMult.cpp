@@ -46,6 +46,7 @@ struct PhasorDivMult : HCVModule
 	PhasorDivMult()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configBypass(PHASOR_INPUT, PHASOR_OUTPUT);
 
         configParam(DIVIDE_PARAM, -8.f, 10.f, 1.f, "Divide", "/", 2, 0.5);
 		configParam(DIVIDECV_PARAM, -1.0, 1.0, 1.0, "Divide CV Depth");

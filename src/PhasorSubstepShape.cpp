@@ -37,6 +37,8 @@ struct PhasorSubstepShape : HCVModule
 	PhasorSubstepShape()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configBypass(PHASOR_INPUT, SHAPED_OUTPUT);
+
 		configParam(SHAPE_PARAM, -5.0, 5.0, 0.0, "Phasor Shape");
 		configParam(SHAPE_SCALE_PARAM, -1.0, 1.0, 1.0, "Phasoe Shape CV Depth");
 

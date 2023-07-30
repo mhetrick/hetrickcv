@@ -113,6 +113,15 @@ struct HCVModule : Module
         lights[_initialLightIndex + 1].setBrightness(fmaxf(0.0f, _normalizedValue * -1.0f));
     }
 
+    void setLightFromOutput(int _lightIndex, int _outputIndex, float _scale = 0.1f)
+    {
+        lights[_lightIndex].setBrightness(outputs[_outputIndex].getVoltage() * _scale);
+    }
+    void setLightSmoothFromOutput(int _lightIndex, int _outputIndex, float _scale = 0.1f)
+    {
+        lights[_lightIndex].setBrightnessSmooth(outputs[_outputIndex].getVoltage() * _scale, APP->engine->getSampleTime() * 4.0f);
+    }
+
     static constexpr float HCV_GATE_MAG = 10.0f;
 };
 
@@ -179,6 +188,10 @@ struct HCVModuleWidget : ModuleWidget
     void createHCVRedLight(float _x, float _y, int _lightID)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(_x, _y), module, _lightID));
+    }
+    void createHCVRedLightForJack(float _x, float _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<RedLight>>(Vec(_x-5, _y-2), module, _lightID));
     }
 
     void createHCVGreenLight(float _x, float _y, int _lightID)
