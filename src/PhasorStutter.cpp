@@ -169,7 +169,7 @@ PhasorStutterWidget::PhasorStutterWidget(PhasorStutter *module)
     createOutputPort(48, bottomJackY, PhasorStutter::STEPPHASOR_OUTPUT);
     createOutputPort(84, bottomJackY, PhasorStutter::GATES_OUTPUT);
 
-    createHCVRedLight(rightX + 30, topJackY, PhasorStutter::ACTIVE_LIGHT);
+    createHCVRedLightForJack(rightX, topJackY, PhasorStutter::ACTIVE_LIGHT);
     
 }
 

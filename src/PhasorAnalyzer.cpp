@@ -17,8 +17,8 @@ struct PhasorAnalyzer : HCVModule
 	enum OutputIds
 	{
         DIRECTION_OUTPUT,
-        RESET_OUTPUT,
         ACTIVE_OUTPUT,
+        RESET_OUTPUT,
         JUMP_OUTPUT,
         KINK_OUTPUT,
 		NUM_OUTPUTS
@@ -27,8 +27,8 @@ struct PhasorAnalyzer : HCVModule
     {
         DIRECTION_POS_LIGHT,
         DIRECTION_NEG_LIGHT,
-        RESET_LIGHT,
         ACTIVE_LIGHT,
+        RESET_LIGHT,
         JUMP_LIGHT,
         KINK_LIGHT,
         NUM_LIGHTS
@@ -39,9 +39,11 @@ struct PhasorAnalyzer : HCVModule
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configInput(PHASOR_INPUT, "Phasor");
+        
         configOutput(DIRECTION_OUTPUT, "Direction");
-        configOutput(RESET_OUTPUT, "Reset Trigger");
         configOutput(ACTIVE_OUTPUT, "Active Gate");
+
+        configOutput(RESET_OUTPUT, "Reset Trigger");
         configOutput(JUMP_OUTPUT, "Jump Trigger");
         configOutput(KINK_OUTPUT, "Kink Trigger");
 	}
@@ -88,15 +90,15 @@ void PhasorAnalyzer::process(const ProcessArgs &args)
         else if (slope < 0.0f) direction = -5.0f;
 
         outputs[DIRECTION_OUTPUT].setVoltage(direction, i);
-        outputs[RESET_OUTPUT].setVoltage(resetTrigger ? HCV_PHZ_GATESCALE : 0.0f, i);
         outputs[ACTIVE_OUTPUT].setVoltage(active ? HCV_PHZ_GATESCALE : 0.0f, i);
+        outputs[RESET_OUTPUT].setVoltage(resetTrigger ? HCV_PHZ_GATESCALE : 0.0f, i);
         outputs[JUMP_OUTPUT].setVoltage(jumpTrigger ? HCV_PHZ_GATESCALE : 0.0f, i);
         outputs[KINK_OUTPUT].setVoltage(kink, i);
     }
     
     setBipolarLightBrightness(DIRECTION_POS_LIGHT, outputs[DIRECTION_OUTPUT].getVoltage() * 0.2f);
-    lights[RESET_LIGHT].setBrightnessSmooth(outputs[RESET_OUTPUT].getVoltage() * 0.1f, args.sampleTime * 20.0f);
     lights[ACTIVE_LIGHT].setBrightness(outputs[ACTIVE_OUTPUT].getVoltage() * 0.1f);
+    lights[RESET_LIGHT].setBrightnessSmooth(outputs[RESET_OUTPUT].getVoltage() * 0.1f, args.sampleTime * 20.0f);
     lights[JUMP_LIGHT].setBrightnessSmooth(outputs[JUMP_OUTPUT].getVoltage() * 0.1f, args.sampleTime * 20.0f);
     lights[KINK_LIGHT].setBrightnessSmooth(outputs[KINK_OUTPUT].getVoltage() * 0.2f, args.sampleTime * 20.0f);
 }

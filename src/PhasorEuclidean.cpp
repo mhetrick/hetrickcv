@@ -144,7 +144,7 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-    const float knobY = 64.0f;
+    const float knobY = 39.0f;
     const float knobX = 10.0f;
 
     createParamComboHorizontal(knobX, knobY, PhasorEuclidean::BEATS_PARAM, PhasorEuclidean::BEATS_SCALE_PARAM, PhasorEuclidean::BEATS_INPUT);
@@ -153,16 +153,14 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     createParamComboHorizontal(knobX, knobY + 150, PhasorEuclidean::PW_PARAM, PhasorEuclidean::PW_SCALE_PARAM, PhasorEuclidean::PW_INPUT);
 
 
-    const float jackY = 305.0f;
+    const float jackY = 318.0f;
     float xSpacing = 41.0f;
 
     float jackX2 = 63.0;
     float jackX3 = jackX2 + xSpacing;
     float jackX4 = jackX3 + xSpacing;
 
-    createHCVSwitchVert(jackX4 + 5, 262, PhasorEuclidean::DETECTION_PARAM);
-
-
+    createHCVSwitchVert(jackX4 + 5, 275, PhasorEuclidean::DETECTION_PARAM);
     
 	//////INPUTS//////
     createInputPort(13.0f, jackY, PhasorEuclidean::PHASOR_INPUT);

@@ -42,6 +42,10 @@ bool HCVPhasorStepDetector::operator()(float _normalizedPhasorIn)
 float HCVPhasorGateDetector::getSmartGate(float normalizedPhasor)
 {
     //only change reverse direction detection if phasor is moving, otherwise high frequency noise will result ;)
+    //high frequency noise might still happen if monitoring via an "active" gate
+    //this is likely happening because we are using 0-10V phasors, scaling them down to 0-1V phasors, and scaling them up again.
+    //this scaling might be resulting in denormals that get flushed to 0V, so very slow phasors might appear to have 0 slope.
+
     const float slope = slopeDetector(normalizedPhasor);
     const bool phasorIsAdvancing = slopeDetector.isPhasorAdvancing();
     if(phasorIsAdvancing) reversePhasor = slope < 0.0f;

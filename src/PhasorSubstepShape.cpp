@@ -17,6 +17,7 @@ struct PhasorSubstepShape : HCVModule
         STEPS_INPUT,
         SHAPE_INPUT,
         MODE_INPUT,
+        ACTIVE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -27,7 +28,9 @@ struct PhasorSubstepShape : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 10
+        ENUMS(MODE_LIGHT, 10),
+        ACTIVE_LIGHT,
+        NUM_LIGHTS
 	};
 
     static constexpr float MAX_STEPS = 64.0f;
@@ -56,6 +59,7 @@ struct PhasorSubstepShape : HCVModule
         configInput(SHAPE_INPUT, "Phasor Shape CV");
         configInput(STEPS_INPUT, "Steps CV");
         configInput(MODE_INPUT, "Mode CV");
+        configInput(ACTIVE_INPUT, "Activation Gate");
 
         configOutput(SHAPED_OUTPUT, "Shaped Phasor");
         configOutput(PHASORS_OUTPUT, "Shaped Phasor Steps");
@@ -103,6 +107,12 @@ void PhasorSubstepShape::process(const ProcessArgs &args)
         const float phasorInput = inputs[PHASOR_INPUT].getPolyVoltage(i);
         const float scaledPhasor = scaleAndWrapPhasor(phasorInput);
 
+        bool active = true;
+        if(inputs[ACTIVE_INPUT].isConnected())
+        {
+            active = inputs[ACTIVE_INPUT].getPolyVoltage(i) >= 1.0f;
+        }
+
         bool stepChanged = stepDetectors[i](scaledPhasor);
         float fractionalPhasor = stepDetectors[i].getFractionalStep();
 
@@ -111,16 +121,24 @@ void PhasorSubstepShape::process(const ProcessArgs &args)
         const float shapedPhasorStep = phasorShape(fractionalPhasor, shape, mode);
         const float phasorOut = offsetBase + shapedPhasorStep * stepFraction;
 
-        outputs[SHAPED_OUTPUT].setVoltage(phasorOut * HCV_PHZ_UPSCALE, i);
+        outputs[SHAPED_OUTPUT].setVoltage(active ? phasorOut * HCV_PHZ_UPSCALE : phasorInput, i);
         outputs[PHASORS_OUTPUT].setVoltage(shapedPhasorStep * HCV_PHZ_UPSCALE, i);
     }
 
     float modeMod = modeKnob + (modeDepth * inputs[MODE_INPUT].getVoltage());
     int lightMode = (int)clamp(modeMod, 0.0f, 9.0f);
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i < 10; i++)
     {
         lights[i].setBrightness(lightMode == i ? 5.0f : 0.0f);
     }
+
+    bool active = true;
+    if(inputs[ACTIVE_INPUT].isConnected())
+    {
+        active = inputs[ACTIVE_INPUT].getVoltage() >= 1.0f;
+    }
+
+    lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
 }
 
 float PhasorSubstepShape::phasorShape(float _phasor, float _parameter, int _mode)
@@ -158,19 +176,23 @@ PhasorSubstepShapeWidget::PhasorSubstepShapeWidget(PhasorSubstepShape *module)
     createParamComboHorizontal(knobX, knobY + 50, PhasorSubstepShape::SHAPE_PARAM, PhasorSubstepShape::SHAPE_SCALE_PARAM, PhasorSubstepShape::SHAPE_INPUT);
     createParamComboHorizontal(knobX, knobY + 100, PhasorSubstepShape::MODE_PARAM, PhasorSubstepShape::MODE_SCALE_PARAM, PhasorSubstepShape::MODE_INPUT);
 
-    const float jackY = 303.0f;
+    const float jackY = 316.0f;
+    const float activeX = 45.0f;
 	//////INPUTS//////
-    createInputPort(26, jackY, PhasorSubstepShape::PHASOR_INPUT);
+    createInputPort(9, jackY, PhasorSubstepShape::PHASOR_INPUT);
+    createInputPort(activeX, jackY, PhasorSubstepShape::ACTIVE_INPUT);
 
 	//////OUTPUTS//////
-    createOutputPort(83.0f, jackY, PhasorSubstepShape::SHAPED_OUTPUT);
-    createOutputPort(126.0f, jackY, PhasorSubstepShape::PHASORS_OUTPUT);
+    createOutputPort(96.0f, jackY, PhasorSubstepShape::SHAPED_OUTPUT);
+    createOutputPort(138.0f, jackY, PhasorSubstepShape::PHASORS_OUTPUT);
 
-    int halfLights = PhasorSubstepShape::NUM_LIGHTS/2;
+    createHCVRedLightForJack(activeX, jackY, PhasorSubstepShape::ACTIVE_LIGHT);
+
+    int halfLights = 5;
     int lightX = 82;
     for (int i = 0; i < halfLights; i++)
     {
-        float lightY = 224 + i*10.0f;
+        float lightY = 237 + i*10.0f;
         createHCVRedLight(lightX, lightY, i);
         createHCVRedLight(lightX + 11, lightY, i + halfLights);
     }   

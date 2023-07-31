@@ -18,6 +18,7 @@ struct PhasorRandom : HCVModule
         CHANCE_INPUT,
         MODE_INPUT,
         FORCE_INPUT,
+        ACTIVE_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -30,7 +31,9 @@ struct PhasorRandom : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 6
+        ENUMS(MODE_LIGHTS, 6),
+        ACTIVE_LIGHT,
+        NUM_LIGHTS
 	};
 
     static constexpr float MAX_STEPS = 64.0f;
@@ -59,6 +62,7 @@ struct PhasorRandom : HCVModule
         configInput(CHANCE_INPUT, "Chance CV");
         configInput(STEPS_INPUT, "Steps CV");
         configInput(MODE_INPUT, "Mode CV");
+        configInput(ACTIVE_INPUT, "Activation Gate");
 
         configOutput(RANDOM_OUTPUT, "Randomized Phasor");
         configOutput(STEPPED_OUTPUT, "Stepped Phasor");
@@ -106,7 +110,15 @@ void PhasorRandom::process(const ProcessArgs &args)
 
         bool forceRandom = inputs[FORCE_INPUT].getPolyVoltage(i) > 1.0f;
 
-        randomizers[i].setProbability(probability);
+        bool active = true;
+        if(inputs[ACTIVE_INPUT].isConnected())
+        {
+            active = inputs[ACTIVE_INPUT].getPolyVoltage(i) >= 1.0f;
+        }
+
+        if(!active) forceRandom = false;
+
+        randomizers[i].setProbability(active ? probability : 0.0f);
         randomizers[i].setNumSteps(steps);
         randomizers[i].setMode(mode);
         randomizers[i].enableForceRandomization(forceRandom);
@@ -122,10 +134,18 @@ void PhasorRandom::process(const ProcessArgs &args)
     int lightMode = modeKnob + modeCVDepth*inputs[MODE_INPUT].getVoltage();
     lightMode = clamp(lightMode, 0, 5);
 
-    for(int i = 0; i < NUM_LIGHTS; i++)
+    for(int i = 0; i < 6; i++)
     {
         lights[i].setBrightness(i == lightMode ? 5.0f : 0.0f);
     }
+
+    bool active = true;
+    if(inputs[ACTIVE_INPUT].isConnected())
+    {
+        active = inputs[ACTIVE_INPUT].getVoltage() >= 1.0f;
+    }
+
+    lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
 }
 
 
@@ -137,20 +157,21 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
 	initializeWidget(module);
 
 	//////PARAMS//////
-    const float knobY = 64.0f;
+    const float knobY = 39.0f;
     const float knobX = 10.0f;
 
     createParamComboHorizontal(knobX, knobY, PhasorRandom::STEPS_PARAM, PhasorRandom::STEPS_SCALE_PARAM, PhasorRandom::STEPS_INPUT);
     createParamComboHorizontal(knobX, knobY + 50, PhasorRandom::CHANCE_PARAM, PhasorRandom::CHANCE_SCALE_PARAM, PhasorRandom::CHANCE_INPUT);
     createParamComboHorizontal(knobX, knobY + 100, PhasorRandom::MODE_PARAM, PhasorRandom::MODE_SCALE_PARAM, PhasorRandom::MODE_INPUT);
 
-    const float inJackY = 240.0f;
-    const float outJackY = 305.0f;
+    const float inJackY = 258.0f;
+    const float outJackY = 318.0f;
     const float jack1 = 13.0f;
     const float jack2 = 55.0f;
 	//////INPUTS//////
-    createInputPort(jack1, inJackY, PhasorRandom::PHASOR_INPUT);
-    createInputPort(jack2, inJackY, PhasorRandom::FORCE_INPUT);
+    createInputPort(25, inJackY, PhasorRandom::PHASOR_INPUT);
+    createInputPort(78, inJackY, PhasorRandom::FORCE_INPUT);
+    createInputPort(131, inJackY, PhasorRandom::ACTIVE_INPUT);
 
 	//////OUTPUTS//////
     createOutputPort(jack1, outJackY, PhasorRandom::RANDOM_OUTPUT);
@@ -159,10 +180,12 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
     createOutputPort(139.0f, outJackY, PhasorRandom::STEPPED_OUTPUT);
 
 
-    for (int i = 0; i < PhasorRandom::NUM_LIGHTS; i++)
+    for (int i = 0; i < 6; i++)
     {
-        createHCVRedLight(105.0, 223 + (i*9.5), i);
+        createHCVRedLight(100.0, 188 + (i*9.5), i);
     }
+
+    createHCVRedLightForJack(131, inJackY, PhasorRandom::ACTIVE_LIGHT);
     
 }
 
