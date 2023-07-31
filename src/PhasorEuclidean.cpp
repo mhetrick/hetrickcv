@@ -13,7 +13,10 @@ struct PhasorEuclidean : HCVModule
         ROTATE_PARAM, ROTATE_SCALE_PARAM,
         PW_PARAM, PW_SCALE_PARAM,
 
-        FILLMODE_PARAM,
+        FILLMODE_PARAM, FILLMODE_SCALE_PARAM,
+
+        STEPSQUANTIZE_PARAM,
+        FILLQUANTIZE_PARAM,
         QUANTIZE_PARAM,
         DETECTION_PARAM,
 
@@ -27,6 +30,7 @@ struct PhasorEuclidean : HCVModule
         FILL_INPUT,
         ROTATE_INPUT,
         PW_INPUT,
+        FILLMODE_INPUT,
 
 		NUM_INPUTS
 	};
@@ -51,10 +55,10 @@ struct PhasorEuclidean : HCVModule
 	{
 
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(BEATS_PARAM, 1.0f, MAX_BEATS, 1.0f, "Beats");
+		configParam(BEATS_PARAM, 1.0f, MAX_BEATS, 16.0f, "Beats");
 		configParam(BEATS_SCALE_PARAM, -1.0, 1.0, 1.0, "Beats CV Depth");
 
-        configParam(FILL_PARAM, 0.0f, MAX_BEATS, 0.0, "Fill");
+        configParam(FILL_PARAM, 0.0f, MAX_BEATS, 4.0, "Fill");
 		configParam(FILL_SCALE_PARAM, -1.0, 1.0, 1.0, "Fill CV Depth");
 
         configParam(ROTATE_PARAM, -5.0f, 5.0f, 0.0, "Rotate");
@@ -69,11 +73,20 @@ struct PhasorEuclidean : HCVModule
         configSwitch(FILLMODE_PARAM, 0.0, 5.0, 0.0, "Fill Parameter Limiting Mode", 
         {"Limit Fill to Current Number of Steps", "Swap Fill and Steps Depending on Which is Larger",
         "Wrap Fill Between 0 and Steps", "Fold Fill Between 0 and Steps", "Euclidean Ratchet Mode", "Density Mode"});
+        paramQuantities[FILLMODE_PARAM]->snapEnabled = true;
+        configParam(FILLMODE_SCALE_PARAM, -1.0, 1.0, 1.0, "Fill Limit Mode CV Depth");
+
+        configSwitch(STEPSQUANTIZE_PARAM, 0.0, 1.0, 1.0, "Quantize Steps Parameter", 
+        {"Free, Non-Integer Step Values", "Quantized, Whole Number Step Values"});
+        configSwitch(FILLQUANTIZE_PARAM, 0.0, 1.0, 1.0, "Quantize Fill Parameter", 
+        {"Free, Non-Integer Fill Values", "Quantized, Whole Number Fill Values"});
+
+
         configSwitch(QUANTIZE_PARAM, 0.0, 1.0, 1.0, "Quantize Param Changes", 
         {"Instant Parameter Changes", "Quantize Param Changes to Step Changes"});
         configSwitch(DETECTION_PARAM, 0.0, 1.0, 1.0, "Detection Mode", {"Raw", "Smart (Detect Playback and Reverse)"});
         
-        paramQuantities[FILLMODE_PARAM]->snapEnabled = true;
+        
 
         configInput(PHASOR_INPUT, "Phasor");
 
@@ -81,6 +94,7 @@ struct PhasorEuclidean : HCVModule
         configInput(FILL_INPUT, "Fill CV");
         configInput(ROTATE_INPUT, "Rotate CV");
         configInput(PW_INPUT, "Pulse Width CV");
+        configInput(FILLMODE_INPUT, "Fill Mode CV");
 
         configOutput(PHASOR_OUTPUT, "Euclidean Phasors");
         configOutput(GATE_OUTPUT, "Euclidean Gates");
@@ -114,9 +128,14 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     const bool quantizeParamChanges = params[QUANTIZE_PARAM].getValue() > 0.0f;
     const bool smartDetection = params[DETECTION_PARAM].getValue() > 0.0f;
 
-    const int fillMode = params[FILLMODE_PARAM].getValue();
+    float fillModeKnob = params[FILLMODE_PARAM].getValue();
+    const float fillModeCVDepth = params[FILLMODE_SCALE_PARAM].getValue();
 
-    paramQuantities[FILL_PARAM]->snapEnabled = fillMode != 5;
+    paramQuantities[BEATS_PARAM]->snapEnabled = params[STEPSQUANTIZE_PARAM].getValue() > 0.0f;
+    
+    bool fillQuantized = params[FILLQUANTIZE_PARAM].getValue() > 0.0f;
+    paramQuantities[FILL_PARAM]->snapEnabled = fillModeKnob == 5.0f ? false : fillQuantized;
+
 
     for (int i = 0; i < numChannels; i++)
     {
@@ -128,7 +147,10 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         float fill = fillKnob + (fillCVDepth * inputs[FILL_INPUT].getPolyVoltage(i));
         fill = clamp(fill, 0.0f, MAX_BEATS);
 
-        switch (fillMode)
+        float fillMode = fillModeKnob + (fillCVDepth * inputs[FILLMODE_INPUT].getPolyVoltage(i));
+        fillMode = clamp(fillMode, 0.0f, 5.0f);
+
+        switch ((int) fillMode)
         {
         case 0: //clamp
             fill = clamp(fill, 0.0f, beats);
@@ -169,7 +191,8 @@ void PhasorEuclidean::process(const ProcessArgs &args)
         case 5: //density mode
             fill = fill/MAX_BEATS; //scale to [0.0, 1.0]
             euclidean[i].setBeats(beats);
-            euclidean[i].setFill(beats * fill);
+            if(fillQuantized) euclidean[i].setFill(std::round(beats * fill));
+            else euclidean[i].setFill(beats * fill);
             break;
 
         default:
@@ -202,7 +225,7 @@ void PhasorEuclidean::process(const ProcessArgs &args)
 
     for(int i = 0; i < 6; i++)
     {
-        lights[FILLMODE_LIGHTS + i].setBrightness(fillMode == i ? 1.0f : 0.0f);
+        lights[FILLMODE_LIGHTS + i].setBrightness((int) fillModeKnob == i ? 1.0f : 0.0f);
     }
 }
 
@@ -216,28 +239,35 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
 
 	//////PARAMS//////
     const float knobY = 39.0f;
-    const float knobX = 10.0f;
+    const float knobX = 65.0f;
 
-    createParamComboHorizontal(knobX, knobY, PhasorEuclidean::BEATS_PARAM, PhasorEuclidean::BEATS_SCALE_PARAM, PhasorEuclidean::BEATS_INPUT);
-    createParamComboHorizontal(knobX, knobY + 50, PhasorEuclidean::FILL_PARAM, PhasorEuclidean::FILL_SCALE_PARAM, PhasorEuclidean::FILL_INPUT);
-    createParamComboHorizontal(knobX, knobY + 100, PhasorEuclidean::ROTATE_PARAM, PhasorEuclidean::ROTATE_SCALE_PARAM, PhasorEuclidean::ROTATE_INPUT);
-    createParamComboHorizontal(knobX, knobY + 150, PhasorEuclidean::PW_PARAM, PhasorEuclidean::PW_SCALE_PARAM, PhasorEuclidean::PW_INPUT);
+    const float stepsX = 15.0f;
+    const float stepsY = 60.0f;
+    createParamComboVertical(stepsX, stepsY, PhasorEuclidean::BEATS_PARAM, PhasorEuclidean::BEATS_SCALE_PARAM, PhasorEuclidean::BEATS_INPUT);
 
+    
+    createParamComboHorizontal(knobX, knobY, PhasorEuclidean::FILL_PARAM, PhasorEuclidean::FILL_SCALE_PARAM, PhasorEuclidean::FILL_INPUT);
+    createParamComboHorizontal(knobX, knobY + 50, PhasorEuclidean::ROTATE_PARAM, PhasorEuclidean::ROTATE_SCALE_PARAM, PhasorEuclidean::ROTATE_INPUT);
+    createParamComboHorizontal(knobX, knobY + 100, PhasorEuclidean::PW_PARAM, PhasorEuclidean::PW_SCALE_PARAM, PhasorEuclidean::PW_INPUT);
+    createParamComboHorizontal(knobX, knobY + 150, PhasorEuclidean::FILLMODE_PARAM, PhasorEuclidean::FILLMODE_SCALE_PARAM, PhasorEuclidean::FILLMODE_INPUT);
 
     const float jackY = 318.0f;
     float xSpacing = 41.0f;
 
-    float jackX2 = 63.0;
+
+    float jackX2 = 93.0;
     float jackX3 = jackX2 + xSpacing;
     float jackX4 = jackX3 + xSpacing;
 
-    createHCVTrimpot(70.0f, 240.0f, PhasorEuclidean::FILLMODE_PARAM);
+    const float switchY = 275;
 
-    createHCVSwitchVert(jackX3 + 5, 275, PhasorEuclidean::QUANTIZE_PARAM);
-    createHCVSwitchVert(jackX4 + 5, 275, PhasorEuclidean::DETECTION_PARAM);
+    createHCVSwitchVert(12, switchY, PhasorEuclidean::STEPSQUANTIZE_PARAM);
+    createHCVSwitchVert(52, switchY, PhasorEuclidean::FILLQUANTIZE_PARAM);
+    createHCVSwitchVert(92, switchY, PhasorEuclidean::QUANTIZE_PARAM);
+    createHCVSwitchVert(132, switchY, PhasorEuclidean::DETECTION_PARAM);
     
 	//////INPUTS//////
-    createInputPort(13.0f, jackY, PhasorEuclidean::PHASOR_INPUT);
+    createInputPort(43.0f, jackY, PhasorEuclidean::PHASOR_INPUT);
 
 	//////OUTPUTS//////
     createOutputPort(jackX2, jackY, PhasorEuclidean::PHASOR_OUTPUT);
@@ -250,7 +280,7 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
 
     for (int i = 0; i < 6; i++)
     {
-        createHCVRedLight(15.0f, 252.0f + i*9.5f, PhasorEuclidean::FILLMODE_LIGHTS + i);
+        createHCVRedLight(160.0f, 242.0f + i*9.5f, PhasorEuclidean::FILLMODE_LIGHTS + i);
     }
     
 }

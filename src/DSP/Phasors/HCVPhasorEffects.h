@@ -124,6 +124,7 @@ protected:
     const float gateScale = HCV_PHZ_GATESCALE;
     HCVPhasorGateDetector euclidGateDetector;
     HCVPhasorGateDetector clockGateDetector;
+    HCVPhasorStepDetector stepDetector;
 };
 
 //static effects

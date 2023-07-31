@@ -67,12 +67,13 @@ void HCVPhasorToEuclidean::processPhasor(float _normalizedPhasor)
     clockOutput = clockGateDetector(stepWidth);
 
     const float currentStep = floorf(scaledRamp);
-    if((lastStep != currentStep) || !quantizeParameterChanges)
+    if(stepDetector(_normalizedPhasor) || !quantizeParameterChanges)
     {
         lastStep = currentStep;
         steps = pendingSteps;
         fill = pendingFill;
         rotation = pendingRotation;
+        stepDetector.setNumberSteps(steps);
     }
 
     if(fill == 0.0f)
