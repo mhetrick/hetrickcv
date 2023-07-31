@@ -1,6 +1,6 @@
 # HetrickCV Changelog
 
-## 2.3.0 (in progress)
+## 2.3.0
 - Version 2.3.0 introduces a suite of phasor-based sequencing and Phase Distortion synthesis tools.
     - Add Phasor Generator module.
     - Add Phasor Geometry module.
