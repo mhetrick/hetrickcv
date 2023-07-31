@@ -29,6 +29,8 @@ struct PhasorShift : HCVModule
     enum LightIds
     {
         QUANTIZE_LIGHT,
+        PHASOR_LIGHT,
+        GATES_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -108,6 +110,8 @@ void PhasorShift::process(const ProcessArgs &args)
     }
 
     lights[QUANTIZE_LIGHT].setBrightness(quantize ? 1.0f : 0.0f);
+    setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
+    setLightFromOutput(GATES_LIGHT, GATES_OUTPUT);
 }
 
 struct PhasorShiftWidget : HCVModuleWidget { PhasorShiftWidget(PhasorShift *module); };
@@ -136,6 +140,9 @@ PhasorShiftWidget::PhasorShiftWidget(PhasorShift *module)
     createOutputPort(rightX, bottomJackY, PhasorShift::GATES_OUTPUT);
 
     createHCVRedLight(rightX + 30, topJackY, PhasorShift::QUANTIZE_LIGHT);
+
+    createHCVRedLightForJack(leftX, bottomJackY, PhasorShift::PHASOR_LIGHT);
+    createHCVRedLightForJack(rightX, bottomJackY, PhasorShift::GATES_LIGHT);
 }
 
 Model *modelPhasorShift = createModel<PhasorShift, PhasorShiftWidget>("PhasorShift");

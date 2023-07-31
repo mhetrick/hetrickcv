@@ -24,6 +24,11 @@ struct PhasorGeometry : HCVModule
     };
     enum LightIds
     {
+        REVERSE_LIGHT,
+        PINGPONG_LIGHT,
+        PONGPING_LIGHT,
+        MULT2_LIGHT,
+        MULT4_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -68,6 +73,10 @@ void PhasorGeometry::process(const ProcessArgs &args)
         outputs[MULT4_OUTPUT].setVoltage(x4 * HCV_PHZ_UPSCALE, i);
     }
     
+    for(int i = 0; i < NUM_LIGHTS; i++)
+    {
+        setLightFromOutput(i, i);
+    }
 }
 
 struct PhasorGeometryWidget : HCVModuleWidget { PhasorGeometryWidget(PhasorGeometry *module); };
@@ -81,8 +90,9 @@ PhasorGeometryWidget::PhasorGeometryWidget(PhasorGeometry *module)
 
     for(int i = 0; i < PhasorGeometry::NUM_OUTPUTS; i++)
     {
-        const int yPos = i*42;
-        createOutputPort(33, 115 + yPos, i);
+        const int yPos = 115 + i*42;
+        createOutputPort(33, yPos, i);
+        createHCVRedLightForJack(33, yPos, i);
     }
 }
 

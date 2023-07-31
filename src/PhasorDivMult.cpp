@@ -33,6 +33,7 @@ struct PhasorDivMult : HCVModule
     enum LightIds
     {
         ENUMS(MODE_LIGHT, 3),
+        GATE_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -152,10 +153,12 @@ void PhasorDivMult::process(const ProcessArgs &args)
         outputs[GATES_OUTPUT].setVoltage(gate, i);
     }
 
-    for(int i = 0; i < NUM_LIGHTS; i++)
+    for(int i = 0; i < 3; i++)
     {
         lights[MODE_LIGHT + i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
+
+    setLightFromOutput(GATE_LIGHT, GATES_OUTPUT);
 
 }
 
@@ -197,10 +200,12 @@ PhasorDivMultWidget::PhasorDivMultWidget(PhasorDivMult *module)
     int lightX = 122;
     int lightY = 179;
     int lightSpacing = 13;
-    for (int i = 0; i < PhasorDivMult::NUM_LIGHTS; i++)
+    for (int i = 0; i < 3; i++)
     {
         createHCVRedLight(lightX, lightY + lightSpacing * i, PhasorDivMult::MODE_LIGHT + i);
     }
+
+    createHCVRedLightForJack(103, bottomJackY, PhasorDivMult::GATE_LIGHT);
 }
 
 Model *modelPhasorDivMult = createModel<PhasorDivMult, PhasorDivMultWidget>("PhasorDivMult");

@@ -45,7 +45,11 @@ struct PhasorGen : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 8
+        PHASOR_LIGHT,
+        PULSES_LIGHT,
+        JITTER_POS_LIGHT, JITTER_NEG_LIGHT,
+        FINISH_LIGHT,
+        NUM_LIGHTS
 	};
 
     const float MAX_NUM_PULSES = 64.0f;
@@ -222,6 +226,11 @@ void PhasorGen::process(const ProcessArgs &args)
         bool finishHigh = phasors[i].phasorFinishedThisSample();
         outputs[FINISH_OUTPUT].setVoltage( finishHigh ? 5.0f : 0.0f, i);
     }
+
+    setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
+    setLightFromOutput(PULSES_LIGHT, PULSES_OUTPUT);
+    setBipolarLightBrightness(JITTER_POS_LIGHT, outputs[JITTER_OUTPUT].getVoltage() * 0.2f);
+    setLightSmoothFromOutput(FINISH_LIGHT, FINISH_OUTPUT);
 }
 
 
@@ -263,6 +272,12 @@ PhasorGenWidget::PhasorGenWidget(PhasorGen *module)
     createOutputPort(78.0f, outJackY, PhasorGen::PULSES_OUTPUT);
     createOutputPort(134.0f, outJackY, PhasorGen::JITTER_OUTPUT);
     createOutputPort(190.0f, outJackY, PhasorGen::FINISH_OUTPUT);
+
+    createHCVRedLightForJack(22.0f, outJackY, PhasorGen::PHASOR_LIGHT);
+    createHCVRedLightForJack(78.0f, outJackY, PhasorGen::PULSES_LIGHT);
+    createHCVRedLightForJack(190.0f, outJackY, PhasorGen::FINISH_LIGHT);
+
+    createHCVBipolarLightForJack(134.0f, outJackY, PhasorGen::JITTER_POS_LIGHT);
 }
 
 Model *modelPhasorGen = createModel<PhasorGen, PhasorGenWidget>("PhasorGen");

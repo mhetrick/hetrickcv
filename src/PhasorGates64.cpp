@@ -36,6 +36,7 @@ struct PhasorGates64 : HCVModule
     enum LightIds
     {
         ENUMS(GATE_LIGHTS, NUM_STEPS*3),
+        GATE_OUT_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -206,6 +207,8 @@ void PhasorGates64::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
+
+    setLightFromOutput(GATE_OUT_LIGHT, GATES_OUTPUT);
 }
 
 struct PhasorGates64Widget : HCVModuleWidget { PhasorGates64Widget(PhasorGates64 *module); };
@@ -238,7 +241,7 @@ PhasorGates64Widget::PhasorGates64Widget(PhasorGates64 *module)
         module, PhasorGates64::GATE_PARAMS + i, PhasorGates64::GATE_LIGHTS + 3 * i));
     }
     
-    
+    createHCVRedLightForJack(jackX, 310, PhasorGates64::GATE_OUT_LIGHT);
 }
 
 Model *modelPhasorGates64 = createModel<PhasorGates64, PhasorGates64Widget>("PhasorGates64");

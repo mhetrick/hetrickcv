@@ -40,6 +40,10 @@ struct PhaseDrivenSequencer : HCVModule
     enum LightIds
     {
         ENUMS(GATE_LIGHTS, NUM_STEPS*3),
+        STEPS_LIGHT,
+        SLEW_LIGHT,
+        SH_LIGHT,
+        GATES_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -235,6 +239,12 @@ void PhaseDrivenSequencer::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
+
+    setLightFromOutput(STEPS_LIGHT, STEPS_OUTPUT, 0.2f);
+    setLightFromOutput(SLEW_LIGHT, SLEW_OUTPUT, 0.2f);
+    setLightFromOutput(SH_LIGHT, SH_OUTPUT, 0.2f);
+    setLightFromOutput(GATES_LIGHT, GATES_OUTPUT);
+
 }
 
 struct PhaseDrivenSequencerWidget : HCVModuleWidget { PhaseDrivenSequencerWidget(PhaseDrivenSequencer *module); };
@@ -257,11 +267,12 @@ PhaseDrivenSequencerWidget::PhaseDrivenSequencerWidget(PhaseDrivenSequencer *mod
 
     //////OUTPUTS/////
     int spacing = 45;
-    createOutputPort(jackX, 310, PhaseDrivenSequencer::STEPS_OUTPUT);
-    createOutputPort(jackX + spacing, 310, PhaseDrivenSequencer::SLEW_OUTPUT);
-    createOutputPort(jackX + spacing*2, 310, PhaseDrivenSequencer::SH_OUTPUT);
-    createOutputPort(jackX + spacing*3, 310, PhaseDrivenSequencer::GATES_OUTPUT);
-    createOutputPort(jackX + spacing*4, 310, PhaseDrivenSequencer::TRIGS_OUTPUT);
+    int outJackX = 18;
+    createOutputPort(outJackX, 310, PhaseDrivenSequencer::STEPS_OUTPUT);
+    createOutputPort(outJackX + spacing, 310, PhaseDrivenSequencer::SLEW_OUTPUT);
+    createOutputPort(outJackX + spacing*2, 310, PhaseDrivenSequencer::SH_OUTPUT);
+    createOutputPort(outJackX + spacing*3, 310, PhaseDrivenSequencer::GATES_OUTPUT);
+    createOutputPort(outJackX + spacing*4, 310, PhaseDrivenSequencer::TRIGS_OUTPUT);
 
     for (int i = 0; i < PhaseDrivenSequencer::NUM_STEPS; i++)
     {
@@ -277,7 +288,10 @@ PhaseDrivenSequencerWidget::PhaseDrivenSequencerWidget(PhaseDrivenSequencer *mod
         module, PhaseDrivenSequencer::GATE_PARAMS + i, PhaseDrivenSequencer::GATE_LIGHTS + 3 * i));
     }
     
-    
+    createHCVRedLightForJack(outJackX, 310, PhaseDrivenSequencer::STEPS_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing, 310, PhaseDrivenSequencer::SLEW_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*2, 310, PhaseDrivenSequencer::SH_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*3, 310, PhaseDrivenSequencer::GATES_LIGHT);
 }
 
 Model *modelPhaseDrivenSequencer = createModel<PhaseDrivenSequencer, PhaseDrivenSequencerWidget>("PhaseDrivenSequencer");

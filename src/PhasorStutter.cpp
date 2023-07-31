@@ -30,6 +30,9 @@ struct PhasorStutter : HCVModule
     enum LightIds
     {
         ACTIVE_LIGHT,
+        PHASOR_LIGHT,
+        GATES_LIGHT,
+        STEPPHASOR_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -140,7 +143,10 @@ void PhasorStutter::process(const ProcessArgs &args)
     }
 
     lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
-    
+
+    setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
+    setLightFromOutput(GATES_LIGHT, GATES_OUTPUT);
+    setLightFromOutput(STEPPHASOR_LIGHT, STEPPHASOR_OUTPUT);
 }
 
 struct PhasorStutterWidget : HCVModuleWidget { PhasorStutterWidget(PhasorStutter *module); };
@@ -171,6 +177,9 @@ PhasorStutterWidget::PhasorStutterWidget(PhasorStutter *module)
 
     createHCVRedLightForJack(rightX, topJackY, PhasorStutter::ACTIVE_LIGHT);
     
+    createHCVRedLightForJack(12, bottomJackY, PhasorStutter::PHASOR_LIGHT);
+    createHCVRedLightForJack(48, bottomJackY, PhasorStutter::STEPPHASOR_LIGHT);
+    createHCVRedLightForJack(84, bottomJackY, PhasorStutter::GATES_LIGHT);
 }
 
 Model *modelPhasorStutter = createModel<PhasorStutter, PhasorStutterWidget>("PhasorStutter");

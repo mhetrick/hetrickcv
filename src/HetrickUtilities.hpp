@@ -204,6 +204,11 @@ struct HCVModuleWidget : ModuleWidget
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x, _y), module, _lightID));
     }
 
+    void createHCVBipolarLightForJack(float _x, float _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x-5, _y-2), module, _lightID));
+    }
+
     void createInputPort(float _x, float _y, int _paramID)
     {
         addInput(createInput<PJ301MPort>(Vec(_x, _y), module, _paramID));

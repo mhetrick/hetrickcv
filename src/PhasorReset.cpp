@@ -24,10 +24,15 @@ struct PhasorReset : HCVModule
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
+	enum LightIds
+    {
+        PHASOR_LIGHT,
+        NUM_LIGHTS
+	};
 
 	PhasorReset()
 	{
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		configBypass(MAIN_INPUT, MAIN_OUTPUT);
 
@@ -69,6 +74,8 @@ void PhasorReset::process(const ProcessArgs &args)
         float output = divmults[i].basicSync(normalizedPhasor);
         outputs[MAIN_OUTPUT].setVoltage(output * HCV_PHZ_UPSCALE, i);
 	}
+
+	setLightFromOutput(PHASOR_LIGHT, MAIN_OUTPUT);
 }
 
 
@@ -85,11 +92,13 @@ PhasorResetWidget::PhasorResetWidget(PhasorReset *module)
 
 	//////INPUTS//////
     int inputY = 248;
-    addInput(createInput<PJ301MPort>(Vec(13, inputY), module, PhasorReset::MAIN_INPUT));
-    addInput(createInput<PJ301MPort>(Vec(53, inputY), module, PhasorReset::RESET_INPUT));
+	createInputPort(13, inputY, PhasorReset::MAIN_INPUT);
+	createInputPort(53, inputY, PhasorReset::RESET_INPUT);
 
 	//////OUTPUTS//////
-	addOutput(createOutput<PJ301MPort>(Vec(33, 300), module, PhasorReset::MAIN_OUTPUT));
+	createOutputPort(33, 300, PhasorReset::MAIN_OUTPUT);
+
+	createHCVRedLightForJack(33, 300, PhasorReset::PHASOR_LIGHT);
 }
 
 Model *modelPhasorReset = createModel<PhasorReset, PhasorResetWidget>("PhasorReset");

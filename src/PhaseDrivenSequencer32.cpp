@@ -40,6 +40,10 @@ struct PhaseDrivenSequencer32 : HCVModule
     enum LightIds
     {
         ENUMS(GATE_LIGHTS, NUM_STEPS*3),
+        STEPS_LIGHT,
+        SLEW_LIGHT,
+        SH_LIGHT,
+        GATES_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -235,6 +239,11 @@ void PhaseDrivenSequencer32::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
+
+    setLightFromOutput(STEPS_LIGHT, STEPS_OUTPUT, 0.2f);
+    setLightFromOutput(SLEW_LIGHT, SLEW_OUTPUT, 0.2f);
+    setLightFromOutput(SH_LIGHT, SH_OUTPUT, 0.2f);
+    setLightFromOutput(GATES_LIGHT, GATES_OUTPUT);
 }
 
 struct PhaseDrivenSequencer32Widget : HCVModuleWidget { PhaseDrivenSequencer32Widget(PhaseDrivenSequencer32 *module); };
@@ -278,7 +287,10 @@ PhaseDrivenSequencer32Widget::PhaseDrivenSequencer32Widget(PhaseDrivenSequencer3
         module, PhaseDrivenSequencer32::GATE_PARAMS + i, PhaseDrivenSequencer32::GATE_LIGHTS + 3 * i));
     }
     
-    
+    createHCVRedLightForJack(outJackX, 310, PhaseDrivenSequencer32::STEPS_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing, 310, PhaseDrivenSequencer32::SLEW_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*2, 310, PhaseDrivenSequencer32::SH_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*3, 310, PhaseDrivenSequencer32::GATES_LIGHT);
 }
 
 Model *modelPhaseDrivenSequencer32 = createModel<PhaseDrivenSequencer32, PhaseDrivenSequencer32Widget>("PhaseDrivenSequencer32");

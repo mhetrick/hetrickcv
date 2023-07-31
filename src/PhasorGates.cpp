@@ -36,6 +36,7 @@ struct PhasorGates : HCVModule
     enum LightIds
     {
         ENUMS(GATE_LIGHTS, NUM_STEPS*3),
+        GATE_OUT_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -197,7 +198,7 @@ void PhasorGates::process(const ProcessArgs &args)
     bool isPlaying = slopeDetectors[0].isPhasorAdvancing();
 
     // Gate buttons
-    for (int i = 0; i < 8; i++) 
+    for (int i = 0; i < NUM_STEPS; i++) 
     {
         if (gateTriggers[i].process(params[GATE_PARAMS + i].getValue())) {
             gates[i] ^= true;
@@ -206,6 +207,8 @@ void PhasorGates::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
+
+    setLightFromOutput(GATE_OUT_LIGHT, GATES_OUTPUT);
 }
 
 struct PhasorGatesWidget : HCVModuleWidget { PhasorGatesWidget(PhasorGates *module); };
@@ -238,6 +241,7 @@ PhasorGatesWidget::PhasorGatesWidget(PhasorGates *module)
         module, PhasorGates::GATE_PARAMS + i, PhasorGates::GATE_LIGHTS + 3 * i));
     }
     
+    createHCVRedLightForJack(jackX, 310, PhasorGates::GATE_OUT_LIGHT);
     
 }
 

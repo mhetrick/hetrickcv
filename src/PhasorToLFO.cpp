@@ -96,6 +96,8 @@ void PhasorToLFO::process(const ProcessArgs &args)
     float curveCVDepth = params[CURVE_SCALE_PARAM].getValue();
     float offset = -5.0f * params[BIPOLAR_PARAM].getValue();
 
+    const bool bipolar = params[BIPOLAR_PARAM].getValue() > 0.0f;
+
     for (int i = 0; i < numChannels; i++)
     {
         float skew = skewKnob + (skewCVDepth * inputs[SKEW_INPUT].getPolyVoltage(i));
@@ -122,9 +124,10 @@ void PhasorToLFO::process(const ProcessArgs &args)
         outputs[PULSE_OUTPUT].setVoltage(lfos[i].getPulse() + offset, i);
     }
 
-    setBipolarLightBrightness(LFO_POS_LIGHT, outputs[MAIN_OUTPUT].getVoltage() * 0.2f);
-    setBipolarLightBrightness(TRI_POS_LIGHT, outputs[TRI_OUTPUT].getVoltage() * 0.2f);
-    setBipolarLightBrightness(PULSE_POS_LIGHT, outputs[PULSE_OUTPUT].getVoltage() * 0.2f);
+    const float lightScale = bipolar ? 0.2f : 0.1f;
+    setBipolarLightBrightness(LFO_POS_LIGHT, outputs[MAIN_OUTPUT].getVoltage() * lightScale);
+    setBipolarLightBrightness(TRI_POS_LIGHT, outputs[TRI_OUTPUT].getVoltage() * lightScale);
+    setBipolarLightBrightness(PULSE_POS_LIGHT, outputs[PULSE_OUTPUT].getVoltage() * lightScale);
 }
 
 
@@ -149,17 +152,20 @@ PhasorToLFOWidget::PhasorToLFOWidget(PhasorToLFO *module)
 	//////INPUTS//////
     createInputPort(11.0f, jackY, PhasorToLFO::PHASOR_INPUT);
 
+    const float outJack1 = 63.0f;
+    const float outJack2 = 104.0f;
+    const float outJack3 = 144.0f;
+
 	//////OUTPUTS//////
-    createOutputPort(60.0f, jackY, PhasorToLFO::MAIN_OUTPUT);
-    createOutputPort(100.0f, jackY, PhasorToLFO::TRI_OUTPUT);
-    createOutputPort(140.0f, jackY, PhasorToLFO::PULSE_OUTPUT);
+    createOutputPort(outJack1, jackY, PhasorToLFO::MAIN_OUTPUT);
+    createOutputPort(outJack2, jackY, PhasorToLFO::TRI_OUTPUT);
+    createOutputPort(outJack3, jackY, PhasorToLFO::PULSE_OUTPUT);
 
     createHCVSwitchHoriz(80.0f, 263.0f, PhasorToLFO::BIPOLAR_PARAM);
 
-    const float lightY = 300.0f;
-    createHCVBipolarLight(85.0, lightY, PhasorToLFO::LFO_POS_LIGHT);
-    createHCVBipolarLight(125.0, lightY, PhasorToLFO::TRI_POS_LIGHT);
-    createHCVBipolarLight(165.0, lightY, PhasorToLFO::PULSE_POS_LIGHT);
+    createHCVBipolarLightForJack(outJack1, jackY, PhasorToLFO::LFO_POS_LIGHT);
+    createHCVBipolarLightForJack(outJack2, jackY, PhasorToLFO::TRI_POS_LIGHT);
+    createHCVBipolarLightForJack(outJack3, jackY, PhasorToLFO::PULSE_POS_LIGHT);
     
 }
 
