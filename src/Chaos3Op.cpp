@@ -38,10 +38,15 @@ struct Chaos3Op : HCVModule
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
+    enum LightIds
+    {
+        ENUMS(OUT_LIGHT, 2),
+        NUM_LIGHTS
+	};
 
 	Chaos3Op()
 	{
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Chaos3Op::SRATE_PARAM, 0.01, 1.0, 0.5, "Sample Rate");
 		configParam(Chaos3Op::SRATE_SCALE_PARAM, -1.0, 1.0, 1.0, "Sample Rate CV Depth");
 
@@ -169,6 +174,7 @@ void Chaos3Op::process(const ProcessArgs &args)
 
     outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f);
     
+    setBipolarLightBrightness(OUT_LIGHT, filteredOut);
 }
 
 
@@ -205,6 +211,7 @@ Chaos3OpWidget::Chaos3OpWidget(Chaos3Op *module)
 
 	//////OUTPUTS//////
     createOutputPort(138.0f, jackY, Chaos3Op::MAIN_OUTPUT);
+    createHCVBipolarLightForJack(138.0f, jackY, Chaos3Op::OUT_LIGHT);
 }
 
 Model *modelChaos3Op = createModel<Chaos3Op, Chaos3OpWidget>("Chaos3Op");

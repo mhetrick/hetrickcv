@@ -26,10 +26,15 @@ struct BinaryNoise : HCVModule
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
+    enum LightIds
+	{
+		MAIN_LIGHT_POS, MAIN_LIGHT_NEG,
+		NUM_LIGHTS
+	};
 
 	BinaryNoise()
 	{
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(BinaryNoise::SRATE_PARAM, 0.01, 1.0, 0.5, "Sample Rate");
 		configParam(BinaryNoise::SRATE_SCALE_PARAM, -1.0, 1.0, 0.0, "Sample Rate CV Depth");
 
@@ -90,6 +95,8 @@ void BinaryNoise::process(const ProcessArgs &args)
     }
 
     outputs[MAIN_OUTPUT].setVoltage(lastOut);
+
+    setBipolarLightBrightness(MAIN_LIGHT_POS, outputs[MAIN_OUTPUT].getVoltage() * 0.2f);
 }
 
 
@@ -133,6 +140,7 @@ BinaryNoiseWidget::BinaryNoiseWidget(BinaryNoise *module)
 
 	//////OUTPUTS//////
     createOutputPort(103.0f, jackY, BinaryNoise::MAIN_OUTPUT);
+    createHCVBipolarLightForJack(103.0f, jackY, BinaryNoise::MAIN_LIGHT_POS);
 }
 
 Model *modelBinaryNoise = createModel<BinaryNoise, BinaryNoiseWidget>("BinaryNoise");

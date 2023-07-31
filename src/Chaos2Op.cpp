@@ -38,8 +38,10 @@ struct Chaos2Op : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {
-        NUM_LIGHTS = 5
+    {   ENUMS(MODE_LIGHTS, 5),
+        ENUMS(XOUT_LIGHT, 2),
+        ENUMS(YOUT_LIGHT, 2),
+        NUM_LIGHTS
 	};
 
 	Chaos2Op()
@@ -228,10 +230,13 @@ void Chaos2Op::process(const ProcessArgs &args)
     outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
     outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
+
+    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
+    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
     
 }
 
@@ -270,7 +275,10 @@ Chaos2OpWidget::Chaos2OpWidget(Chaos2Op *module)
     createOutputPort(104.0f, jackY, Chaos2Op::X_OUTPUT);
     createOutputPort(146.0f, jackY, Chaos2Op::Y_OUTPUT);
 
-    for (int i = 0; i < 5; i++)
+    createHCVBipolarLightForJack(104.0f, jackY, Chaos2Op::XOUT_LIGHT);
+    createHCVBipolarLightForJack(146.0f, jackY, Chaos2Op::YOUT_LIGHT);
+
+    for (int i = 0; i <= Chaos2Op::MODE_LIGHTS_LAST; i++)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 227 + (i*9.5)), module, i));
     }

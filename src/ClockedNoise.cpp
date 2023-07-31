@@ -33,8 +33,9 @@ struct ClockedNoise : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {
-        NUM_LIGHTS = 6
+    {   ENUMS(MODE_LIGHTS, 6),
+        ENUMS(OUT_LIGHT, 2),
+        NUM_LIGHTS
 	};
 
 	ClockedNoise()
@@ -168,11 +169,12 @@ void ClockedNoise::process(const ProcessArgs &args)
 
     outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f);
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
         lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
     
+    setBipolarLightBrightness(OUT_LIGHT, filteredOut);
 }
 
 
@@ -204,7 +206,9 @@ ClockedNoiseWidget::ClockedNoiseWidget(ClockedNoise *module)
 
 	//////OUTPUTS//////
     createOutputPort(116.0f, jackY, ClockedNoise::MAIN_OUTPUT);
-    for (int i = 0; i < 6; i++)
+    createHCVBipolarLightForJack(116.0f, jackY, ClockedNoise::OUT_LIGHT);
+
+    for (int i = 0; i <= ClockedNoise::MODE_LIGHTS_LAST; i++)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 223 + (i*9.5)), module, i));
     }

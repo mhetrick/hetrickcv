@@ -45,8 +45,11 @@ struct ChaoticAttractors : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {
-        NUM_LIGHTS = 8
+    {   ENUMS(MODE_LIGHTS, 8),
+        ENUMS(XOUT_LIGHT, 2),
+        ENUMS(YOUT_LIGHT, 2),
+        ENUMS(ZOUT_LIGHT, 2),
+        NUM_LIGHTS
 	};
 
 	ChaoticAttractors()
@@ -297,11 +300,14 @@ void ChaoticAttractors::process(const ProcessArgs &args)
     outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
     outputs[Z_OUTPUT].setVoltage(filteredOut[2] * 5.0f);
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
         lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
     
+    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
+    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
+    setBipolarLightBrightness(ZOUT_LIGHT, filteredOut[2]);
 }
 
 
@@ -344,9 +350,13 @@ ChaoticAttractorsWidget::ChaoticAttractorsWidget(ChaoticAttractors *module)
     createOutputPort(203.0f, jackY, ChaoticAttractors::Y_OUTPUT);
     createOutputPort(254.0f, jackY, ChaoticAttractors::Z_OUTPUT);
 
-    for (int i = 0; i < ChaoticAttractors::NUM_LIGHTS; i++)
+    createHCVBipolarLightForJack(151.0f, jackY, ChaoticAttractors::XOUT_LIGHT);
+    createHCVBipolarLightForJack(203.0f, jackY, ChaoticAttractors::YOUT_LIGHT);
+    createHCVBipolarLightForJack(254.0f, jackY, ChaoticAttractors::ZOUT_LIGHT);
+
+    for (int i = 0; i <= ChaoticAttractors::MODE_LIGHTS_LAST; i++)
     {
-        addChild(createLight<SmallLight<RedLight>>(Vec(215.0, 212 + (i*9.5)), module, i));
+        createHCVRedLight(215.0f, 212 + (i*9.5f), ChaoticAttractors::MODE_LIGHTS + i);
     }
     
 }

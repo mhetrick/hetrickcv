@@ -30,10 +30,15 @@ struct Gingerbread : HCVModule
 		MAIN_OUTPUT,
 		NUM_OUTPUTS
 	};
+    enum LightIds
+    {
+        ENUMS(OUT_LIGHT, 2),
+        NUM_LIGHTS
+	};
 
 	Gingerbread()
 	{
-		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(Gingerbread::SRATE_PARAM, 0.01, 1.0, 0.5, "Sample Rate");
 		configParam(Gingerbread::SRATE_SCALE_PARAM, -1.0, 1.0, 1.0, "Sample Rate CV Depth");
 
@@ -115,6 +120,7 @@ void Gingerbread::process(const ProcessArgs &args)
     filteredOut = dcFilter.process(filteredOut);
 
     outputs[MAIN_OUTPUT].setVoltage(filteredOut);
+    setBipolarLightBrightness(OUT_LIGHT, filteredOut * 0.2f);
 }
 
 
@@ -158,6 +164,7 @@ GingerbreadWidget::GingerbreadWidget(Gingerbread *module)
 
 	//////OUTPUTS//////
     createOutputPort(110.0f, jackY, Gingerbread::MAIN_OUTPUT);
+    createHCVBipolarLightForJack(110.0f, jackY, Gingerbread::OUT_LIGHT);
 }
 
 Model *modelGingerbread = createModel<Gingerbread, GingerbreadWidget>("Gingerbread");

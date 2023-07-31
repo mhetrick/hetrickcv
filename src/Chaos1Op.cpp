@@ -34,8 +34,10 @@ struct Chaos1Op : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {
-        NUM_LIGHTS = 7
+    {   ENUMS(MODE_LIGHTS, 7),
+        ENUMS(XOUT_LIGHT, 2),
+        ENUMS(YOUT_LIGHT, 2),
+        NUM_LIGHTS
 	};
 
 	Chaos1Op()
@@ -245,11 +247,13 @@ void Chaos1Op::process(const ProcessArgs &args)
     outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
     outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode == i ? 1.0f : 0.0f);
     }
-    
+
+    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
+    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
 }
 
 
@@ -285,7 +289,10 @@ Chaos1OpWidget::Chaos1OpWidget(Chaos1Op *module)
     createOutputPort(104.0f, jackY, Chaos1Op::X_OUTPUT);
     createOutputPort(146.0f, jackY, Chaos1Op::Y_OUTPUT);
 
-    for (int i = 0; i < Chaos1Op::NUM_LIGHTS; i++)
+    createHCVBipolarLightForJack(104.0f, jackY, Chaos1Op::XOUT_LIGHT);
+    createHCVBipolarLightForJack(146.0f, jackY, Chaos1Op::YOUT_LIGHT);
+
+    for (int i = 0; i <= Chaos1Op::MODE_LIGHTS_LAST; i++)
     {
         addChild(createLight<SmallLight<RedLight>>(Vec(130.0, 223 + (i*9.5)), module, i));
     }

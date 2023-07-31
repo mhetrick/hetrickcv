@@ -33,6 +33,7 @@
 - Add "Low-frequency Oscillator" tag to Feedback Sine Chaos.
 - Scanner is now polyphonic.
 - Tweak LED positions on some modules.
+- Add LEDs to noise and chaos modules.
 - BREAKING CHANGE: in 2.1.0, Gate Combiner and Random Gates had their trigger times reduced from 1ms to a single sample (another BREAKING CHANGE, but this was not listed as such). This is not within VCV voltage standards and failed to trigger a number of modules. Now, all HetrickCV modules use the 1ms trigger standard (including Comparator and Delta).
 - BREAKING CHANGE: All unipolar gate outputs are now 0-10V instead of 0-5V. Bipolar gate outputs have not changed.
 

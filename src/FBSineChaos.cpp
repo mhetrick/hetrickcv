@@ -42,7 +42,9 @@ struct FBSineChaos : HCVModule
 	};
     enum LightIds
     {
-        NUM_LIGHTS = 8
+        ENUMS(XOUT_LIGHT, 2),
+        ENUMS(YOUT_LIGHT, 2),
+        NUM_LIGHTS
 	};
 
 	FBSineChaos()
@@ -151,6 +153,8 @@ void FBSineChaos::process(const ProcessArgs &args)
     outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
     outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
     
+    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
+    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
 }
 
 
@@ -190,6 +194,8 @@ FBSineChaosWidget::FBSineChaosWidget(FBSineChaos *module)
     createOutputPort(134.0f, jackY, FBSineChaos::X_OUTPUT);
     createOutputPort(184.0f, jackY, FBSineChaos::Y_OUTPUT);
     
+    createHCVBipolarLightForJack(134.0f, jackY, FBSineChaos::XOUT_LIGHT);
+    createHCVBipolarLightForJack(184.0f, jackY, FBSineChaos::YOUT_LIGHT);
 }
 
 Model *modelFBSineChaos = createModel<FBSineChaos, FBSineChaosWidget>("FBSineChaos");

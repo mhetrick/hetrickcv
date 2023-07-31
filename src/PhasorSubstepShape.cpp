@@ -30,6 +30,8 @@ struct PhasorSubstepShape : HCVModule
     {
         ENUMS(MODE_LIGHT, 10),
         ACTIVE_LIGHT,
+        SHAPED_LIGHT,
+        PHASORS_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -139,6 +141,8 @@ void PhasorSubstepShape::process(const ProcessArgs &args)
     }
 
     lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromOutput(SHAPED_LIGHT, SHAPED_OUTPUT);
+    setLightFromOutput(PHASORS_LIGHT, PHASORS_OUTPUT);
 }
 
 float PhasorSubstepShape::phasorShape(float _phasor, float _parameter, int _mode)
@@ -183,10 +187,13 @@ PhasorSubstepShapeWidget::PhasorSubstepShapeWidget(PhasorSubstepShape *module)
     createInputPort(activeX, jackY, PhasorSubstepShape::ACTIVE_INPUT);
 
 	//////OUTPUTS//////
-    createOutputPort(96.0f, jackY, PhasorSubstepShape::SHAPED_OUTPUT);
-    createOutputPort(138.0f, jackY, PhasorSubstepShape::PHASORS_OUTPUT);
+    createOutputPort(94.0f, jackY, PhasorSubstepShape::SHAPED_OUTPUT);
+    createOutputPort(136.0f, jackY, PhasorSubstepShape::PHASORS_OUTPUT);
+    
 
     createHCVRedLightForJack(activeX, jackY, PhasorSubstepShape::ACTIVE_LIGHT);
+    createHCVRedLightForJack(94.0f, jackY, PhasorSubstepShape::SHAPED_LIGHT);
+    createHCVRedLightForJack(136.0f, jackY, PhasorSubstepShape::PHASORS_LIGHT);
 
     int halfLights = 5;
     int lightX = 82;
