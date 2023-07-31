@@ -32,7 +32,12 @@ struct PhasorRandom : HCVModule
     enum LightIds
     {
         ENUMS(MODE_LIGHTS, 6),
+        FORCE_LIGHT,
         ACTIVE_LIGHT,
+        OUT_LIGHT,
+        RANDOM_PHASE_LIGHT,
+        RANDOM_GATE_LIGHT,
+        STEPPED_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -144,8 +149,16 @@ void PhasorRandom::process(const ProcessArgs &args)
     {
         active = inputs[ACTIVE_INPUT].getVoltage() >= 1.0f;
     }
+    bool forceRandom = inputs[FORCE_INPUT].getVoltage() > 1.0f;
 
+    lights[FORCE_LIGHT].setBrightness(forceRandom ? 1.0f : 0.0f);
     lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    
+
+    setLightFromOutput(OUT_LIGHT, RANDOM_OUTPUT);
+    setLightFromOutput(RANDOM_PHASE_LIGHT, RANDOMPHASE_OUTPUT);
+    setLightSmoothFromOutput(RANDOM_GATE_LIGHT, RANDOMGATE_OUTPUT);
+    setLightFromOutput(STEPPED_LIGHT, STEPPED_OUTPUT);
 }
 
 
@@ -168,6 +181,8 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
     const float outJackY = 318.0f;
     const float jack1 = 13.0f;
     const float jack2 = 55.0f;
+    const float jack3 = 97.0f;
+    const float jack4 = 139.0f;
 	//////INPUTS//////
     createInputPort(25, inJackY, PhasorRandom::PHASOR_INPUT);
     createInputPort(78, inJackY, PhasorRandom::FORCE_INPUT);
@@ -176,8 +191,8 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
 	//////OUTPUTS//////
     createOutputPort(jack1, outJackY, PhasorRandom::RANDOM_OUTPUT);
     createOutputPort(jack2, outJackY, PhasorRandom::RANDOMPHASE_OUTPUT);
-    createOutputPort(97.0f, outJackY, PhasorRandom::RANDOMGATE_OUTPUT);
-    createOutputPort(139.0f, outJackY, PhasorRandom::STEPPED_OUTPUT);
+    createOutputPort(jack3, outJackY, PhasorRandom::RANDOMGATE_OUTPUT);
+    createOutputPort(jack4, outJackY, PhasorRandom::STEPPED_OUTPUT);
 
 
     for (int i = 0; i < 6; i++)
@@ -185,7 +200,13 @@ PhasorRandomWidget::PhasorRandomWidget(PhasorRandom *module)
         createHCVRedLight(100.0, 188 + (i*9.5), i);
     }
 
+    createHCVRedLightForJack(78, inJackY, PhasorRandom::FORCE_LIGHT);
     createHCVRedLightForJack(131, inJackY, PhasorRandom::ACTIVE_LIGHT);
+    
+    createHCVRedLightForJack(jack1, outJackY, PhasorRandom::OUT_LIGHT);
+    createHCVRedLightForJack(jack2, outJackY, PhasorRandom::RANDOM_PHASE_LIGHT);
+    createHCVRedLightForJack(jack3, outJackY, PhasorRandom::RANDOM_GATE_LIGHT);
+    createHCVRedLightForJack(jack4, outJackY, PhasorRandom::STEPPED_LIGHT);
     
 }
 
