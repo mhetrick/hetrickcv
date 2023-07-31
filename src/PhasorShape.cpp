@@ -26,7 +26,9 @@ struct PhasorShape : HCVModule
 
     enum LightIds
     {
-        NUM_LIGHTS = 10
+        ENUMS(MODE_LIGHTS, 10),
+        PHASOR_LIGHT,
+        NUM_LIGHTS
 	};
 
     static constexpr float MODE_CV_SCALE = 9.0f/5.0f;
@@ -96,11 +98,12 @@ void PhasorShape::process(const ProcessArgs &args)
 
     float modeMod = modeKnob + (modeDepth * inputs[MODECV_INPUT].getVoltage());
     int lightMode = (int)clamp(modeMod, 0.0f, 9.0f);
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    for (int i = 0; i < 10; i++)
     {
         lights[i].setBrightness(lightMode == i ? 5.0f : 0.0f);
     }
     
+    setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
 }
 
 float PhasorShape::phasorShape(float _phasor, float _parameter, int _mode)
@@ -140,7 +143,7 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
     
     createOutputPort(79, jackY, PhasorShape::PHASOR_OUTPUT);
 
-    int halfLights = PhasorShape::NUM_LIGHTS/2;
+    int halfLights = 5;
     for (int i = 0; i < halfLights; i++)
     {
         float lightY = 236 + i*10.0f;
@@ -148,7 +151,7 @@ PhasorShapeWidget::PhasorShapeWidget(PhasorShape *module)
         createHCVRedLight(63, lightY, i + halfLights);
     }
     
-    
+    createHCVRedLightForJack(79, jackY, PhasorShape::PHASOR_LIGHT);
 }
 
 Model *modelPhasorShape = createModel<PhasorShape, PhasorShapeWidget>("PhasorShape");

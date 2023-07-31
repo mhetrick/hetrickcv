@@ -92,14 +92,14 @@ BinaryGateWidget::BinaryGateWidget(BinaryGate *module)
 
     for(int i = 0; i < BinaryGate::NUM_INPUTS; i++)
     {
-        addInput(createInput<PJ301MPort>(Vec(jackX, 78 + (i*inSpacing)), module, BinaryGate::ON_INPUT + i));
-        addParam(createParam<TL1105>(Vec(jackX + 4.5, 107 + (i*inSpacing)), module, BinaryGate::ON_PARAM + i));
+        createInputPort(jackX, 78 + (i*inSpacing), BinaryGate::ON_INPUT + i);
+        createHCVButtonSmall(jackX + 4.5f, 107 + (i*inSpacing), BinaryGate::ON_PARAM + i);
     }
 
     //////OUTPUTS//////
     const int outputY = 282;
-    addOutput(createOutput<PJ301MPort>(Vec(jackX - 6.0f, outputY), module, BinaryGate::GATE_OUTPUT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(jackX + 22.0f, outputY + 10.0f), module, BinaryGate::GATE_LIGHT));
+    createOutputPort(jackX, outputY, BinaryGate::GATE_OUTPUT);
+    createHCVRedLightForJack(jackX, outputY, BinaryGate::GATE_LIGHT);
 }
 
 Model *modelBinaryGate = createModel<BinaryGate, BinaryGateWidget>("BinaryGate");

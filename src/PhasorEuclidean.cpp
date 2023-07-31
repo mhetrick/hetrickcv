@@ -13,6 +13,8 @@ struct PhasorEuclidean : HCVModule
         ROTATE_PARAM, ROTATE_SCALE_PARAM,
         PW_PARAM, PW_SCALE_PARAM,
 
+        FILLMODE_PARAM,
+        QUANTIZE_PARAM,
         DETECTION_PARAM,
 
 		NUM_PARAMS
@@ -40,6 +42,8 @@ struct PhasorEuclidean : HCVModule
         PHASOR_LIGHT,
         GATE_LIGHT,
         CLOCK_LIGHT,
+
+        ENUMS(FILLMODE_LIGHTS, 6),
         NUM_LIGHTS
 	};
 
@@ -62,8 +66,15 @@ struct PhasorEuclidean : HCVModule
         paramQuantities[BEATS_PARAM]->snapEnabled = true;
         paramQuantities[FILL_PARAM]->snapEnabled = true;
 
+        configSwitch(FILLMODE_PARAM, 0.0, 5.0, 0.0, "Fill Parameter Limiting Mode", 
+        {"Limit Fill to Current Number of Steps", "Swap Fill and Steps Depending on Which is Larger",
+        "Wrap Fill Between 0 and Steps", "Fold Fill Between 0 and Steps", "Euclidean Ratchet Mode", "Density Mode"});
+        configSwitch(QUANTIZE_PARAM, 0.0, 1.0, 1.0, "Quantize Param Changes", 
+        {"Instant Parameter Changes", "Quantize Param Changes to Step Changes"});
         configSwitch(DETECTION_PARAM, 0.0, 1.0, 1.0, "Detection Mode", {"Raw", "Smart (Detect Playback and Reverse)"});
         
+        paramQuantities[FILLMODE_PARAM]->snapEnabled = true;
+
         configInput(PHASOR_INPUT, "Phasor");
 
         configInput(BEATS_INPUT, "Beats CV");
@@ -100,19 +111,74 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     float rotateCVDepth = params[ROTATE_SCALE_PARAM].getValue();
     float pwCVDepth = params[PW_SCALE_PARAM].getValue();
 
+    const bool quantizeParamChanges = params[QUANTIZE_PARAM].getValue() > 0.0f;
     const bool smartDetection = params[DETECTION_PARAM].getValue() > 0.0f;
+
+    const int fillMode = params[FILLMODE_PARAM].getValue();
+
+    paramQuantities[FILL_PARAM]->snapEnabled = fillMode != 5;
 
     for (int i = 0; i < numChannels; i++)
     {
+        euclidean[i].setParameterChangeQuantization(quantizeParamChanges);
         euclidean[i].enableSmartDetection(smartDetection);
 
         float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i));
         beats = clamp(beats, 1.0f, MAX_BEATS);
-        euclidean[i].setBeats(beats);
-
         float fill = fillKnob + (fillCVDepth * inputs[FILL_INPUT].getPolyVoltage(i));
         fill = clamp(fill, 0.0f, MAX_BEATS);
-        euclidean[i].setFill(fill);
+
+        switch (fillMode)
+        {
+        case 0: //clamp
+            fill = clamp(fill, 0.0f, beats);
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(fill);
+            break;
+
+        case 1: //swap
+            if(beats > fill)
+            {
+                euclidean[i].setBeats(beats);
+                euclidean[i].setFill(fill);
+            }
+            else
+            {
+                euclidean[i].setBeats(fill);
+                euclidean[i].setFill(beats);
+            }
+            break;
+
+        case 2: //wrap
+            fill = gam::scl::wrap(fill, beats, 0.0f);
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(fill);
+            break;
+
+        case 3: //fold
+            fill = gam::scl::fold(fill, beats, 0.0f);
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(fill);
+            break;
+
+        case 4: //ratchet (no clamping, logic handled in effect)
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(fill);
+            break;
+
+        case 5: //density mode
+            fill = fill/MAX_BEATS; //scale to [0.0, 1.0]
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(beats * fill);
+            break;
+
+        default:
+            euclidean[i].setBeats(beats);
+            euclidean[i].setFill(fill);
+            break;
+        }
+
+        
 
         float pulseWidth = pwKnob + (pwCVDepth * inputs[PW_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
@@ -133,6 +199,11 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     lights[PHASOR_LIGHT].setBrightness(outputs[PHASOR_OUTPUT].getVoltage() * 0.1f);
     lights[GATE_LIGHT].setBrightness(outputs[GATE_OUTPUT].getVoltage() * 0.1f);
     lights[CLOCK_LIGHT].setBrightness(outputs[CLOCK_OUTPUT].getVoltage() * 0.1f);
+
+    for(int i = 0; i < 6; i++)
+    {
+        lights[FILLMODE_LIGHTS + i].setBrightness(fillMode == i ? 1.0f : 0.0f);
+    }
 }
 
 
@@ -160,6 +231,9 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     float jackX3 = jackX2 + xSpacing;
     float jackX4 = jackX3 + xSpacing;
 
+    createHCVTrimpot(70.0f, 240.0f, PhasorEuclidean::FILLMODE_PARAM);
+
+    createHCVSwitchVert(jackX3 + 5, 275, PhasorEuclidean::QUANTIZE_PARAM);
     createHCVSwitchVert(jackX4 + 5, 275, PhasorEuclidean::DETECTION_PARAM);
     
 	//////INPUTS//////
@@ -170,12 +244,15 @@ PhasorEuclideanWidget::PhasorEuclideanWidget(PhasorEuclidean *module)
     createOutputPort(jackX3, jackY, PhasorEuclidean::GATE_OUTPUT);
     createOutputPort(jackX4, jackY, PhasorEuclidean::CLOCK_OUTPUT);
 
-    const float lightOffsetX = -5.0f;
-    const float lightOffsetY = -2.0f;
+    createHCVRedLightForJack(jackX2, jackY, PhasorEuclidean::PHASOR_LIGHT);
+    createHCVRedLightForJack(jackX3, jackY, PhasorEuclidean::GATE_LIGHT);
+    createHCVRedLightForJack(jackX4, jackY, PhasorEuclidean::CLOCK_LIGHT);
 
-    createHCVRedLight(jackX2 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::PHASOR_LIGHT);
-    createHCVRedLight(jackX3 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::GATE_LIGHT);
-    createHCVRedLight(jackX4 + lightOffsetX, jackY + lightOffsetY, PhasorEuclidean::CLOCK_LIGHT);
+    for (int i = 0; i < 6; i++)
+    {
+        createHCVRedLight(15.0f, 252.0f + i*9.5f, PhasorEuclidean::FILLMODE_LIGHTS + i);
+    }
+    
 }
 
 Model *modelPhasorEuclidean = createModel<PhasorEuclidean, PhasorEuclideanWidget>("PhasorEuclidean");

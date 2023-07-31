@@ -69,7 +69,7 @@ public:
 
     void setBeats(float _beats)
     {
-        steps = std::max(1.0f, _beats);
+        pendingSteps = std::max(1.0f, _beats);
     }
 
     void setFill(float _fill)
@@ -108,7 +108,7 @@ protected:
     float pulseWidth = 0.5f;
 
     //these are traditionally ints, but we use floats for calculations
-    float steps = 16; //N
+    float steps = 16, pendingSteps = 16; //N
     float fill = 4, pendingFill = 4; //K
     float rotation = 0, pendingRotation = 0; //S
 

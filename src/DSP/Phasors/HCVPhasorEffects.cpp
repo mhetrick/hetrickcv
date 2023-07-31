@@ -70,6 +70,7 @@ void HCVPhasorToEuclidean::processPhasor(float _normalizedPhasor)
     if((lastStep != currentStep) || !quantizeParameterChanges)
     {
         lastStep = currentStep;
+        steps = pendingSteps;
         fill = pendingFill;
         rotation = pendingRotation;
     }
@@ -78,6 +79,25 @@ void HCVPhasorToEuclidean::processPhasor(float _normalizedPhasor)
     {
         phasorOutput = 0.0f;
         euclidGateOutput = 0.0f;
+        return;
+    }
+
+    if(fill > steps)
+    {
+
+        const float fillRatio = fill/steps;
+        const float ratchetLevel = ceilf(fill/steps);
+        const float ratchetDepth = exp2(ratchetLevel - 1.0f);
+
+        const float previousEvent = floorf(currentStep * fillRatio);
+        const float nextEvent = ceilf((previousEvent + ratchetLevel)/fillRatio);
+        const float currentEvent = ceilf(previousEvent/fillRatio);
+
+        const float lengthBeats = nextEvent - currentEvent;
+
+        phasorOutput = gam::scl::wrap((scaledRamp - currentEvent)/lengthBeats * ratchetDepth);
+        euclidGateOutput = euclidGateDetector(phasorOutput);
+
         return;
     }
 
