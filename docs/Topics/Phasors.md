@@ -1,5 +1,33 @@
 # Phasors
+A "phasor" in DSP terms is a rising, linear ramp wave that moves from a value of 0.0 to 1.0. They are enormously useful, and are used for almost all time-based, cyclical behaviors. For example, phasors are used for most oscillator algorithms, and they are also used a sample accurate timers.
 
+What does that mean for VCV, though, and why are they useful? Two clear functions are **Phase-based sequencing** and **Phase Distortion Synthesis**.
+
+### First, some credits:
+
+Thank you immensely to Graham Wakefield and Gregory Taylor. Their remarkable book [Generating Sound and Organizing Time](https://cycling74.com/books/go) made up the bulk of the research and design ideas that went into this set of modules. Graham was a graduate student at UCSB's Medaia Arts and Technology department as the same time as me, and has long been a source of inspiration. Additionally, I would like to thank Claes and the Bitwig team for the Grid, and David Alexander for the [Toybox Nano series](https://www.toyboxaudio.com/pages/nano-pack), a powerful collection of Reaktor modules that really put phase-based sequencing onto my radar.
+
+## Phase Based Sequencing
+
+**Phase-based sequencing** is a fairly old concept in modular synthesis, with one of the earliest examples being the "Analog Stage Select" input on the Buchla 245. Phase-based sequencing has been increasingly more popular lately, with modern software examples including the Bitwig Grid, Toybox Audio's Nano Pack for Reaktor 6, K-Devices' ESQ sequencer, and the Max 8.3 update (which included a large number of sample-accurate phase generators and modifiers). In hardware, phasor-based sequencing concepts are used in exciting ways in Mutable Instruments' classic Marbles, or ioLabs' FLUX.
+
+That's great, but what is it?!
+
+If you are reading this document, then you are likely familiar with how most sequencers work in modular synthesis: the sequencer receives a gate or trigger, and that gate or trigger advances the sequencer by one step.
+
+Phase-based sequencing takes a different approach: a control voltage is used to select the active stage of the sequencer. For advancing forward through a sequence, an ascending ramp is used. For a backwards sequence, a descending ramp is used.
+
+This simple difference provides significantly more information to a sequencer. With only two samples of an incoming phasor, a sequencer is able to calculate the frequency/BPM of a sequence, along with the direction that the sequencer should be heading. With only one sample, the sequencer is able to look up the exact step that it should be on along with the exact phase of the step (i.e. how "far" through the step we are). What this means in practice is that you can have a number of sequencers all responding to a leader phasor in lockstep: all BPM changes, directional changes, and any other shifts occur instantly without artifacts since the sequencers do not need to calculate timing between pulses.
+
+If this sounds confusing, let's go through some patching tutorials!
+
+- [1: First Steps](./PhasorTutorials/1-FirstSteps.md)
+- [2: Warp Speed](./PhasorTutorials/2-WarpSpeed.md)
+- [3: Ratcheting Up](./PhasorTutorials/3-RatchetingUp.md)
+- [4: Polymeters and Polyrhythms](./PhasorTutorials/4-PolymeterPolyrhythm.md)
+
+
+## Phase Distortion Synthesis
 
 ### Phasor Modules:
 - [Phase Driven Sequencer](../Modules/PhaseDrivenSequencer.md)
