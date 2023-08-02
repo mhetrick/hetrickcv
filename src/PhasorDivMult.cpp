@@ -186,10 +186,8 @@ PhasorDivMultWidget::PhasorDivMultWidget(PhasorDivMult *module)
     createInputPort(middleX, topJackY, PhasorDivMult::RESET_INPUT);
     createInputPort(rightX, topJackY, PhasorDivMult::RESYNC_INPUT);
 
-    int buttonOffsetX = 4;
-    int buttonOffsetY = 20;
-    createHCVButtonSmall(middleX + buttonOffsetX, topJackY - buttonOffsetY, PhasorDivMult::RESET_PARAM);
-    createHCVButtonSmall(rightX + buttonOffsetX, topJackY - buttonOffsetY, PhasorDivMult::RESYNC_PARAM);
+    createHCVButtonSmallForJack(middleX, topJackY, PhasorDivMult::RESET_PARAM);
+    createHCVButtonSmallForJack(rightX, topJackY, PhasorDivMult::RESYNC_PARAM);
     
     createOutputPort(51, bottomJackY, PhasorDivMult::PHASOR_OUTPUT);
     createOutputPort(103, bottomJackY, PhasorDivMult::GATES_OUTPUT);

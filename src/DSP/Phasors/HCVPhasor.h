@@ -113,6 +113,7 @@ public:
     {
         setRepeats(1);
         setFreqDirect(2.0f);
+        phasor.finish(); //don't fire when loaded.
     }
 
     float operator()()

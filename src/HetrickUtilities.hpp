@@ -180,6 +180,11 @@ struct HCVModuleWidget : ModuleWidget
         addParam(createParam<TL1105>(Vec(_x, _y), module, _paramID));
     }
 
+    void createHCVButtonSmallForJack(float _x, float _y, int _paramID)
+    {
+        addParam(createParam<TL1105>(Vec(_x + 4, _y - 20), module, _paramID));
+    }
+
     void createHCVButtonLarge(float _x, float _y, int _paramID)
     {
         addParam(createParam<CKD6>(Vec(_x, _y), module, _paramID));

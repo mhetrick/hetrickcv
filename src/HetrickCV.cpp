@@ -41,6 +41,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhaseDrivenSequencer);
 	p->addModel(modelPhaseDrivenSequencer32);
 	p->addModel(modelPhasorAnalyzer);
+	p->addModel(modelPhasorBurstGen);
 	p->addModel(modelPhasorDivMult);
 	p->addModel(modelPhasorEuclidean);
 	p->addModel(modelPhasorGates);

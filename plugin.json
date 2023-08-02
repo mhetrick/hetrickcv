@@ -316,6 +316,18 @@
       ]
     },
     {
+      "slug": "PhasorBurstGen",
+      "name": "Phasor Burst Generator",
+      "description": "Generates a phasor repeatedly for a given number of times.",
+      "tags": [
+        "Oscillator",
+        "Clock Generator",
+        "Clock Modulator",
+        "Low-frequency Oscillator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorDivMult",
       "name": "Phasor Divide & Multiply",
       "description": "Processes a phasor signal and outputs a phasor at a precise, variable time multiple or division.",

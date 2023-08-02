@@ -117,10 +117,10 @@ struct PhasorGen : HCVModule
 
         configInput(FM_INPUT, "Frequency CV");
 
-        configInput(PHASE_INPUT, "Index Multiplier CV");
-        configInput(PW_INPUT, "Phase Increment CV");
-        configInput(PULSES_INPUT, "Phase Multiplier CV");
-        configInput(JITTER_INPUT, "Feedback CV CV");
+        configInput(PHASE_INPUT, "Phase CV");
+        configInput(PW_INPUT, "Pulse Width CV");
+        configInput(PULSES_INPUT, "Pulses Per Cycle CV");
+        configInput(JITTER_INPUT, "Jitter CV");
 
         configInput(CLOCK_INPUT, "Clock");
         configInput(RESET_INPUT, "Reset");
@@ -164,10 +164,7 @@ void PhasorGen::process(const ProcessArgs &args)
 
     const bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
 
-    int numChannels = getMaxInputPolyphony();
-    outputs[PHASOR_OUTPUT].setChannels(numChannels);
-    outputs[PULSES_OUTPUT].setChannels(numChannels);
-    outputs[JITTER_OUTPUT].setChannels(numChannels);
+    int numChannels = setupPolyphonyForAllOutputs();
 
     for (int i = 0; i < numChannels; i++)
     {
@@ -217,14 +214,14 @@ void PhasorGen::process(const ProcessArgs &args)
 
         
         float modulatedPulses = pulsesCVDepth * inputs[PULSES_INPUT].getPolyVoltage(i) * PULSE_CV_SCALAR;
-        float pulses = clamp(pulsesKnob + modulatedPulses, 1.0f, 64.0f);
+        float pulses = clamp(pulsesKnob + modulatedPulses, 1.0f, MAX_NUM_PULSES);
         phasors[i].setPulsesPerCycle(pulses);
 
         outputs[PHASOR_OUTPUT].setVoltage(phasors[i](), i);
         outputs[PULSES_OUTPUT].setVoltage(phasors[i].getPulse(), i); 
         outputs[JITTER_OUTPUT].setVoltage(jitterValue, i);
         bool finishHigh = phasors[i].phasorFinishedThisSample();
-        outputs[FINISH_OUTPUT].setVoltage( finishHigh ? 5.0f : 0.0f, i);
+        outputs[FINISH_OUTPUT].setVoltage( finishHigh ? HCV_GATE_MAG : 0.0f, i);
     }
 
     setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
