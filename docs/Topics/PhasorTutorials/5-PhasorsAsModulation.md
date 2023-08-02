@@ -64,6 +64,24 @@ Another extremely useful module is the [Phasor to LFO](../../Modules/PhasorToLFO
 
 In the patch above, I've continued the experiment of feedback patching via the use of Phasor Timetable. You can find all sorts of incredible shapes by exploring this module.
 
+## Phasors as Envelopes
+
+We can save a lot of patching by using our phasors directly as envelopes. The simplest recipe is a Decay Envelope. We can build this by reversing our phasor and then changing the curve. This is easily done with [Phasor Geometry](../../Modules/PhasorGeometry.md) and the Sub-Step Shaper.
+
+![PhasorEnvelope](./PhasorEnvelopes.png)
+
+In the patch above, I've reversed the phasor (so that it starts at 10V), and then applied the Curve algorithm to make the decay more exponential. This will be even more useful in the next chapter when we explore rhythmic phasor generators. If a decay envelope is not enough, we can "draw" an envelope using the Slew output of the [Phase Driven Sequencer](../../Modules/PhaseDrivenSequencer.md).
+
+![PhasorDraw](./EnvelopeSequence.png)
+
+We can essentially draw the shape of our envelope as a series of points using the sequencer's voltage knobs. We then smoothly navigate through these points by using the slew output from the Phase Driven Sequencer. The slew between the steps is directly controlled by the position of the input phasor, so we can create different point transitions by using the Sub-Step Shaper.
+
+I can warp the entire envelope by setting Steps to 1:
+![EnvelopeMorph1](./EnvelopeMorph1.png)
+
+Or I can change the way the envelope slews between sequencer steps by increasing the number of shaper Steps:
+![EnvelopeMorph2](./EnvelopeMorph2.png)
+
 ## Euclidean... LFOs?!
 Yes, those are possible! We will dive in with the next tutorial.
 
