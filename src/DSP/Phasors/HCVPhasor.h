@@ -113,7 +113,7 @@ public:
     {
         setRepeats(1);
         setFreqDirect(2.0f);
-        phasor.finish(); //don't fire when loaded.
+        stopPhasor(); //don't fire when loaded.
     }
 
     float operator()()
@@ -132,6 +132,11 @@ public:
     {
         if(_repeats < 1) _repeats = 1;
         phasor.phsInc().repeats(_repeats);
+    }
+
+    void stopPhasor()
+    {
+        phasor.finish();
     }
 
     float getCurrentPhase() override { return phasor.phase(); }

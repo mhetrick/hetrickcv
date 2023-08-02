@@ -1,9 +1,11 @@
 # HetrickCV Changelog
 
 ## 2.3.1 (In Progress)
-- Add Phasor Burst Generator module (in progress).
+- Add Phasor Burst Generator module.
+- Fix frequency knob state saving on Phasor Generator. (in progress)
 - Fix some labels on Phasor Generator.
 - Fix Finish output polyphony on Phasor Generator.
+- Add better default values to Phasor Rhythm Group.
 
 ## 2.3.0
 - Version 2.3.0 introduces a suite of phasor-based sequencing and Phase Distortion synthesis tools.

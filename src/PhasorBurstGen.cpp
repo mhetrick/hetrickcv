@@ -17,6 +17,7 @@ struct PhasorBurstGen : HCVModule
 
         RESET_PARAM,
         STOP_PARAM,
+        CYCLE_PARAM,
 
 		NUM_PARAMS
 	};
@@ -32,6 +33,7 @@ struct PhasorBurstGen : HCVModule
         RESET_INPUT,
         STOP_INPUT,
         FREEZE_INPUT,
+        CYCLE_INPUT,
         
 		NUM_INPUTS
 	};
@@ -49,11 +51,18 @@ struct PhasorBurstGen : HCVModule
         PULSES_LIGHT,
         PASS_LIGHT,
         FINISH_LIGHT,
+        CYCLE_LIGHT,
         NUM_LIGHTS
 	};
 
     const float MAX_REPEATS = 64.0f;
     const float REPEATS_CV_SCALAR = MAX_REPEATS/5.0f;
+
+    dsp::SchmittTrigger cycleTrigger;
+    dsp::SchmittTrigger stopTriggers[16];
+    dsp::SchmittTrigger resetTriggers[16];
+    HCVTriggeredGate passTriggers[16];
+    bool cycling = false;
 
 	PhasorBurstGen()
 	{
@@ -79,8 +88,8 @@ struct PhasorBurstGen : HCVModule
                         maxValue = 10.0f;
                         defaultValue = 1.0f;
 
-                        displayMultiplier = 1.f;
                         displayBase = 2.0f;
+                        displayMultiplier = 1.f;
                     }
 				}
 				else //clock sync div/mult
@@ -112,6 +121,7 @@ struct PhasorBurstGen : HCVModule
 
         configButton(RESET_PARAM, "Reset");
         configButton(STOP_PARAM, "Stop");
+        configButton(CYCLE_PARAM, "Cycle Toggle");
 
         configInput(FM_INPUT, "Frequency CV");
 
@@ -122,6 +132,7 @@ struct PhasorBurstGen : HCVModule
         configInput(RESET_INPUT, "Reset");
         configInput(STOP_INPUT, "Stop");
         configInput(FREEZE_INPUT, "Freeze");
+        configInput(CYCLE_INPUT, "Cycle");
 
         configOutput(PHASOR_OUTPUT, "Phasor");
         configOutput(PULSES_OUTPUT, "Pulses");
@@ -133,6 +144,19 @@ struct PhasorBurstGen : HCVModule
 
     HCVBurstPhasor phasors[16];
     HCVClockSync clockSyncs[16];
+
+    json_t *dataToJson() override
+    {
+		json_t *rootJ = json_object();
+        json_object_set_new(rootJ, "cycling", json_boolean(cycling));
+		return rootJ;
+	}
+    void dataFromJson(json_t *rootJ) override
+    {
+		json_t *cyclingJ = json_object_get(rootJ, "cycling");
+		if (cyclingJ)
+            cycling = json_boolean_value(cyclingJ);
+	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -152,6 +176,13 @@ void PhasorBurstGen::process(const ProcessArgs &args)
     const float pwCVDepth = params[PW_SCALE_PARAM].getValue();
 
     const bool lfoMode = params[RANGE_PARAM].getValue() == 0.0f;
+    const bool passMode = params[PASS_PARAM].getValue() > 0.0f;
+
+    const float resetButton = params[RESET_PARAM].getValue();
+    const float stopButton = params[STOP_PARAM].getValue();
+
+    const bool cycleButton = cycleTrigger.process(params[CYCLE_PARAM].getValue());
+    if(cycleButton) cycling = !cycling;
 
     int numChannels = setupPolyphonyForAllOutputs();
 
@@ -183,22 +214,49 @@ void PhasorBurstGen::process(const ProcessArgs &args)
             phasors[i].setFreqDirect(freq);
         }
 
+        //cycle input acts as a momentary toggle for internal cycling state
+        const bool cycleMode = (inputs[CYCLE_INPUT].getPolyVoltage(i) >= 1.0f) ? !cycling : cycling;
+
         float modulatedRepeats = repeatsCVDepth * inputs[REPEATS_INPUT].getPolyVoltage(i) * REPEATS_CV_SCALAR;
         float repeats = clamp(repeatsKnob + modulatedRepeats, 1.0f, MAX_REPEATS);
-        phasors[i].setRepeats(repeats);
+        phasors[i].setRepeats(cycleMode ? 1 : repeats);
 
         float pulseWidth = pwKnob + (pwCVDepth * inputs[PW_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;;
         phasors[i].setPulseWidth(pulseWidth);
 
         phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
-        bool resetThisFrame = phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
 
-        bool finished = phasors[i].done();
+        const float stopValue = inputs[STOP_INPUT].getPolyVoltage(i) + stopButton;
+        if(stopTriggers[i].process(stopValue))
+        {
+            cycling = false;
+            phasors[i].stopPhasor();
+        } 
+        
+        const bool finished = phasors[i].done();
 
-        outputs[PHASOR_OUTPUT].setVoltage(finished ? 0.0f : phasors[i](), i);
+        const bool reset = (inputs[RESET_INPUT].getPolyVoltage(i) + resetButton) >= 1.0f;
+        bool triggerPass = false;
+        if(resetTriggers[i].process(reset))
+        {
+            if(passMode)
+            {
+                if(finished) phasors[i].reset();
+                else triggerPass = true;
+            }
+            else
+            {
+                phasors[i].reset();
+            }
+        }
+        
+        if(cycleMode && finished) phasors[i].reset();
+
+        const float phasorOutput = phasors[i]();
+        outputs[PHASOR_OUTPUT].setVoltage(finished ? 0.0f : phasorOutput, i);
         outputs[PULSES_OUTPUT].setVoltage(finished ? 0.0f : phasors[i].getPulse(), i); 
-        outputs[PASS_OUTPUT].setVoltage(0.0f, i);
+        outputs[PASS_OUTPUT].setVoltage(passTriggers[i].process(triggerPass) ? HCV_PHZ_GATESCALE : 0.0f, i);
 
         outputs[FINISH_OUTPUT].setVoltage( finished ? HCV_GATE_MAG : 0.0f, i);
     }
@@ -207,6 +265,9 @@ void PhasorBurstGen::process(const ProcessArgs &args)
     setLightFromOutput(PULSES_LIGHT, PULSES_OUTPUT);
     setLightSmoothFromOutput(PASS_LIGHT, PASS_OUTPUT);
     setLightFromOutput(FINISH_LIGHT, FINISH_OUTPUT);
+
+    const bool cycleMode = (inputs[CYCLE_INPUT].getVoltage() >= 1.0f) ? !cycling : cycling;
+    lights[CYCLE_LIGHT].setBrightness(cycleMode ? 1.0f : 0.0f);
 }
 
 
@@ -220,25 +281,29 @@ PhasorBurstGenWidget::PhasorBurstGenWidget(PhasorBurstGen *module)
 	//////PARAMS//////
     const float knobY = 60.0f;
     const float knobX = 15.0f;
-    const float spacing = 88.0f;
+    const float spacing = 87.0f;
 
     createParamComboVertical(knobX, knobY,              PhasorBurstGen::FREQ_PARAM, PhasorBurstGen::FREQ_SCALE_PARAM, PhasorBurstGen::FM_INPUT);
     createParamComboVertical(knobX + spacing, knobY,    PhasorBurstGen::REPEATS_PARAM, PhasorBurstGen::REPEATS_SCALE_PARAM, PhasorBurstGen::REPEATS_INPUT);
     createParamComboVertical(knobX + spacing*2.0, knobY,PhasorBurstGen::PW_PARAM, PhasorBurstGen::PW_SCALE_PARAM, PhasorBurstGen::PW_INPUT);
 
     createHCVSwitchVert(25.0f, 215.0f, PhasorBurstGen::RANGE_PARAM);
-    createHCVSwitchVert(81.0f, 215.0f, PhasorBurstGen::PASS_PARAM);
+    createHCVSwitchVert(68.0f, 215.0f, PhasorBurstGen::PASS_PARAM);
 
     
 	//////INPUTS//////
     const float jackY = 265.0f;
     createInputPort(22.0f, jackY, PhasorBurstGen::VOCT_INPUT);
-    createInputPort(78.0f, jackY, PhasorBurstGen::CLOCK_INPUT);
-    createInputPort(134.0f, jackY, PhasorBurstGen::RESET_INPUT);
-    createInputPort(190.0f, jackY, PhasorBurstGen::STOP_INPUT);
+    createInputPort(64.0f, jackY, PhasorBurstGen::CLOCK_INPUT);
+    createInputPort(106.0f, jackY, PhasorBurstGen::RESET_INPUT);
+    createInputPort(148.0f, jackY, PhasorBurstGen::STOP_INPUT);
+    createInputPort(190.0f, jackY, PhasorBurstGen::CYCLE_INPUT);
 
-    createHCVButtonSmallForJack(134.0f, jackY, PhasorBurstGen::RESET_PARAM);
-    createHCVButtonSmallForJack(190.0f, jackY, PhasorBurstGen::STOP_PARAM);
+    createHCVButtonSmallForJack(106.0f, jackY, PhasorBurstGen::RESET_PARAM);
+    createHCVButtonSmallForJack(148.0f, jackY, PhasorBurstGen::STOP_PARAM);
+    createHCVButtonSmallForJack(190.0f, jackY, PhasorBurstGen::CYCLE_PARAM);
+
+    createHCVRedLightForJack(190.0f, jackY, PhasorBurstGen::CYCLE_LIGHT);
 
 	//////OUTPUTS//////
     const float outJackY = 315.0f;
