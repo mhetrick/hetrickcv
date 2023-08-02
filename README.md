@@ -54,6 +54,7 @@ I welcome Issues and Pull Requests to this repository if you have suggestions fo
 - [Min-Max](./docs/Modules/MinMax.md)
 - [Phase Driven Sequencer](./docs/Modules/PhaseDrivenSequencer.md)
 - [Phasor Analyzer](./docs/Modules/PhasorAnalyzer.md)
+- [Phasor Burst Generator](./docs/Modules/PhasorBurstGen.md)
 - [Phasor Divide & Multiply](./docs/Modules/PhasorDivMult.md)
 - [Phasor Generator](./docs/Modules/PhaseGen.md)
 - [Phasor Geometry](./docs/Modules/PhasorGeometry.md)

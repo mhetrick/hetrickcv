@@ -39,6 +39,7 @@ If this sounds confusing, let's go through some patching tutorials!
 ### Phasor Modules:
 - [Phase Driven Sequencer](../Modules/PhaseDrivenSequencer.md)
 - [Phasor Analyzer](../Modules/PhasorAnalyzer.md)
+- [Phasor Burst Generator](../Modules/PhasorBurstGen.md)
 - [Phasor Divide & Multiply](../Modules/PhasorDivMult.md)
 - [Phasor Generator](../Modules/PhaseGen.md)
 - [Phasor Geometry](../Modules/PhasorGeometry.md)
