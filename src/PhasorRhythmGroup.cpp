@@ -49,13 +49,13 @@ struct PhasorRhythmGroup : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 
-		configParam(STEPS_PARAM, 1.0f, MAX_STEPS, 1.0f, "Steps");
+		configParam(STEPS_PARAM, 1.0f, MAX_STEPS, 16.0f, "Steps");
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
 
-        configParam(GROUPSTEPS_PARAM, 1.0f, MAX_STEPS, 1.0, "Group Steps");
+        configParam(GROUPSTEPS_PARAM, 1.0f, MAX_STEPS, 7.0, "Group Steps");
 		configParam(GROUPSTEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Group Steps CV Depth");
 
-        configParam(SUBGROUPSTEPS_PARAM, 1.0f, MAX_STEPS, 1.0, "Subgroup Steps");
+        configParam(SUBGROUPSTEPS_PARAM, 1.0f, MAX_STEPS, 3.0, "Subgroup Steps");
 		configParam(SUBGROUPSTEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Subgroup Steps CV Depth");
 
 

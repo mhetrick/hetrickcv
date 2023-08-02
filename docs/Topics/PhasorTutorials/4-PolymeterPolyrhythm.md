@@ -11,7 +11,7 @@ Polyrhythm is when you have two sequences with different time bases. The most co
 
 ## Another Drummer
 
-We want different tones so that we can differentiate our sequences. If you happen to own VCV Drums, you could use those here. A great free option is [Vult Trummor 2](https://library.vcvrack.com/VultModulesFree/Trummor2). Without diving too much into programming these modules, you'll want to setup two tones like a kick and a hi-hat and connect them to two Phase Driven Sequencer driven by the same phasor. Here's an example patch:
+We want different tones so that we can differentiate our sequences. If you happen to own [VCV Drums](https://vcvrack.com/Drums), you could use those here. A great free option is [Vult Trummor 2](https://library.vcvrack.com/VultModulesFree/Trummor2). Without diving too much into programming these modules, you'll want to setup two tones like a kick and a hi-hat and connect them to two Phase Driven Sequencer driven by the same phasor. Here's an example patch:
 
 ![Trummor2](./Trummor.png)
 
@@ -35,6 +35,14 @@ Now, set the Phasor Divide & Multiply to Auto Sync. To get a 16-beat sequencer t
 
 The phase of the secondary phasor might have wandered a bit while you were changing the Divide/Multiply values. If that's the case, just hit the Resync button to gain a new phase lock.
 
+## Polychronics and Phasing
+
+Oh no, there's another poly- term?! This one's a lot simpler. Polychronic (in musical terms) refers to rhythms running at unrelated tempi. One example that you might be familiar with is the phasing work of [Steve Reich](https://www.youtube.com/watch?v=g0WVh1D0N50).
+
+Setting up an arbitrary polychronic system is dead simple: simply use two separate phasor generators and set them to different speeds.
+
+For Reich-style phasing, you can simply reuse the Divide & Multiply patch from above. This time, instead of setting the Divide and Multiply controls to metric, integer values, use a Multiply value like 1.01x or 1.001x. The closer the value is to 1x, the longer it will take the secondary phasor to drift noticeably from the primary phasor.
+
 ## Wait, Get Back in Line!
 
 If you are going to experiment a lot, it might be worth adding a primary Reset button to your patch. I typically use VCV Pulses for this. Here's an example on how to wire it up. Just click the PUSH button to reset all of your phasors.
@@ -45,4 +53,4 @@ If you are using VCV inside of a DAW, you can use a VCV MIDI->CV module to sync 
 
 ![DAWSync](./DAWSync.png)
 
-I hope that this tutorial provided a helpful start to your phase sequencing adventure. Get out there and experiment!
+Next Tutorial: [5 - Phasors as Modulation](./5-PhasorsAsModulation.md)

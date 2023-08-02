@@ -5,7 +5,11 @@ What does that mean for VCV, though, and why are they useful? Two clear function
 
 ### First, some credits:
 
-Thank you immensely to Graham Wakefield and Gregory Taylor. Their remarkable book [Generating Sound and Organizing Time](https://cycling74.com/books/go) made up the bulk of the research and design ideas that went into this set of modules. Graham was a graduate student at UCSB's Medaia Arts and Technology department as the same time as me, and has long been a source of inspiration. Additionally, I would like to thank Claes and the Bitwig team for the Grid, and David Alexander for the [Toybox Nano series](https://www.toyboxaudio.com/pages/nano-pack), a powerful collection of Reaktor modules that really put phase-based sequencing onto my radar.
+Thank you immensely to Graham Wakefield and Gregory Taylor. Their remarkable book [Generating Sound and Organizing Time](https://cycling74.com/books/go) made up the bulk of the research and design ideas that went into this set of modules. Graham was a graduate student at UCSB's Medaia Arts and Technology department as the same time as me, and has long been a source of inspiration.
+
+Additionally, I would like to thank Claes and the Bitwig team for the Grid, and David Alexander for the [Toybox Nano series](https://www.toyboxaudio.com/pages/nano-pack), a powerful collection of Reaktor modules that really put phase-based sequencing onto my radar. These designers have greatly influenced how I put together my modules.
+
+Finally, I would also like to thank [Polarity](https://www.youtube.com/channel/UC6fkScAhWG63SUSr3D1MI6w) and [Philip Meyer](https://www.youtube.com/@p__meyer). Their excellent YouTube channels have really taught me a lot of creative ideas regarding how to use phasors. If you are a Max user, it's worth checking out Philip's "Rhythm and Time Toolkit" package, available in the Max Package Manager.
 
 ## Phase Based Sequencing
 
@@ -25,7 +29,8 @@ If this sounds confusing, let's go through some patching tutorials!
 - [2: Warp Speed](./PhasorTutorials/2-WarpSpeed.md)
 - [3: Ratcheting Up](./PhasorTutorials/3-RatchetingUp.md)
 - [4: Polymeters and Polyrhythms](./PhasorTutorials/4-PolymeterPolyrhythm.md)
-
+- [5: Phasors as Modulation](./PhasorTutorials/5-PhasorsAsModulation.md)
+- [6: Navigating Rhythmic Space](./PhasorTutorials/6-NavigatingRhythmicSpace.md)
 
 ## Phase Distortion Synthesis
 
