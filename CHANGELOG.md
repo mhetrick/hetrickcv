@@ -4,6 +4,7 @@
 - Add Phasor Burst Generator module.
 - Fix frequency knob state saving on Phasor Generator. (in progress)
 - Fix some labels on Phasor Generator.
+- Set Phasor Generator to load in Slow mode by default.
 - Fix Finish output polyphony on Phasor Generator.
 - Add better default values to Phasor Rhythm Group.
 

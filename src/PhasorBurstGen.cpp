@@ -106,6 +106,9 @@ struct PhasorBurstGen : HCVModule
 				return ParamQuantity::getDisplayValue();
 			}
 		};
+
+        configSwitch(PhasorBurstGen::RANGE_PARAM, 0.0, 1.0, 0.0, "Speed Range", {"Slow", "Fast"});
+
 		configParam<FrequencyQuantity>(FREQ_PARAM, -8.f, 10.f, 1.f, "Frequency", " Hz", 2, 1);
 		configParam(PhasorBurstGen::FREQ_SCALE_PARAM, -1.0, 1.0, 1.0, "Cycle Frequency CV Depth");
 
@@ -116,7 +119,7 @@ struct PhasorBurstGen : HCVModule
         paramQuantities[REPEATS_PARAM]->snapEnabled = true;
 		configParam(PhasorBurstGen::REPEATS_SCALE_PARAM, -1.0, 1.0, 1.0, "Repeats CV Depth");
 
-        configSwitch(PhasorBurstGen::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
+        
         configSwitch(PhasorBurstGen::PASS_PARAM, 0.0, 1.0, 0.0, "Reset Behavior", {"Always Reset, even if bursting", "If bursting, send trigger to pass output instead"});
 
         configButton(RESET_PARAM, "Reset");
@@ -234,7 +237,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
             phasors[i].stopPhasor();
         } 
         
-        const bool finished = phasors[i].done();
+        bool finished = phasors[i].done();
 
         const bool reset = (inputs[RESET_INPUT].getPolyVoltage(i) + resetButton) >= 1.0f;
         bool triggerPass = false;
@@ -254,6 +257,8 @@ void PhasorBurstGen::process(const ProcessArgs &args)
         if(cycleMode && finished) phasors[i].reset();
 
         const float phasorOutput = phasors[i]();
+        finished = phasors[i].done(); //check again for output muting. gamma's phasor stays high when finished.
+
         outputs[PHASOR_OUTPUT].setVoltage(finished ? 0.0f : phasorOutput, i);
         outputs[PULSES_OUTPUT].setVoltage(finished ? 0.0f : phasors[i].getPulse(), i); 
         outputs[PASS_OUTPUT].setVoltage(passTriggers[i].process(triggerPass) ? HCV_PHZ_GATESCALE : 0.0f, i);

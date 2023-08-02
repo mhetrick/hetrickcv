@@ -113,7 +113,7 @@ struct PhasorGen : HCVModule
         configParam(PhasorGen::JITTER_PARAM, 0.0, 5.0, 0.0, "Jitter");
 		configParam(PhasorGen::JITTER_SCALE_PARAM, -1.0, 1.0, 1.0, "Jitter CV Depth");
 
-        configSwitch(PhasorGen::RANGE_PARAM, 0.0, 1.0, 1.0, "Speed Range", {"Slow", "Fast"});
+        configSwitch(PhasorGen::RANGE_PARAM, 0.0, 1.0, 0.0, "Speed Range", {"Slow", "Fast"});
 
         configInput(FM_INPUT, "Frequency CV");
 
