@@ -99,7 +99,7 @@ void PhasorToWaveforms::process(const ProcessArgs &args)
         outputs[SQUARE_BIPOLAR_OUTPUT].setVoltage(square - 5.0f, i);
     }
 
-    for (int i = 0; i < NUM_LIGHTS / 2; i++)
+    for (int i = 0; i < 5; i++)
     {
         lights[SINE_LIGHT + i].setBrightness(outputs[i].getVoltage() * 0.1f);
         setBipolarLightBrightness(SINE_BIPOLAR_LIGHT + (i*2), outputs[SINE_BIPOLAR_OUTPUT + i].getVoltage() * 0.2f);
@@ -118,7 +118,7 @@ PhasorToWaveformsWidget::PhasorToWaveformsWidget(PhasorToWaveforms *module)
     const int initialY = 130;
     const int initialLightY = 138;
 
-    for(int i = 0; i < PhasorToWaveforms::NUM_OUTPUTS/2; i++)
+    for(int i = 0; i < 5; i++)
     {
         const int yPos = i*42;
         createOutputPort(10, initialY + yPos, PhasorToWaveforms::SINE_OUTPUT + i);
