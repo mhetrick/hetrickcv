@@ -107,12 +107,21 @@ protected:
 
 struct HCVBurst //modified Gamma NShot to add stopBurst
 {
-    HCVBurst(){ repeats(1); reset(); }
+    HCVBurst(int _maxRepeats = 64)
+    { 
+        repeats(1);
+        maxRepeats = _maxRepeats;
+        mCount = _maxRepeats; //set count to max to not trigger on load.
+    }
     
     void reset(){ mCount=0; }
     void stopBurst()
     {
-        mCount = mRepeats;
+        mCount = maxRepeats;
+    }
+    void setMaxRepeats(int _max)
+    {
+        maxRepeats = _max;
     }
 
     uint32_t operator()(uint32_t& pos, uint32_t inc){
@@ -143,17 +152,18 @@ struct HCVBurst //modified Gamma NShot to add stopBurst
 protected:
     uint32_t mRepeats;
     uint32_t mCount;
+    uint32_t maxRepeats;
 };
 
 class HCVBurstPhasor : public HCVPhasorBase
 {
 public:
 
-    HCVBurstPhasor()
+    HCVBurstPhasor(int maxRepeats = 64)
     {
-        setRepeats(1);
+        phasor.phsInc().setMaxRepeats(maxRepeats);
+        stopPhasor(); //set phasor to max repeats, then force current count to max.
         setFreqDirect(2.0f);
-        stopPhasor(); //don't fire when loaded.
     }
 
     float operator()()
