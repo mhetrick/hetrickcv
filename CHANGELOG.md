@@ -7,6 +7,8 @@
 - Set Phasor Generator to load in Slow mode by default.
 - Fix Finish output polyphony on Phasor Generator.
 - Add better default values to Phasor Rhythm Group.
+- Fix Phasor to Waveforms crash.
+- SEMI-BREAKING CHANGE: The Sinusoid output of Phasor to Waveforms was 90 degrees shifted from the triangle output. The two outputs now have the same phase.
 
 ## 2.3.0
 - Version 2.3.0 introduces a suite of phasor-based sequencing and Phase Distortion synthesis tools.

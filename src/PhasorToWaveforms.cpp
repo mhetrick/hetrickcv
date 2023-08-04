@@ -80,7 +80,7 @@ void PhasorToWaveforms::process(const ProcessArgs &args)
         float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
         const float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
-        const float sine = sinf(normalizedPhasor * M_2PI) * 5.0f;
+        const float sine = cosf(normalizedPhasor * M_2PI) * -5.0f;
         const float saw = normalizedPhasor * HCV_PHZ_UPSCALE;
         const float ramp = (1.0f - normalizedPhasor) * HCV_PHZ_UPSCALE;
         const float triangle = (gam::scl::fold(normalizedPhasor * 2.0f) * HCV_PHZ_UPSCALE);
