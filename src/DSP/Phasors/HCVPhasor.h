@@ -105,6 +105,46 @@ protected:
     float reverseMult = 1.0f;
 };
 
+struct HCVBurst //modified Gamma NShot to add stopBurst
+{
+    HCVBurst(){ repeats(1); reset(); }
+    
+    void reset(){ mCount=0; }
+    void stopBurst()
+    {
+        mCount = mRepeats;
+    }
+
+    uint32_t operator()(uint32_t& pos, uint32_t inc){
+        uint32_t prev = pos;
+        pos += inc;
+        
+        // Check MSB goes from 1 to 0
+        // TODO: works only for positive increments and non-zero mNumber
+        if((~pos & prev) & 0x80000000){
+            if(++mCount >= mRepeats) pos = 0xffffffff;
+        }
+        return pos;
+    }
+    
+    bool done(uint32_t pos) const { return (mCount >= mRepeats) && (pos == 0xffffffff); }
+    
+    template <class T>
+    T operator()(T v, T inc, T max, T min){
+        v += inc;
+        if(v >= max || v < min) ++mCount;
+        return mCount < mRepeats ? gam::scl::wrap(v, max, min) : gam::phsInc::incClip(v, inc, max, min);
+    }
+    
+    /// Set number of repetitions
+    HCVBurst& repeats(uint32_t v){ mRepeats=v; return *this; }
+    HCVBurst& number(uint32_t v){ mRepeats=v; return *this; }
+
+protected:
+    uint32_t mRepeats;
+    uint32_t mCount;
+};
+
 class HCVBurstPhasor : public HCVPhasorBase
 {
 public:
@@ -136,6 +176,7 @@ public:
 
     void stopPhasor()
     {
+        phasor.phsInc().stopBurst();
         phasor.finish();
     }
 
@@ -145,5 +186,5 @@ public:
     bool done() { return phasor.done(); }
 
 protected:
-    gam::Sweep<gam::phsInc::NShot> phasor;
+    gam::Sweep<HCVBurst> phasor;
 };
