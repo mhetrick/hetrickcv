@@ -80,7 +80,7 @@ void PhasorToWaveforms::process(const ProcessArgs &args)
         float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
         const float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
-        const float sine = sinf(normalizedPhasor * M_2PI) * 5.0f;
+        const float sine = cosf(normalizedPhasor * M_2PI) * -5.0f;
         const float saw = normalizedPhasor * HCV_PHZ_UPSCALE;
         const float ramp = (1.0f - normalizedPhasor) * HCV_PHZ_UPSCALE;
         const float triangle = (gam::scl::fold(normalizedPhasor * 2.0f) * HCV_PHZ_UPSCALE);
@@ -99,7 +99,7 @@ void PhasorToWaveforms::process(const ProcessArgs &args)
         outputs[SQUARE_BIPOLAR_OUTPUT].setVoltage(square - 5.0f, i);
     }
 
-    for (int i = 0; i < NUM_LIGHTS / 2; i++)
+    for (int i = 0; i < 5; i++)
     {
         lights[SINE_LIGHT + i].setBrightness(outputs[i].getVoltage() * 0.1f);
         setBipolarLightBrightness(SINE_BIPOLAR_LIGHT + (i*2), outputs[SINE_BIPOLAR_OUTPUT + i].getVoltage() * 0.2f);
@@ -118,7 +118,7 @@ PhasorToWaveformsWidget::PhasorToWaveformsWidget(PhasorToWaveforms *module)
     const int initialY = 130;
     const int initialLightY = 138;
 
-    for(int i = 0; i < PhasorToWaveforms::NUM_OUTPUTS/2; i++)
+    for(int i = 0; i < 5; i++)
     {
         const int yPos = i*42;
         createOutputPort(10, initialY + yPos, PhasorToWaveforms::SINE_OUTPUT + i);
