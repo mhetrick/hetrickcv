@@ -230,11 +230,13 @@ void PhasorBurstGen::process(const ProcessArgs &args)
 
         phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
 
+        bool phasorJustStopped = false;
         const float stopValue = inputs[STOP_INPUT].getPolyVoltage(i) + stopButton;
         if(stopTriggers[i].process(stopValue))
         {
             cycling = false;
             phasors[i].stopPhasor();
+            phasorJustStopped = true;
         } 
         
         bool finished = phasors[i].done();
@@ -256,7 +258,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
         
         if(cycleMode && finished) phasors[i].reset();
 
-        const float phasorOutput = phasors[i]();
+        const float phasorOutput = phasorJustStopped ? 0.0f : phasors[i]();
         finished = phasors[i].done(); //check again for output muting. gamma's phasor stays high when finished.
 
         outputs[PHASOR_OUTPUT].setVoltage(finished ? 0.0f : phasorOutput, i);
