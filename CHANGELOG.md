@@ -1,13 +1,14 @@
 # HetrickCV Changelog
 
-## 2.3.1 (In Progress)
+## 2.3.1
 - Add Phasor Burst Generator module.
-- Fix frequency knob state saving on Phasor Generator. (in progress)
 - Fix some labels on Phasor Generator.
 - Set Phasor Generator to load in Slow mode by default.
 - Fix Finish output polyphony on Phasor Generator.
 - Add better default values to Phasor Rhythm Group.
 - Fix Phasor to Waveforms crash.
+- Change Phasor to Clock default Steps value to 16. It was erroneously defaulting to 0 which caused a display bug.
+- BREAKING CHANGE: Fix frequency knob state saving on Phasor Generator. The parameter was converted from variable min/max range to static +/- 1.0f internally. This will load an incorrect value on previously saved projects, but resaving will now maintain a stable/correct value.
 - SEMI-BREAKING CHANGE: The Sinusoid output of Phasor to Waveforms was 90 degrees shifted from the triangle output. The two outputs now have the same phase.
 
 ## 2.3.0

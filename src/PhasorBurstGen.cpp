@@ -75,41 +75,20 @@ struct PhasorBurstGen : HCVModule
                     unit = " Hz";
                     if(module->params[RANGE_PARAM].getValue() > 0.0f) //oscillator
                     {
-                        minValue = -54.0f;
-                        maxValue = 54.0f;
-                        defaultValue = 0.0f;
-
-                        displayBase = dsp::FREQ_SEMITONE;
-                        displayMultiplier = dsp::FREQ_C4;
+                        return bipolarParamToOscillatorFrequencyScalar(getValue());
                     }
-                    else //LFO
-                    {
-                        minValue = -8.0f;
-                        maxValue = 10.0f;
-                        defaultValue = 1.0f;
-
-                        displayBase = 2.0f;
-                        displayMultiplier = 1.f;
-                    }
+                    return bipolarParamToLFOFrequencyScalar(getValue()); //LFO
 				}
-				else //clock sync div/mult
-                {
-					unit = "x";
-
-                    minValue = -8.0f;
-                    maxValue = 10.0f;
-                    defaultValue = 1.0f;
-
-                    displayBase = 2.0f;
-					displayMultiplier = 1 / 2.f;
-				}
-				return ParamQuantity::getDisplayValue();
+				
+                //Clock Sync
+                unit = "x";
+                return bipolarParamToClockMultScalar(getValue());
 			}
 		};
 
         configSwitch(PhasorBurstGen::RANGE_PARAM, 0.0, 1.0, 0.0, "Speed Range", {"Slow", "Fast"});
 
-		configParam<FrequencyQuantity>(FREQ_PARAM, -8.f, 10.f, 1.f, "Frequency", " Hz", 2, 1);
+		configParam<FrequencyQuantity>(FREQ_PARAM, -1.f, 1.f, 0.f, "Frequency");
 		configParam(PhasorBurstGen::FREQ_SCALE_PARAM, -1.0, 1.0, 1.0, "Cycle Frequency CV Depth");
 
         configParam(PhasorBurstGen::PW_PARAM, -5.0, 5.0, 0.0, "Pulse Width");
@@ -199,14 +178,16 @@ void PhasorBurstGen::process(const ProcessArgs &args)
             float pitch =  freqKnob + inputs[VOCT_INPUT].getPolyVoltage(i);
             pitch += (inputs[FM_INPUT].getPolyVoltage(i) * fmCVKnob);
 
-            float freq = baseClockFreq * 0.5f * rack::dsp::approxExp2_taylor5(pitch);
+            float freq = baseClockFreq * rack::dsp::approxExp2_taylor5(pitch);
 
             phasors[i].setFreqDirect(freq);
         }
         else //freq mode
         {
             float pitchParamValue = freqKnob;
-            if(!lfoMode) pitchParamValue = pitchParamValue / 12.0f;
+            if(!lfoMode) pitchParamValue = pitchParamValue * 4.5f;//54.0f / 12.0f;
+            else pitchParamValue = pitchParamValue * 9.0f + 1.0f;
+
             float pitch = pitchParamValue + inputs[VOCT_INPUT].getPolyVoltage(i);
             pitch += (inputs[FM_INPUT].getPolyVoltage(i) * fmCVKnob);
 

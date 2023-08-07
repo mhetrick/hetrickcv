@@ -42,7 +42,7 @@ struct PhasorToClock : HCVModule
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 0.0, "Steps");
+        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 16.0, "Steps");
 		configParam(STEPSCV_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
 
