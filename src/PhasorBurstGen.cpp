@@ -101,7 +101,7 @@ struct PhasorBurstGen : HCVModule
 				}
 				else result = clockMultToBipolarParamUnscalar(result); //Clock Sync
 
-                setImmediateValue(result);
+                ParamQuantity::setImmediateValue(result);
             }
 		};
 

@@ -92,7 +92,7 @@ struct PhasorGen : HCVModule
 				}
 				else result = clockMultToBipolarParamUnscalar(result); //Clock Sync
 
-                setImmediateValue(result);
+                ParamQuantity::setImmediateValue(result);
             }
 		};
 		configParam<FrequencyQuantity>(FREQ_PARAM, -1.f, 1.f, 0.f, "Frequency");
