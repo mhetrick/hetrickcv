@@ -84,6 +84,24 @@ struct PhasorBurstGen : HCVModule
                 unit = "x";
                 return bipolarParamToClockMultScalar(getValue());
 			}
+            void setDisplayValueString(std::string s) override
+            {
+                auto result = std::atof(s.c_str());
+                if(std::isnan(result)) 
+                    return;
+
+                if (!module->inputs[CLOCK_INPUT].isConnected()) 
+                {
+                    if(module->params[RANGE_PARAM].getValue() > 0.0f) //oscillator
+                    {
+                        result = frequencyToBipolarParamUnscalar(result);;
+                    }
+                    else result = lfoFrequencyToBipolarParamUnscalar(result);; //LFO
+				}
+				else result = clockMultToBipolarParamUnscalar(result); //Clock Sync
+
+                setDisplayValue(result);
+            }
 		};
 
         configSwitch(PhasorBurstGen::RANGE_PARAM, 0.0, 1.0, 0.0, "Speed Range", {"Slow", "Fast"});

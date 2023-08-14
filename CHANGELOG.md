@@ -1,5 +1,9 @@
 # HetrickCV Changelog
 
+## 2.3.2
+- Fix Euclidean step detector initialization.
+- Fix text value entry for frequency knobs on Phasor Generator and Phasor Burst Generator.
+
 ## 2.3.1
 - Add Phasor Burst Generator module.
 - Fix some labels on Phasor Generator.

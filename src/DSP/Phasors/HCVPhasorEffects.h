@@ -65,6 +65,11 @@ class HCVPhasorToEuclidean
 {
 public:
 
+    HCVPhasorToEuclidean()
+    {
+        stepDetector.setNumberSteps(steps);
+    }
+
     void processPhasor(float _normalizedPhasor);
 
     void setBeats(float _beats)
@@ -416,4 +421,27 @@ protected:
 
     float trianglePhasor = 0.0f;
     float pulse = 0.0f;
+};
+
+class HCVPhasorSwingProcessor
+{
+public:
+    HCVPhasorSwingProcessor();
+    float operator()(float _normalizedPhasor);
+    
+    //expects a bipolar parameter range of [-1.0f, 1.0f]
+    //Negative numbers make the upstep early, positive numbers make the upstep late
+    void setSwing(float _swing)
+    {
+        swing = clamp(swing, -1.0f, 1.0f);
+    }
+    
+    void setNumStepsAndGrouping(float _numSteps, float _grouping);
+
+protected:
+    HCVPhasorDivMult groupPhasor;
+    float numSteps = 16.0f;
+    float swingGroup = 2.0f;
+    float stepFraction = 1.0f/16.0f;
+    float swing = 0.0f;
 };

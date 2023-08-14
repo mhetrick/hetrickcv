@@ -36,9 +36,16 @@ struct CKSSRot : SvgSwitch
 	}
 };
 
+//convert +/-1.0 to frequency
 float bipolarParamToOscillatorFrequencyScalar(float _bipolarParam);
 float bipolarParamToLFOFrequencyScalar(float _bipolarParam);
 float bipolarParamToClockMultScalar(float _bipolarParam);
+
+//convert frequency to +/-1.0
+float frequencyToBipolarParamUnscalar(float _frequency);
+float lfoFrequencyToBipolarParamUnscalar(float _lfoFrequency);
+float clockMultToBipolarParamUnscalar(float _clockMult);
+
 
 struct HCVModule : Module
 {

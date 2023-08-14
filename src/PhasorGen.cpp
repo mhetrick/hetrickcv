@@ -75,6 +75,24 @@ struct PhasorGen : HCVModule
                 unit = "x";
                 return bipolarParamToClockMultScalar(getValue());
 			}
+            void setDisplayValueString(std::string s) override
+            {
+                auto result = std::atof(s.c_str());
+                if(std::isnan(result)) 
+                    return;
+
+                if (!module->inputs[CLOCK_INPUT].isConnected()) 
+                {
+                    if(module->params[RANGE_PARAM].getValue() > 0.0f) //oscillator
+                    {
+                        result = frequencyToBipolarParamUnscalar(result);;
+                    }
+                    else result = lfoFrequencyToBipolarParamUnscalar(result);; //LFO
+				}
+				else result = clockMultToBipolarParamUnscalar(result); //Clock Sync
+
+                setDisplayValue(result);
+            }
 		};
 		configParam<FrequencyQuantity>(FREQ_PARAM, -1.f, 1.f, 0.f, "Frequency");
 		configParam(PhasorGen::FREQ_SCALE_PARAM, -1.0, 1.0, 1.0, "Cycle Frequency CV Depth");

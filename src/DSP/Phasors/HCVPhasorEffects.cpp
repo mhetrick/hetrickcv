@@ -166,3 +166,18 @@ float HCVPhasorRandomizer::operator()(float _normalizedPhasor)
 
     return _normalizedPhasor;
 }
+
+///// SWINGER
+
+HCVPhasorSwingProcessor::HCVPhasorSwingProcessor()
+{
+    groupPhasor.setDivider(2.0f);
+}
+
+void HCVPhasorSwingProcessor::setNumStepsAndGrouping(float _numSteps, float _grouping)
+{
+    numSteps = std::max(1.0f, _numSteps);
+    swingGroup = std::max(1.0f, _grouping);
+    stepFraction = 1.0f/numSteps;
+    groupPhasor.setDivider(_grouping);
+}
