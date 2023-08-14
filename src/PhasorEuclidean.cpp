@@ -55,13 +55,38 @@ struct PhasorEuclidean : HCVModule
 	{
 
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        struct RotateQuantity : ParamQuantity {
+			float getDisplayValue() override 
+            {
+				PhasorEuclidean* module = reinterpret_cast<PhasorEuclidean*>(this->module);
+				const float numSteps = module->params[BEATS_PARAM].getValue();
+                const float scaled = getValue() * 0.2f * numSteps;
+
+                if(module->params[STEPSQUANTIZE_PARAM].getValue() == 0.0f)
+                    return scaled;
+
+                return std::floor(scaled);
+			}
+            void setDisplayValue(float displayValue) override
+            {
+                if(std::isnan(displayValue)) 
+                    return;
+                PhasorEuclidean* module = reinterpret_cast<PhasorEuclidean*>(this->module);
+				float numSteps = module->params[BEATS_PARAM].getValue();
+
+                auto result = (displayValue * 5.0)/numSteps;
+
+                ParamQuantity::setImmediateValue(result);
+            }
+		};
+
 		configParam(BEATS_PARAM, 1.0f, MAX_BEATS, 16.0f, "Beats");
 		configParam(BEATS_SCALE_PARAM, -1.0, 1.0, 1.0, "Beats CV Depth");
 
         configParam(FILL_PARAM, 0.0f, MAX_BEATS, 4.0, "Fill");
 		configParam(FILL_SCALE_PARAM, -1.0, 1.0, 1.0, "Fill CV Depth");
 
-        configParam(ROTATE_PARAM, -5.0f, 5.0f, 0.0, "Rotate");
+        configParam<RotateQuantity>(ROTATE_PARAM, -5.0f, 5.0f, 0.0, "Rotate");
 		configParam(ROTATE_SCALE_PARAM, -1.0, 1.0, 1.0, "Rotate CV Depth");
 
         configParam(PW_PARAM, -5.0f, 5.0f, 0.0, "Pulse Width");
