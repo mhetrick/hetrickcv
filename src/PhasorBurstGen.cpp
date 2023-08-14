@@ -84,11 +84,12 @@ struct PhasorBurstGen : HCVModule
                 unit = "x";
                 return bipolarParamToClockMultScalar(getValue());
 			}
-            void setDisplayValueString(std::string s) override
+            void setDisplayValue(float displayValue) override
             {
-                auto result = std::atof(s.c_str());
-                if(std::isnan(result)) 
+                if(std::isnan(displayValue)) 
                     return;
+
+                auto result = displayValue;
 
                 if (!module->inputs[CLOCK_INPUT].isConnected()) 
                 {
@@ -100,7 +101,7 @@ struct PhasorBurstGen : HCVModule
 				}
 				else result = clockMultToBipolarParamUnscalar(result); //Clock Sync
 
-                setDisplayValue(result);
+                setImmediateValue(result);
             }
 		};
 
