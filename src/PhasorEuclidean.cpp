@@ -156,7 +156,8 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     float fillModeKnob = params[FILLMODE_PARAM].getValue();
     const float fillModeCVDepth = params[FILLMODE_SCALE_PARAM].getValue();
 
-    paramQuantities[BEATS_PARAM]->snapEnabled = params[STEPSQUANTIZE_PARAM].getValue() > 0.0f;
+    bool stepsQuantized = params[STEPSQUANTIZE_PARAM].getValue() > 0.0f;
+    paramQuantities[BEATS_PARAM]->snapEnabled = stepsQuantized;
     
     bool fillQuantized = params[FILLQUANTIZE_PARAM].getValue() > 0.0f;
     paramQuantities[FILL_PARAM]->snapEnabled = fillModeKnob == 5.0f ? false : fillQuantized;
@@ -166,6 +167,7 @@ void PhasorEuclidean::process(const ProcessArgs &args)
     {
         euclidean[i].setParameterChangeQuantization(quantizeParamChanges);
         euclidean[i].enableSmartDetection(smartDetection);
+        euclidean[i].setRotationQuantization(stepsQuantized);
 
         float beats = beatKnob + (beatCVDepth * inputs[BEATS_INPUT].getPolyVoltage(i));
         beats = clamp(beats, 1.0f, MAX_BEATS);

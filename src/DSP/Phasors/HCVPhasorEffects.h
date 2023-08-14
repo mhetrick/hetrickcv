@@ -109,6 +109,11 @@ public:
     float getEuclideanGateOutput() { return euclidGateOutput; }
     float getClockOutput() { return clockOutput;}
 
+    void setRotationQuantization(bool _quantizationEnabled)
+    {
+        quantizeRotation = _quantizationEnabled;
+    }
+
 protected:
     float pulseWidth = 0.5f;
 

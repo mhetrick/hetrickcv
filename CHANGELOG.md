@@ -1,8 +1,10 @@
 # HetrickCV Changelog
 
 ## 2.3.2
-- Fix Euclidean step detector initialization.
+- Fix Phasor to Euclidean step detector initialization.
 - Fix text value entry for frequency knobs on Phasor Generator and Phasor Burst Generator.
+- Phasor to Euclidean's Rotate parameter now shows values scaled by the number of steps.
+- Phasor to Euclideans's Rotate parameter is now unquantized when Steps is unquantized.
 
 ## 2.3.1
 - Add Phasor Burst Generator module.
