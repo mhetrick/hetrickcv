@@ -457,7 +457,7 @@ protected:
     HCVPhasorStepDetector groupDetector;
     HCVRandom randomSource;
 
-    static constexpr float swingScale = 0.9f;
+    static constexpr float swingScale = 0.95f;
 
     float stepPhasorOutput = 0.0f;
     float numSteps = 16.0f;

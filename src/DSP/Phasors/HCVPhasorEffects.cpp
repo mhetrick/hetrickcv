@@ -185,7 +185,7 @@ void HCVPhasorSwingProcessor::setNumStepsAndGrouping(float _numSteps, float _gro
 
 float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
 {
-    if(resetDetector.detectSimpleReset(_normalizedPhasor))
+    if(resetDetector.detectProportionalReset(_normalizedPhasor))
     {
         swingGroup = std::max(1.0f, pendingGrouping);
         divider = 1.0f/swingGroup;
@@ -203,6 +203,7 @@ float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
         variation = pendingVariation;
 
         totalSwing = swing + (variation * randomSource.whiteNoise());
+        totalSwing = clamp(totalSwing, -swingScale, swingScale);
     }
     
     //choose different algorithms to change the flavor of the swing
