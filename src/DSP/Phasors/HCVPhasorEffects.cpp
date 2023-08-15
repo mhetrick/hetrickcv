@@ -181,3 +181,17 @@ void HCVPhasorSwingProcessor::setNumStepsAndGrouping(float _numSteps, float _gro
     stepFraction = 1.0f/numSteps;
     groupPhasor.setDivider(_grouping);
 }
+
+float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
+{
+    float slowPhasor = groupPhasor.hardSynced(_normalizedPhasor);
+    float stepPhasor = slowPhasor * numSteps;
+    float currentStep = floor(stepPhasor);
+    float fractionalPhasor = stepPhasor - currentStep;
+    float offsetBase = stepFraction * currentStep;
+    
+    //choose different algorithms to change the flavor of the swing
+    float swungPhasor = HCVPhasorEffects::phasorKink(fractionalPhasor, swing);
+    
+    return (offsetBase + swungPhasor * stepFraction) * swingGroup;
+}

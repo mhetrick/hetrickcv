@@ -51,7 +51,7 @@ struct PhasorRandom : HCVModule
 		configParam(CHANCE_PARAM, 0.0, 5.0, 0.0, "Chance");
 		configParam(CHANCE_SCALE_PARAM, -1.0, 1.0, 1.0, "Chance CV Depth");
 
-        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 0.0, "Steps");
+        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 1.0, "Steps");
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         

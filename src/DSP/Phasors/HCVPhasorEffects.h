@@ -438,7 +438,7 @@ public:
     //Negative numbers make the upstep early, positive numbers make the upstep late
     void setSwing(float _swing)
     {
-        swing = clamp(swing, -1.0f, 1.0f);
+        swing = clamp(_swing * -1.0f, -1.0f, 1.0f);
     }
     
     void setNumStepsAndGrouping(float _numSteps, float _grouping);

@@ -1,5 +1,9 @@
 # HetrickCV Changelog
 
+## 2.3.3 (in progress)
+- Add Phasor Swing module.
+- Fix Phasor Randomizer Steps knob initializing with a 0 display.
+
 ## 2.3.2
 - Fix Phasor to Euclidean step detector initialization.
 - Fix text value entry for frequency knobs on Phasor Generator and Phasor Burst Generator.

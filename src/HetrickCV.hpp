@@ -80,6 +80,7 @@ extern Model *modelPhasorShape;
 extern Model *modelPhasorShift;
 extern Model *modelPhasorStutter;
 extern Model *modelPhasorSubstepShape;
+extern Model *modelPhasorSwing;
 extern Model *modelPhasorTimetable;
 extern Model *modelPhasorToClock;
 extern Model *modelPhasorToLFO;
