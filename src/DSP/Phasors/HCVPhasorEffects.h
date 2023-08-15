@@ -448,7 +448,6 @@ public:
     void setNumStepsAndGrouping(float _numSteps, float _grouping);
 
 protected:
-    HCVPhasorDivMult groupPhasor;
     HCVPhasorResetDetector resetDetector;
     HCVPhasorStepDetector groupDetector;
     HCVRandom randomSource;
@@ -462,4 +461,5 @@ protected:
     float swing = 0.0f;
     float totalSwing = 0.0f;
     float pendingGrouping = 2.0f;
+    float divider = 0.5f;
 };

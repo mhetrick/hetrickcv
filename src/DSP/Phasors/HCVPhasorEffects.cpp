@@ -171,7 +171,7 @@ float HCVPhasorRandomizer::operator()(float _normalizedPhasor)
 
 HCVPhasorSwingProcessor::HCVPhasorSwingProcessor()
 {
-    groupPhasor.setDivider(2.0f);
+
 }
 
 void HCVPhasorSwingProcessor::setNumStepsAndGrouping(float _numSteps, float _grouping)
@@ -187,11 +187,11 @@ float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
 {
     if(resetDetector.detectSimpleReset(_normalizedPhasor))
     {
-        groupPhasor.setDivider(pendingGrouping);
         swingGroup = std::max(1.0f, pendingGrouping);
+        divider = 1.0f/swingGroup;
     }
 
-    float slowPhasor = groupPhasor.hardSynced(_normalizedPhasor);
+    float slowPhasor = _normalizedPhasor * divider;
     float stepPhasor = slowPhasor * numSteps;
     float currentStep = floor(stepPhasor);
     float fractionalPhasor = stepPhasor - currentStep;
