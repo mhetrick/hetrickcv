@@ -151,7 +151,11 @@ void PhasorSwing::process(const ProcessArgs &args)
             output = swingProcs[i](normalizedPhasor);
         }
 
+        const float stepPhasor = swingProcs[i].getStepPhasorOutput();
+
         outputs[SWING_OUTPUT].setVoltage(output * HCV_PHZ_UPSCALE, i);
+        outputs[PHASORS_OUTPUT].setVoltage(stepPhasor * HCV_PHZ_UPSCALE, i);
+        outputs[GATES_OUTPUT].setVoltage(stepPhasor < 0.5f ? HCV_PHZ_GATESCALE : 0.0f, i);
     }
 
     int lightMode = modeKnob + modeCVDepth*inputs[MODE_INPUT].getVoltage();

@@ -208,5 +208,7 @@ float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
     //choose different algorithms to change the flavor of the swing
     float swungPhasor = HCVPhasorEffects::phasorKink(fractionalPhasor, totalSwing);
     
+    stepPhasorOutput = gam::scl::wrap(swungPhasor * swingGroup);
+
     return (offsetBase + swungPhasor * stepFraction) * swingGroup;
 }
