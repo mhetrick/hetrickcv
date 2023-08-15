@@ -177,21 +177,36 @@ HCVPhasorSwingProcessor::HCVPhasorSwingProcessor()
 void HCVPhasorSwingProcessor::setNumStepsAndGrouping(float _numSteps, float _grouping)
 {
     numSteps = std::max(1.0f, _numSteps);
-    swingGroup = std::max(1.0f, _grouping);
     stepFraction = 1.0f/numSteps;
-    groupPhasor.setDivider(_grouping);
+
+    pendingGrouping = _grouping;
+    groupDetector.setNumberSteps(numSteps);
 }
 
 float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
 {
+    if(resetDetector.detectSimpleReset(_normalizedPhasor))
+    {
+        groupPhasor.setDivider(pendingGrouping);
+        swingGroup = std::max(1.0f, pendingGrouping);
+    }
+
     float slowPhasor = groupPhasor.hardSynced(_normalizedPhasor);
     float stepPhasor = slowPhasor * numSteps;
     float currentStep = floor(stepPhasor);
     float fractionalPhasor = stepPhasor - currentStep;
     float offsetBase = stepFraction * currentStep;
+
+    if(groupDetector(slowPhasor))
+    {
+        swing = pendingSwing;
+        variation = pendingVariation;
+
+        totalSwing = swing + (variation * randomSource.whiteNoise());
+    }
     
     //choose different algorithms to change the flavor of the swing
-    float swungPhasor = HCVPhasorEffects::phasorKink(fractionalPhasor, swing);
+    float swungPhasor = HCVPhasorEffects::phasorKink(fractionalPhasor, totalSwing);
     
     return (offsetBase + swungPhasor * stepFraction) * swingGroup;
 }

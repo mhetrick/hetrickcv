@@ -143,6 +143,7 @@ void PhasorSwing::process(const ProcessArgs &args)
 
         swingProcs[i].setNumStepsAndGrouping(steps, grouping);
         swingProcs[i].setSwing(swing);
+        swingProcs[i].setVariation(variation);
 
         float output = normalizedPhasor;
         if(active)

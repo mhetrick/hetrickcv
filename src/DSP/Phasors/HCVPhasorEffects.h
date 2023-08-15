@@ -438,15 +438,28 @@ public:
     //Negative numbers make the upstep early, positive numbers make the upstep late
     void setSwing(float _swing)
     {
-        swing = clamp(_swing * -1.0f, -1.0f, 1.0f);
+        pendingSwing = clamp(_swing * -0.99f, -0.99f, 0.99f);
+    }
+    void setVariation(float _variation)
+    {
+        pendingVariation = clamp(_variation * _variation, 0.0f, 1.0f);
     }
     
     void setNumStepsAndGrouping(float _numSteps, float _grouping);
 
 protected:
     HCVPhasorDivMult groupPhasor;
+    HCVPhasorResetDetector resetDetector;
+    HCVPhasorStepDetector groupDetector;
+    HCVRandom randomSource;
+
     float numSteps = 16.0f;
     float swingGroup = 2.0f;
     float stepFraction = 1.0f/16.0f;
+    float pendingSwing = 0.0f;
+    float pendingVariation = 0.0f;
+    float variation = 0.0f;
     float swing = 0.0f;
+    float totalSwing = 0.0f;
+    float pendingGrouping = 2.0f;
 };
