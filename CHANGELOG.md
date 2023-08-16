@@ -1,6 +1,7 @@
 # HetrickCV Changelog
 
-## 2.3.3 (in progress)
+## 2.4.0 (in progress)
+- Added dark mode for all panels! (in progress)
 - Add Phasor Humanize module.
 - Add Phasor Swing module.
 - Fix Phasor Randomizer, Phasor Shifter, Phasor Substep Shaper, and Phasor Stutter Steps knobs initializing with a 0 display.

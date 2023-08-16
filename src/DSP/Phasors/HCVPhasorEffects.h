@@ -472,6 +472,8 @@ protected:
     float divider = 0.5f;
 };
 
+
+//Thanks to Philip Meyer for the recipe from here: https://www.youtube.com/watch?v=ZD4_dDWA0sc
 class HCVPhasorHumanizer
 {
 public:

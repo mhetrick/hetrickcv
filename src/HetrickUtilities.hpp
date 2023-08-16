@@ -159,6 +159,33 @@ struct InverterWidget : TransparentWidget {
 	void draw(const DrawArgs& args) override;
 };
 
+struct HCVThemedRogan : rack::Rogan
+{
+    std::shared_ptr<window::Svg> lightBase = Svg::load(asset::system("res/ComponentLibrary/Rogan1PRed.svg"));
+    std::shared_ptr<window::Svg> darkBase = Svg::load(asset::system("res/ComponentLibrary/Rogan1PBlue.svg"));
+    std::shared_ptr<window::Svg> lightFG = Svg::load(asset::system("res/ComponentLibrary/Rogan1PRed_fg.svg"));
+    std::shared_ptr<window::Svg> darkFG = Svg::load(asset::system("res/ComponentLibrary/Rogan1PBlue_fg.svg"));
+
+    HCVThemedRogan()
+    {
+        bg->setSvg(Svg::load(asset::system("res/ComponentLibrary/Rogan1P_bg.svg")));
+        setThemedSVGs();
+    }
+
+    void setThemedSVGs()
+    {
+        setSvg(settings::preferDarkPanels ? darkBase : lightBase);
+        fg->setSvg(settings::preferDarkPanels ? darkFG : lightFG);
+    }
+
+    void step() override
+    {
+        setThemedSVGs();
+        Rogan::step();
+    }
+
+};
+
 struct HCVModuleWidget : ModuleWidget
 {
 	std::string skinPath = "";
@@ -182,7 +209,7 @@ struct HCVModuleWidget : ModuleWidget
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, skinPath)));
 
         SvgPanel* svgPanel = (SvgPanel*)getPanel();
-        svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size));
+        //svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size));
         svgPanel->fb->addChild(new InverterWidget(svgPanel));
         createScrews(_is4HP);
     }
@@ -190,7 +217,8 @@ struct HCVModuleWidget : ModuleWidget
 	void createHCVKnob(float _x, float _y, int _paramID)
     {
         //addParam(createParam<Davies1900hBlackKnob>(Vec(_x, _y), module, _paramID));
-        addParam(createParam<Rogan1PRed>(Vec(_x + 2.5, _y), module, _paramID));
+        //addParam(createParam<Rogan1PRed>(Vec(_x + 2.5, _y), module, _paramID));
+        addParam(createParam<HCVThemedRogan>(Vec(_x + 2.5, _y), module, _paramID));
     }
 
     void createHCVTrimpot(float _x, float _y, int _paramID)
