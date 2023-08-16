@@ -50,6 +50,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorGen);
 	p->addModel(modelPhasorGeometry);
 	p->addModel(modelPhasorHumanizer);
+	p->addModel(modelPhasorMixer);
 	p->addModel(modelPhasorOctature);
 	p->addModel(modelPhasorQuadrature);
 	p->addModel(modelPhasorRandom);

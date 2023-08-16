@@ -493,6 +493,11 @@ public:
         depth = _depth * _depth * _depth;
     }
 
+    void reset(float _resetPhase)
+    {
+        lastPhase = _resetPhase;
+    }
+
     void generateNewValues();
     float operator()(float _normalizedPhasor);
 

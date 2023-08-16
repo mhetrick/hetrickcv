@@ -71,6 +71,7 @@ extern Model *modelPhasorGates64;
 extern Model *modelPhasorGen;
 extern Model *modelPhasorGeometry;
 extern Model *modelPhasorHumanizer;
+extern Model *modelPhasorMixer;
 extern Model *modelPhasorOctature;
 extern Model *modelPhasorQuadrature;
 extern Model *modelPhasorRandom;
