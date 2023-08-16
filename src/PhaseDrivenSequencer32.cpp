@@ -25,6 +25,7 @@ struct PhaseDrivenSequencer32 : HCVModule
         PHASOR_INPUT,
         STEPSCV_INPUT,
         WIDTHCV_INPUT,
+        RUN_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
@@ -44,6 +45,7 @@ struct PhaseDrivenSequencer32 : HCVModule
         SLEW_LIGHT,
         SH_LIGHT,
         GATES_LIGHT,
+        RUN_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -173,7 +175,13 @@ void PhaseDrivenSequencer32::process(const ProcessArgs &args)
         float pulseWidth = widthKnob + (widthDepth * inputs[WIDTHCV_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
 
-        const float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
+        bool active = true;
+        if(inputs[RUN_INPUT].isConnected())
+        {
+            active = inputs[RUN_INPUT].getPolyVoltage(i) >= 1.0f;
+        }
+
+        const float phasorIn = active ? inputs[PHASOR_INPUT].getPolyVoltage(i) : 0.0f;
         float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
         stepDetectors[i].setNumberSteps(numSteps);
@@ -211,7 +219,7 @@ void PhaseDrivenSequencer32::process(const ProcessArgs &args)
         else
         {
             const float gate = fractionalIndex < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
-            outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
+            outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] && active ? gate : 0.0f, i);
 
             bool trigger = gate && gates[currentIndex];
             outputs[TRIGS_OUTPUT].setVoltage(triggers[i].process(trigger) ? HCV_PHZ_GATESCALE : 0.0f, i);
@@ -230,7 +238,12 @@ void PhaseDrivenSequencer32::process(const ProcessArgs &args)
         if(i == 0) lightIndex = currentIndex;
     }
 
-    bool isPlaying = slopeDetectors[0].isPhasorAdvancing();
+    bool active = true;
+    if(inputs[RUN_INPUT].isConnected())
+    {
+        active = inputs[RUN_INPUT].getPolyVoltage(0) >= 1.0f;
+    }
+    bool isPlaying = slopeDetectors[0].isPhasorAdvancing() && active;
 
     // Gate lights
     for (int i = 0; i < NUM_STEPS; i++) 
@@ -240,6 +253,7 @@ void PhaseDrivenSequencer32::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
 
+    lights[RUN_LIGHT].setBrightness(active ? 1.0f : 0.0f);
     setLightFromOutput(STEPS_LIGHT, STEPS_OUTPUT, 0.2f);
     setLightFromOutput(SLEW_LIGHT, SLEW_OUTPUT, 0.2f);
     setLightFromOutput(SH_LIGHT, SH_OUTPUT, 0.2f);
@@ -258,20 +272,24 @@ PhaseDrivenSequencer32Widget::PhaseDrivenSequencer32Widget(PhaseDrivenSequencer3
     createParamComboVertical(15, knobY, PhaseDrivenSequencer32::WIDTH_PARAM, PhaseDrivenSequencer32::WIDTHCV_PARAM, PhaseDrivenSequencer32::WIDTHCV_INPUT);
     createParamComboVertical(70, knobY, PhaseDrivenSequencer32::STEPS_PARAM, PhaseDrivenSequencer32::STEPSCV_PARAM, PhaseDrivenSequencer32::STEPSCV_INPUT);
     
-    createHCVSwitchVert(89, 255, PhaseDrivenSequencer32::DETECTION_PARAM);
+    createHCVSwitchVert(53, 208, PhaseDrivenSequencer32::DETECTION_PARAM);
 
     //////INPUTS//////
     int jackX = 20;
-    createInputPort(jackX, 248, PhaseDrivenSequencer32::PHASOR_INPUT);
+    int jackX2 = 78;
+    int inputY = 248;
+    createInputPort(jackX,  inputY, PhaseDrivenSequencer32::PHASOR_INPUT);
+    createInputPort(jackX2, inputY, PhaseDrivenSequencer32::RUN_INPUT);
 
     //////OUTPUTS/////
     int outJackX = 78;
     int spacing = 45;
-    createOutputPort(outJackX, 310, PhaseDrivenSequencer32::STEPS_OUTPUT);
-    createOutputPort(outJackX + spacing, 310, PhaseDrivenSequencer32::SLEW_OUTPUT);
-    createOutputPort(outJackX + spacing*2, 310, PhaseDrivenSequencer32::SH_OUTPUT);
-    createOutputPort(outJackX + spacing*3, 310, PhaseDrivenSequencer32::GATES_OUTPUT);
-    createOutputPort(outJackX + spacing*4, 310, PhaseDrivenSequencer32::TRIGS_OUTPUT);
+    int outY = 310;
+    createOutputPort(outJackX, outY, PhaseDrivenSequencer32::STEPS_OUTPUT);
+    createOutputPort(outJackX + spacing, outY, PhaseDrivenSequencer32::SLEW_OUTPUT);
+    createOutputPort(outJackX + spacing*2, outY, PhaseDrivenSequencer32::SH_OUTPUT);
+    createOutputPort(outJackX + spacing*3, outY, PhaseDrivenSequencer32::GATES_OUTPUT);
+    createOutputPort(outJackX + spacing*4, outY, PhaseDrivenSequencer32::TRIGS_OUTPUT);
 
     for (int i = 0; i < PhaseDrivenSequencer32::NUM_STEPS; i++)
     {
@@ -286,11 +304,13 @@ PhaseDrivenSequencer32Widget::PhaseDrivenSequencer32Widget(PhaseDrivenSequencer3
         addParam(createLightParamCentered<VCVLightBezel<RedGreenBlueLight>>(Vec(buttonX, buttonY), 
         module, PhaseDrivenSequencer32::GATE_PARAMS + i, PhaseDrivenSequencer32::GATE_LIGHTS + 3 * i));
     }
+
+    createHCVGreenLightForJack(jackX2, inputY, PhaseDrivenSequencer32::RUN_LIGHT);
     
-    createHCVRedLightForJack(outJackX, 310, PhaseDrivenSequencer32::STEPS_LIGHT);
-    createHCVRedLightForJack(outJackX + spacing, 310, PhaseDrivenSequencer32::SLEW_LIGHT);
-    createHCVRedLightForJack(outJackX + spacing*2, 310, PhaseDrivenSequencer32::SH_LIGHT);
-    createHCVRedLightForJack(outJackX + spacing*3, 310, PhaseDrivenSequencer32::GATES_LIGHT);
+    createHCVRedLightForJack(outJackX, outY, PhaseDrivenSequencer32::STEPS_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing, outY, PhaseDrivenSequencer32::SLEW_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*2, outY, PhaseDrivenSequencer32::SH_LIGHT);
+    createHCVRedLightForJack(outJackX + spacing*3, outY, PhaseDrivenSequencer32::GATES_LIGHT);
 }
 
 Model *modelPhaseDrivenSequencer32 = createModel<PhaseDrivenSequencer32, PhaseDrivenSequencer32Widget>("PhaseDrivenSequencer32");

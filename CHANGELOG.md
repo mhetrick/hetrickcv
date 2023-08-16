@@ -5,6 +5,8 @@
 - Add Phasor Humanize module.
 - Add Phasor Mixer module.
 - Add Phasor Swing module.
+- Add Phasor and !Gates outputs to Phasor->Gates 32 and 64.
+- Add Run input to Phasor->Gates 32 and 64 along with Phase Driven Sequencer and Phase Driven Sequencer 32.
 - Fix Phasor Randomizer, Phasor Shifter, Phasor Substep Shaper, and Phasor Stutter Steps knobs initializing with a 0 display.
 
 ## 2.3.2

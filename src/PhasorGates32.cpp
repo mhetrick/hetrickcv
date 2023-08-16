@@ -24,12 +24,15 @@ struct PhasorGates32 : HCVModule
         PHASOR_INPUT,
         STEPSCV_INPUT,
         WIDTHCV_INPUT,
+        RUN_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputIds
 	{
         GATES_OUTPUT,
         TRIGS_OUTPUT,
+        PHASOR_OUTPUT,
+        GATES_NOT_OUTPUT,
 		NUM_OUTPUTS
     };
 
@@ -37,6 +40,9 @@ struct PhasorGates32 : HCVModule
     {
         ENUMS(GATE_LIGHTS, NUM_STEPS*3),
         GATE_OUT_LIGHT,
+        RUN_LIGHT,
+        PHASOR_LIGHT,
+        GATES_NOT_OUT_LIGHT,
         NUM_LIGHTS
 	};
 
@@ -65,9 +71,12 @@ struct PhasorGates32 : HCVModule
         configInput(STEPSCV_INPUT, "Steps CV");
         configInput(WIDTHCV_INPUT, "Gate Width CV");
         configInput(PHASOR_INPUT, "Phasor CV");
+        configInput(RUN_INPUT, "Run Gate");
 
         configOutput(GATES_OUTPUT, "Gate Sequence");
         configOutput(TRIGS_OUTPUT, "Trigger Sequence");
+        configOutput(PHASOR_OUTPUT, "Active Step Phasor");
+        configOutput(GATES_NOT_OUTPUT, "Inverse Gate Sequence");
 
         for (int i = 0; i < NUM_STEPS; i++) 
         {
@@ -81,19 +90,29 @@ struct PhasorGates32 : HCVModule
 
     void onReset() override
     {
+        resetGates();
+    }
+
+    void onRandomize() override 
+    {
+		randomizeGates();
+	}
+
+    void resetGates()
+    {
         for (int i = 0; i < NUM_STEPS; i++) 
         {
 			gates[i] = false;
 		}
     }
 
-    void onRandomize() override 
+    void randomizeGates()
     {
-		for (int i = 0; i < NUM_STEPS; i++) 
+        for (int i = 0; i < NUM_STEPS; i++) 
         {
 			gates[i] = random::get<bool>();
 		}
-	}
+    }
 
     json_t *dataToJson() override
     {
@@ -151,7 +170,13 @@ void PhasorGates32::process(const ProcessArgs &args)
         float pulseWidth = widthKnob + (widthDepth * inputs[WIDTHCV_INPUT].getPolyVoltage(i));
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;
 
-        const float phasorIn = inputs[PHASOR_INPUT].getPolyVoltage(i);
+        bool active = true;
+        if(inputs[RUN_INPUT].isConnected())
+        {
+            active = inputs[RUN_INPUT].getPolyVoltage(i) >= 1.0f;
+        }
+
+        const float phasorIn = active ? inputs[PHASOR_INPUT].getPolyVoltage(i) : 0.0f;
         float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
         stepDetectors[i].setNumberSteps(numSteps);
@@ -166,28 +191,33 @@ void PhasorGates32::process(const ProcessArgs &args)
 
             if(slopeDetectors[i].isPhasorAdvancing() || !isZero)
             {
-                float gate;
-                if (reversePhasor) gate = (1.0f - fractionalIndex) < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
-                else gate = fractionalIndex < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
+                float fractionalOutput = reversePhasor ? (1.0f - fractionalIndex) : fractionalIndex;
+                float gate = fractionalOutput < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
 
                 outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
+                outputs[GATES_NOT_OUTPUT].setVoltage(!gates[currentIndex] ? gate : 0.0f, i);
 
                 bool trigger = gate && gates[currentIndex];
                 outputs[TRIGS_OUTPUT].setVoltage(triggers[i].process(trigger) ? HCV_PHZ_GATESCALE : 0.0f, i);
+                outputs[PHASOR_OUTPUT].setVoltage(gates[currentIndex] ? fractionalOutput * HCV_PHZ_UPSCALE : 0.0f, i);
             }
             else
             {
                 outputs[GATES_OUTPUT].setVoltage(0.0f, i);
+                outputs[GATES_NOT_OUTPUT].setVoltage(0.0f, i);
                 outputs[TRIGS_OUTPUT].setVoltage(0.0f, i);
+                outputs[PHASOR_OUTPUT].setVoltage(0.0f, i);
             }
         }
         else
         {
             const float gate = fractionalIndex < pulseWidth ? HCV_PHZ_GATESCALE : 0.0f;
-            outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] ? gate : 0.0f, i);
+            outputs[GATES_OUTPUT].setVoltage(gates[currentIndex] && active ? gate : 0.0f, i);
+            outputs[GATES_NOT_OUTPUT].setVoltage(!gates[currentIndex] && active ? gate : 0.0f, i);
 
             bool trigger = gate && gates[currentIndex];
             outputs[TRIGS_OUTPUT].setVoltage(triggers[i].process(trigger) ? HCV_PHZ_GATESCALE : 0.0f, i);
+            outputs[PHASOR_OUTPUT].setVoltage(gates[currentIndex] ? fractionalIndex * HCV_PHZ_UPSCALE : 0.0f, i);
         }
 
         
@@ -195,7 +225,12 @@ void PhasorGates32::process(const ProcessArgs &args)
         if(i == 0) lightIndex = currentIndex;
     }
 
-    bool isPlaying = slopeDetectors[0].isPhasorAdvancing();
+    bool active = true;
+    if(inputs[RUN_INPUT].isConnected())
+    {
+        active = inputs[RUN_INPUT].getPolyVoltage(0) >= 1.0f;
+    }
+    bool isPlaying = slopeDetectors[0].isPhasorAdvancing() && active;
 
     // Gate buttons
     for (int i = 0; i < NUM_STEPS; i++) 
@@ -207,8 +242,10 @@ void PhasorGates32::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 1].setBrightness(gates[i]); //green
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
-
+    lights[RUN_LIGHT].setBrightness(active ? 1.0f : 0.0f);
     setLightFromOutput(GATE_OUT_LIGHT, GATES_OUTPUT);
+    setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
+    setLightFromOutput(GATES_NOT_OUT_LIGHT, GATES_NOT_OUTPUT);
 }
 
 struct PhasorGates32Widget : HCVModuleWidget { PhasorGates32Widget(PhasorGates32 *module); };
@@ -223,26 +260,37 @@ PhasorGates32Widget::PhasorGates32Widget(PhasorGates32 *module)
     createParamComboVertical(15, knobY, PhasorGates32::WIDTH_PARAM, PhasorGates32::WIDTHCV_PARAM, PhasorGates32::WIDTHCV_INPUT);
     createParamComboVertical(70, knobY, PhasorGates32::STEPS_PARAM, PhasorGates32::STEPSCV_PARAM, PhasorGates32::STEPSCV_INPUT);
     
-    createHCVSwitchVert(89, 255, PhasorGates32::DETECTION_PARAM);
+    createHCVSwitchVert(53, 208, PhasorGates32::DETECTION_PARAM);
 
     //////INPUTS//////
     int jackX = 20;
-    createInputPort(jackX, 248, PhasorGates32::PHASOR_INPUT);
+    int jackX2 = 78;
+    int jackX3 = 136;
+    int jackX4 = 194;
+    int inputY = 248;
+    createInputPort(jackX, inputY, PhasorGates32::PHASOR_INPUT);
+    createInputPort(jackX2, inputY, PhasorGates32::RUN_INPUT);
 
     //////OUTPUTS/////
-    createOutputPort(jackX, 310, PhasorGates32::GATES_OUTPUT);
-    createOutputPort(78, 310, PhasorGates32::TRIGS_OUTPUT);
+    int outputY = 310;
+    createOutputPort(jackX, outputY, PhasorGates32::GATES_OUTPUT);
+    createOutputPort(jackX2, outputY, PhasorGates32::TRIGS_OUTPUT);
+    createOutputPort(jackX3, outputY, PhasorGates32::PHASOR_OUTPUT);
+    createOutputPort(jackX4, outputY, PhasorGates32::GATES_NOT_OUTPUT);
 
     for (int i = 0; i < PhasorGates32::NUM_STEPS; i++)
     {
-        int buttonY = 55 + (i/4)*40;
+        int buttonY = 55 + (i/4)*30;
         int buttonX = 130 + 30 * (i%4);
         addParam(createLightParamCentered<VCVLightBezel<RedGreenBlueLight>>(Vec(buttonX, buttonY), 
         module, PhasorGates32::GATE_PARAMS + i, PhasorGates32::GATE_LIGHTS + 3 * i));
     }
     
-    createHCVRedLightForJack(jackX, 310, PhasorGates32::GATE_OUT_LIGHT);
-    
+    createHCVGreenLightForJack(jackX2, inputY, PhasorGates32::RUN_LIGHT);
+
+    createHCVRedLightForJack(jackX, outputY, PhasorGates32::GATE_OUT_LIGHT);
+    createHCVRedLightForJack(jackX3, outputY, PhasorGates32::PHASOR_LIGHT);
+    createHCVRedLightForJack(jackX4, outputY, PhasorGates32::GATES_NOT_OUT_LIGHT);
 }
 
 Model *modelPhasorGates32 = createModel<PhasorGates32, PhasorGates32Widget>("PhasorGates32");

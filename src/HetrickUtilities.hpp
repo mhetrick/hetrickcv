@@ -269,6 +269,10 @@ struct HCVModuleWidget : ModuleWidget
     {
         addChild(createLight<SmallLight<GreenLight>>(Vec(_x, _y), module, _lightID));
     }
+    void createHCVGreenLightForJack(float _x, float _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<GreenLight>>(Vec(_x-5, _y-2), module, _lightID));
+    }
 
     void createHCVBipolarLight(float _x, float _y, int _lightID)
     {
