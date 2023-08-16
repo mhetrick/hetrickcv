@@ -2,9 +2,6 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg width="100%" height="100%" viewBox="0 0 120 380" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
     <g id="svg8">
-        <g transform="matrix(0.666667,0,0,1,0,0)">
-            <rect x="0" y="0" width="180" height="380" style="fill:rgb(240,240,240);"/>
-        </g>
         <g id="HCV-Logo" serif:id="HCV Logo" transform="matrix(1,0,0,1,-30.9742,0)">
             <g transform="matrix(1,0,0,1,70.7842,363.154)">
                 <path d="M0,11.424L-1.606,11.424L-1.606,6.093L-7.682,6.093L-7.682,11.424L-9.288,11.424L-9.288,0L-7.682,0L-7.682,4.719L-1.606,4.719L-1.606,0L0,0L0,11.424Z" style="fill:rgb(35,31,32);fill-rule:nonzero;"/>

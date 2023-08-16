@@ -46,7 +46,7 @@ float clockMultToBipolarParamUnscalar(float _clockMult)
 void PanelBaseWidget::draw(const DrawArgs& args) {
 	nvgBeginPath(args.vg);
 
-    float contrast = 0.7f;
+    float contrast = 230.0f;
 	NVGcolor baseColor = nvgRGB(contrast, contrast, contrast);
 
 	nvgFillColor(args.vg, baseColor);
