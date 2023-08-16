@@ -106,10 +106,16 @@ struct BlankPanelWidget : ModuleWidget
 	    panel5->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Blanks/BlankPanel1.svg")));
 	    addChild(panel5);
 
-		addChild(createWidget<ScrewSilver>(Vec(15, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 0)));
-		addChild(createWidget<ScrewSilver>(Vec(15, 365)));
-		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 30, 365)));
+        panel1->fb->addChild(new InverterWidget(panel1));
+		panel2->fb->addChild(new InverterWidget(panel2));
+		panel3->fb->addChild(new InverterWidget(panel3));
+		panel4->fb->addChild(new InverterWidget(panel4));
+		panel5->fb->addChild(new InverterWidget(panel5));
+
+		addChild(createWidget<ThemedScrew>(Vec(15, 0)));
+		addChild(createWidget<ThemedScrew>(Vec(box.size.x - 30, 0)));
+		addChild(createWidget<ThemedScrew>(Vec(15, 365)));
+		addChild(createWidget<ThemedScrew>(Vec(box.size.x - 30, 365)));
 	}
     
     void step() override
