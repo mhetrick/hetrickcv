@@ -213,3 +213,44 @@ float HCVPhasorSwingProcessor::operator()(float _normalizedPhasor)
 
     return (offsetBase + swungPhasor * stepFraction) * swingGroup;
 }
+
+//// humanizer
+void HCVPhasorHumanizer::generateNewValues()
+{
+    float sum = 0.0f;
+
+    for (int i = 0; i < numSteps; i++)
+    {
+        float newValue = randomGen.whiteNoise();
+        sum += newValue;
+        randomValues[i] = newValue;
+    }
+
+    const float average = sum/numSteps;
+    
+    //center the values around 1.0
+    for (int i = 0; i < numSteps; i++)
+    {
+        randomValues[i] = (randomValues[i] - average) + 1.0f;
+    }
+}
+
+float HCVPhasorHumanizer::operator()(float _normalizedPhasor)
+{
+    if (resetDetector(_normalizedPhasor) && !locked)
+    {
+        numSteps = pendingNumSteps;
+        generateNewValues();
+    }
+
+    if (numSteps == 1) return _normalizedPhasor;
+    
+    int currentStep = (int)floor(_normalizedPhasor * numSteps);
+    float multiplier = randomValues[currentStep];
+
+    subPhasor.setMultiplier(multiplier);
+
+    float humanizedPhasor = subPhasor.hardSynced(_normalizedPhasor);
+
+    return LERP(depth, humanizedPhasor, _normalizedPhasor);
+}

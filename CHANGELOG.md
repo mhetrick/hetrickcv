@@ -1,8 +1,9 @@
 # HetrickCV Changelog
 
 ## 2.3.3 (in progress)
+- Add Phasor Humanize module.
 - Add Phasor Swing module.
-- Fix Phasor Randomizer Steps knob initializing with a 0 display.
+- Fix Phasor Randomizer, Phasor Shifter, Phasor Substep Shaper, and Phasor Stutter Steps knobs initializing with a 0 display.
 
 ## 2.3.2
 - Fix Phasor to Euclidean step detector initialization.

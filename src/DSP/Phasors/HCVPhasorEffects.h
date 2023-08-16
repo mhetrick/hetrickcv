@@ -471,3 +471,36 @@ protected:
     float pendingGrouping = 2.0f;
     float divider = 0.5f;
 };
+
+class HCVPhasorHumanizer
+{
+public:
+    HCVPhasorHumanizer(int maxSteps = 64)
+    {
+        randomValues.resize(maxSteps);
+        generateNewValues();
+    }
+
+    void setNumSteps(int _numSteps)
+    {
+        pendingNumSteps = std::max(1, _numSteps);
+    }
+
+    void setDepth(float _depth)
+    {
+        depth = _depth * _depth * _depth;
+    }
+
+    void generateNewValues();
+    float operator()(float _normalizedPhasor);
+
+protected:
+    std::vector<float> randomValues;
+    int pendingNumSteps = 8;
+    int numSteps = 8;
+    HCVRandom randomGen;
+    HCVPhasorDivMult subPhasor;
+    HCVPhasorResetDetector resetDetector;
+    float depth = 0.1f;
+    bool locked = false;
+};

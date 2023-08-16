@@ -47,7 +47,7 @@ struct PhasorSubstepShape : HCVModule
 		configParam(SHAPE_PARAM, -5.0, 5.0, 0.0, "Phasor Shape");
 		configParam(SHAPE_SCALE_PARAM, -1.0, 1.0, 1.0, "Phasoe Shape CV Depth");
 
-        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 0.0, "Steps");
+        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 1.0, "Steps");
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
         

@@ -400,6 +400,16 @@
       ]
     },
     {
+      "slug": "PhasorHumanizer",
+      "name": "Phasor Humanizer",
+      "description": "Repeatedly modifies the slope of an incoming phasor to make the timing less robotic.",
+      "tags": [
+        "Waveshaper",
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorOctature",
       "name": "Phasor Octature",
       "description": "Takes a phasor and rotates it at 45 degree intervals.",

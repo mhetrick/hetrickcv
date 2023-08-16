@@ -49,6 +49,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorGates64);
 	p->addModel(modelPhasorGen);
 	p->addModel(modelPhasorGeometry);
+	p->addModel(modelPhasorHumanizer);
 	p->addModel(modelPhasorOctature);
 	p->addModel(modelPhasorQuadrature);
 	p->addModel(modelPhasorRandom);
