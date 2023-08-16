@@ -136,6 +136,29 @@ struct HCVModule : Module
     static constexpr float HCV_GATE_MAG = 10.0f;
 };
 
+//many thanks to Marc at Impromptu for these excellent classes.
+struct PanelBaseWidget : TransparentWidget {
+	PanelBaseWidget(Vec _size) {
+		box.size = _size;
+	}
+	void draw(const DrawArgs& args) override;
+};
+
+struct InverterWidget : TransparentWidget {
+	// This method also has the main theme refresh stepper for the main panel's frame buffer.
+	// It automatically makes DisplayBackground, SwitchOutlineWidget, etc. redraw when isDark() changes since they are children to the main panel's frame buffer   
+	// Components such as ports and screws also have their own steppers (that just change the svg, since they don't have framebuffers)
+	SvgPanel* mainPanel;
+	int oldMode = -1;
+	InverterWidget(SvgPanel* _mainPanel) {
+		mainPanel = _mainPanel;
+		box.size = mainPanel->box.size;
+	}
+	void refreshForTheme();
+    void step() override;
+	void draw(const DrawArgs& args) override;
+};
+
 struct HCVModuleWidget : ModuleWidget
 {
 	std::string skinPath = "";
@@ -147,16 +170,20 @@ struct HCVModuleWidget : ModuleWidget
 
 	void createScrews(bool _is4HP = false)
     {
-        addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-	    if(!_is4HP) addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-	    addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-	    if(!_is4HP) addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        addChild(createWidget<ThemedScrew>(Vec(RACK_GRID_WIDTH, 0)));
+	    if(!_is4HP) addChild(createWidget<ThemedScrew>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+	    addChild(createWidget<ThemedScrew>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+	    if(!_is4HP) addChild(createWidget<ThemedScrew>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
     }
 
 	void initializeWidget(Module* module, bool _is4HP = false)
     {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, skinPath)));
+
+        SvgPanel* svgPanel = (SvgPanel*)getPanel();
+        svgPanel->fb->addChildBottom(new PanelBaseWidget(svgPanel->box.size));
+        svgPanel->fb->addChild(new InverterWidget(svgPanel));
         createScrews(_is4HP);
     }
 
@@ -227,12 +254,12 @@ struct HCVModuleWidget : ModuleWidget
 
     void createInputPort(float _x, float _y, int _paramID)
     {
-        addInput(createInput<PJ301MPort>(Vec(_x, _y), module, _paramID));
+        addInput(createInput<ThemedPJ301MPort>(Vec(_x, _y), module, _paramID));
     }
 
     void createOutputPort(float _x, float _y, int _paramID)
     {
-        addOutput(createOutput<PJ301MPort>(Vec(_x, _y), module, _paramID));
+        addOutput(createOutput<ThemedPJ301MPort>(Vec(_x, _y), module, _paramID));
     }
 
     void createParamComboVertical(float _x, float _y, int _paramID, int _trimpotID, int _inputID)

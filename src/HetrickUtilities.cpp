@@ -41,3 +41,49 @@ float clockMultToBipolarParamUnscalar(float _clockMult)
 {
     return lfoFrequencyToBipolarParamUnscalar(_clockMult * 2.0f);
 }
+
+////////
+void PanelBaseWidget::draw(const DrawArgs& args) {
+	nvgBeginPath(args.vg);
+
+    float contrast = 0.7f;
+	NVGcolor baseColor = nvgRGB(contrast, contrast, contrast);
+
+	nvgFillColor(args.vg, baseColor);
+	nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+	nvgFill(args.vg);
+	TransparentWidget::draw(args);
+}
+
+void InverterWidget::refreshForTheme() {
+	int newMode = settings::preferDarkPanels ? 1 : 0;
+	if (newMode != oldMode) {
+        mainPanel->fb->dirty = true;
+        oldMode = newMode;
+    }
+}
+
+void InverterWidget::step() {
+	refreshForTheme();
+	TransparentWidget::step();
+}
+
+void InverterWidget::draw(const DrawArgs& args) {
+	TransparentWidget::draw(args);
+	if (settings::preferDarkPanels) {
+		// nvgSave(args.vg);
+		nvgBeginPath(args.vg);
+		nvgFillColor(args.vg, SCHEME_WHITE);// this is the source, the current framebuffer is the dest	
+		nvgRect(args.vg, 0, 0, box.size.x, box.size.y);
+		nvgGlobalCompositeBlendFuncSeparate(args.vg, 
+			NVG_ONE_MINUS_DST_COLOR,// srcRGB
+			NVG_ZERO,// dstRGB
+			NVG_ONE_MINUS_DST_COLOR,// srcAlpha
+			NVG_ONE);// dstAlpha
+		// blend factor: https://github.com/memononen/nanovg/blob/master/src/nanovg.h#L86
+		// OpenGL blend doc: https://www.khronos.org/opengl/wiki/Blending
+		nvgFill(args.vg);
+		nvgClosePath(args.vg);
+		// nvgRestore(args.vg);
+	}			
+}

@@ -221,7 +221,7 @@ void HCVPhasorHumanizer::generateNewValues()
 
     for (int i = 0; i < numSteps; i++)
     {
-        float newValue = randomGen.whiteNoise();
+        float newValue = randomGen.whiteNoise() * 0.9f;
         sum += newValue;
         randomValues[i] = newValue;
     }
