@@ -237,10 +237,14 @@ void HCVPhasorHumanizer::generateNewValues()
 
 float HCVPhasorHumanizer::operator()(float _normalizedPhasor)
 {
-    if (resetDetector(_normalizedPhasor) && !locked)
+    if (resetDetector(_normalizedPhasor))
     {
-        numSteps = pendingNumSteps;
-        generateNewValues();
+        lastPhase = 0.0f;
+        if(!locked)
+        {
+            numSteps = pendingNumSteps;
+            generateNewValues();
+        }
     }
 
     if (numSteps == 1) return _normalizedPhasor;
@@ -248,9 +252,11 @@ float HCVPhasorHumanizer::operator()(float _normalizedPhasor)
     int currentStep = (int)floor(_normalizedPhasor * numSteps);
     float multiplier = randomValues[currentStep];
 
-    subPhasor.setMultiplier(multiplier);
+    const float scaledSlope = slope(_normalizedPhasor) * multiplier;
 
-    float humanizedPhasor = subPhasor.hardSynced(_normalizedPhasor);
+    //in rare cases, the humanized phasor will try to reset before the main phasor, so we clamp it to 1.0 instead of wrapping
+    float humanizedPhasor = clamp(lastPhase + scaledSlope, 0.0f, 1.0f);
+    lastPhase = humanizedPhasor;
 
     return LERP(depth, humanizedPhasor, _normalizedPhasor);
 }

@@ -500,8 +500,10 @@ protected:
     std::vector<float> randomValues;
     int pendingNumSteps = 8;
     int numSteps = 8;
+
+    float lastPhase = 0.0f;
     HCVRandom randomGen;
-    HCVPhasorDivMult subPhasor;
+    HCVPhasorSlopeDetector slope;
     HCVPhasorResetDetector resetDetector;
     float depth = 0.1f;
     bool locked = false;
