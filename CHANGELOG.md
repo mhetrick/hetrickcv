@@ -1,6 +1,6 @@
 # HetrickCV Changelog
 
-## 2.4.0 (in progress)
+## 2.4.0
 - Added dark mode for all panels!
 - Add Phasor Humanize module.
 - Add Phasor Mixer module.
