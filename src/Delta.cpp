@@ -104,8 +104,8 @@ void Delta::process(const ProcessArgs &args)
 	outputs[CHANGE_OUTPUT].setVoltage(allTrigs);
     outputs[DELTA_OUTPUT].setVoltage(deltaOutput);
 
-	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
-	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
+	setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
 	lights[CHANGE_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 

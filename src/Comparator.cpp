@@ -79,8 +79,8 @@ void Comparator::process(const ProcessArgs &args)
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
 
-	lights[GT_LIGHT].setSmoothBrightness(outputs[GT_GATE_OUTPUT].value, 10);
-	lights[LT_LIGHT].setSmoothBrightness(outputs[LT_GATE_OUTPUT].value, 10);
+	setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
+	setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
 	lights[ZEROX_LIGHT].setSmoothBrightness(allTrigs, 10);
 }
 

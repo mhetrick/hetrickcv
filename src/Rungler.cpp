@@ -116,7 +116,7 @@ void Rungler::process(const ProcessArgs &args)
     for(int i = 0; i < 8; i++)
     {
         outputs[OUT1_OUTPUT + i].setVoltage(rungler.dataRegister[i] ? 5.0f : 0.0f);
-        lights[OUT1_LIGHT + i].setSmoothBrightness(outputs[OUT1_OUTPUT + i].value * 0.2f, args.sampleTime);
+        lights[OUT1_LIGHT + i].setSmoothBrightness(outputs[OUT1_OUTPUT + i].getVoltage() * 0.2f, args.sampleTime);
     }
 }
 
