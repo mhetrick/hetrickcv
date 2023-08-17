@@ -201,12 +201,12 @@ PhasorSwingWidget::PhasorSwingWidget(PhasorSwing *module)
     const float inJackY = 258.0f;
     const float outJackY = 318.0f;
     const float jack1 = 15.0f;
-    const float jack2 = 75.0f;
-    const float jack3 = 135.0f;
-    const float activeX = 60.0f;
+    const float jack2 = 78.0f;
+    const float jack3 = 140.0f;
+    //const float activeX = 60.0f;
 	//////INPUTS//////
     createInputPort(jack1, inJackY, PhasorSwing::PHASOR_INPUT);
-    createInputPort(activeX, inJackY, PhasorSwing::ACTIVE_INPUT);
+    createInputPort(jack2, inJackY, PhasorSwing::ACTIVE_INPUT);
 
 	//////OUTPUTS//////
     createOutputPort(jack1, outJackY, PhasorSwing::SWING_OUTPUT);
@@ -216,10 +216,10 @@ PhasorSwingWidget::PhasorSwingWidget(PhasorSwing *module)
 
     for (int i = 0; i < 6; i++)
     {
-        createHCVRedLight(100.0, 238 + (i*9.5), i);
+        //createHCVRedLight(100.0, 238 + (i*9.5), i);
     }
 
-    createHCVRedLightForJack(activeX, inJackY, PhasorSwing::ACTIVE_LIGHT);
+    createHCVRedLightForJack(jack2, inJackY, PhasorSwing::ACTIVE_LIGHT);
     
     createHCVRedLightForJack(jack1, outJackY, PhasorSwing::OUT_LIGHT);
     createHCVRedLightForJack(jack2, outJackY, PhasorSwing::PHASORS_LIGHT);
