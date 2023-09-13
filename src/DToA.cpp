@@ -227,7 +227,7 @@ struct DigitalToAnalogWidget : HCVModuleWidget { DigitalToAnalogWidget(DigitalTo
 
 DigitalToAnalogWidget::DigitalToAnalogWidget(DigitalToAnalog *module)
 {
-    setSkinPath("res/DToAPoly.svg");
+    setSkinPath("res/DToA.svg");
     initializeWidget(module);
 
     //////PARAMS//////

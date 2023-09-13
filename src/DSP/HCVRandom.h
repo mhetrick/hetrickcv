@@ -32,17 +32,17 @@ public:
     
     float nextGaussian() const
     {
-        return gam::rnd::gaussian(gamRand) * 0.3;
+        return gam::rnd::gaussian(gamRand) * 0.3f;
     }
 
     bool nextProbability(float _prob) const
 	{
-		return gam::rnd::prob(gamRand, _prob);
+		return nextFloat() < _prob;
 	}
 
     bool nextBoolean() const
     {
-        return nextProbability(0.5);
+        return nextProbability(0.5f);
     }
 
 	float operator()() const

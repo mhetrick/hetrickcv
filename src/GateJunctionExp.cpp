@@ -256,7 +256,7 @@ struct GateJunctionExpWidget : HCVModuleWidget { GateJunctionExpWidget(GateJunct
 
 GateJunctionExpWidget::GateJunctionExpWidget(GateJunctionExp *module)
 {
-    setSkinPath("res/GateJunctionExpanded.svg");
+    setSkinPath("res/GateJunctionExp.svg");
     initializeWidget(module);
 
     //////PARAMS//////

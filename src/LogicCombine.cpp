@@ -120,7 +120,7 @@ struct LogicCombineWidget : HCVModuleWidget { LogicCombineWidget(LogicCombine *m
 
 LogicCombineWidget::LogicCombineWidget(LogicCombine *module)
 {
-    setSkinPath("res/LogicCombiner.svg");
+    setSkinPath("res/LogicCombine.svg");
     initializeWidget(module);
 
     //////PARAMS//////

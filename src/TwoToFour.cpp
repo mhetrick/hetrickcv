@@ -110,7 +110,7 @@ struct TwoToFourWidget : HCVModuleWidget { TwoToFourWidget(TwoToFour *module); }
 
 TwoToFourWidget::TwoToFourWidget(TwoToFour *module)
 {
-	setSkinPath("res/2To4.svg");
+	setSkinPath("res/TwoToFour.svg");
     initializeWidget(module);
 
     //////PARAMS//////

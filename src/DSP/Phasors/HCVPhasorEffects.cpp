@@ -262,3 +262,10 @@ float HCVPhasorHumanizer::operator()(float _normalizedPhasor)
 
     return LERP(depth, humanizedPhasor, _normalizedPhasor);
 }
+
+float HCVVariableBoundsPhasor::operator()(float _normalizedPhasor)
+{
+    lastPhase = gam::scl::wrap(lastPhase + slope(_normalizedPhasor), highBound, lowBound);
+
+    return lastPhase;
+}

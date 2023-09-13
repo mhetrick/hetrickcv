@@ -182,7 +182,7 @@ struct Chaos3OpWidget : HCVModuleWidget { Chaos3OpWidget(Chaos3Op *module); };
 
 Chaos3OpWidget::Chaos3OpWidget(Chaos3Op *module)
 {
-	setSkinPath("res/3OpChaos.svg");
+	setSkinPath("res/Chaos3Op.svg");
 	initializeWidget(module);
 
 	//////PARAMS//////

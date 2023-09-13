@@ -513,3 +513,31 @@ protected:
     float depth = 0.1f;
     bool locked = false;
 };
+
+class HCVVariableBoundsPhasor
+{
+public:
+
+    float operator()(float _normalizedPhasor);
+
+    void setBounds(float _lowBound, float _highBound)
+    {
+        if(_lowBound > _highBound)
+        {
+            lowBound = _highBound;
+            highBound = _lowBound;
+        }
+        else
+        {
+            lowBound = _lowBound;
+            highBound = _highBound;
+        }
+    }
+
+protected:
+    float lowBound = 0.0f;
+    float highBound = 1.0f;
+    float lastPhase = 0.0f;
+
+    HCVPhasorSlopeDetector slope;
+};

@@ -1,5 +1,10 @@
 # HetrickCV Changelog
 
+## 2.4.1 (in progress)
+- Add Trigonometric Shaper (in progress).
+- Add Waveset (in progress).
+- Cleanup SVG names to all match C++ names.
+
 ## 2.4.0
 - Added dark mode for all panels!
 - Add Phasor Humanize module.

@@ -245,7 +245,7 @@ struct Chaos2OpWidget : HCVModuleWidget { Chaos2OpWidget(Chaos2Op *module); };
 
 Chaos2OpWidget::Chaos2OpWidget(Chaos2Op *module)
 {
-	setSkinPath("res/2OpChaos.svg");
+	setSkinPath("res/Chaos2Op.svg");
 	initializeWidget(module);
 
 	//////PARAMS//////
