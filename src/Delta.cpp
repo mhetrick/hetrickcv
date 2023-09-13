@@ -96,7 +96,7 @@ void Delta::process(const ProcessArgs &args)
 	outputs[GT_GATE_OUTPUT].setVoltage(rising  ? HCV_GATE_MAG : 0.0f);
 	outputs[LT_GATE_OUTPUT].setVoltage(falling ? HCV_GATE_MAG : 0.0f);
 
-	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
+	float allTrigs = outputs[GT_TRIG_OUTPUT].getVoltage() + outputs[LT_TRIG_OUTPUT].getVoltage();
 	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
 
     const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);

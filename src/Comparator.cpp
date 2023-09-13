@@ -74,7 +74,7 @@ void Comparator::process(const ProcessArgs &args)
 	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f);
 	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f);
 
-	float allTrigs = outputs[GT_TRIG_OUTPUT].value + outputs[LT_TRIG_OUTPUT].value;
+	float allTrigs = outputs[GT_TRIG_OUTPUT].getVoltage() + outputs[LT_TRIG_OUTPUT].getVoltage();
 	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
 
 	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
