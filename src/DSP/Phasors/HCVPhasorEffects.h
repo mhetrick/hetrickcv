@@ -49,12 +49,14 @@ public:
 protected:
     HCVPhasorSlopeDetector slope;
     HCVPhasorResetDetector resetDetector;
-    float lastPhase = 0.0f;
+    
     float multiplier = 1.0f;
     float divider = 1.0f;
 
     float threshold = 1.0f/64.0f;
-    float lastSpeedScale = 1.0f;
+
+    double lastPhase = 0.0;
+    double lastSpeedScale = 1.0;
 
     bool autoSync = false;
     bool waitingToSync = false;

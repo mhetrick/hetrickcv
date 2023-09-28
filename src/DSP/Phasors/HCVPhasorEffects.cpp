@@ -5,15 +5,15 @@
 float HCVPhasorDivMult::basicSync(float _normalizedPhasorIn)
 {
     const float inSlope = slope(_normalizedPhasorIn);
-    const float speedScale = multiplier/divider;
-    const float scaledSlope = inSlope * speedScale;
+    const double speedScale = double(multiplier)/double(divider);
+    const double scaledSlope = double(inSlope) * speedScale;
 
     if(waitingToSync)
     {
         reset(_normalizedPhasorIn);
     }
 
-    const float output = gam::scl::wrap(lastPhase + scaledSlope);
+    const double output = gam::scl::wrap(lastPhase + scaledSlope);
     lastPhase = output;
     return output;
 }

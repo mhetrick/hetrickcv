@@ -1,8 +1,11 @@
 # HetrickCV Changelog
 
-## 2.4.1 (in progress)
+## 2.4.2 (in progress)
 - Add Trigonometric Shaper (in progress).
 - Add Waveset (in progress).
+
+## 2.4.1
+- FIX: The HCVPhasorDivMult class has been updated to use double precision on important calculations. This greatly improves the accuracy of the Phasor Timetable and Phasor Div/Mult modules and should eliminate drift in most use cases.
 - Cleanup SVG names to all match C++ names.
 
 ## 2.4.0
