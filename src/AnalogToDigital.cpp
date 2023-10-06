@@ -234,7 +234,7 @@ struct AnalogToDigitalWidget : HCVModuleWidget { AnalogToDigitalWidget(AnalogToD
 
 AnalogToDigitalWidget::AnalogToDigitalWidget(AnalogToDigital *module)
 {
-    setSkinPath("res/AToD.svg");
+    setSkinPath("res/AnalogToDigital.svg");
     initializeWidget(module);
 
     //////PARAMS//////

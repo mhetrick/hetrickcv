@@ -3,6 +3,7 @@
 ## 2.4.2 (in progress)
 - Add Trigonometric Shaper (in progress).
 - Add Waveset (in progress).
+- Cleanup SVG and class names again to match module slugs.
 
 ## 2.4.1
 - FIX: The HCVPhasorDivMult class has been updated to use double precision on important calculations. This greatly improves the accuracy of the Phasor Timetable and Phasor Div/Mult modules and should eliminate drift in most use cases.

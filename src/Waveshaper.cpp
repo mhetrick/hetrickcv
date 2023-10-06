@@ -111,7 +111,7 @@ struct WaveshapeWidget : HCVModuleWidget { WaveshapeWidget(Waveshape *module); }
 
 WaveshapeWidget::WaveshapeWidget(Waveshape *module)
 {
-	setSkinPath("res/Waveshape.svg");
+	setSkinPath("res/Waveshaper.svg");
 	initializeWidget(module);
 
 	//////PARAMS//////
