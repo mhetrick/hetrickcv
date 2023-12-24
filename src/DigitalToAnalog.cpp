@@ -158,13 +158,16 @@ void DigitalToAnalog::process(const ProcessArgs &args)
             lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         }
 
-        if(mode == 0) processUni8();
-        else if (mode == 1) processBiOff();
-        else if (mode == 2) processBiSig();
+        switch(mode)
+        {
+            case 0: processUni8(); break;
+            case 1: processBiOff(); break;
+            case 2: processBiSig(); break;
+        }
 
         mainOutput *= 5.0f;
 
-        if (rectMode == 1) mainOutput = mainOutput > 0.0f ? mainOutput : 0.0f;
+        if (rectMode == 1) mainOutput = fmax(0.0f, mainOutput);
         else if (rectMode == 2) mainOutput = std::abs(mainOutput);
 
         mainOutput *= params[SCALE_PARAM].getValue();
