@@ -1,6 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.4.2 (in progress)
+- Add Phasor Splitter (in progress).
 - Add Trigonometric Shaper (in progress).
 - Add Waveset (in progress).
 - Cleanup SVG and class names again to match module slugs.

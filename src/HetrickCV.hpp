@@ -80,6 +80,7 @@ extern Model *modelPhasorReset;
 extern Model *modelPhasorRhythmGroup;
 extern Model *modelPhasorShape;
 extern Model *modelPhasorShift;
+extern Model *modelPhasorSplitter;
 extern Model *modelPhasorStutter;
 extern Model *modelPhasorSubstepShape;
 extern Model *modelPhasorSwing;

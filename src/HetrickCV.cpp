@@ -59,6 +59,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorRhythmGroup);
 	p->addModel(modelPhasorShape);
 	p->addModel(modelPhasorShift);
+	p->addModel(modelPhasorSplitter);
 	p->addModel(modelPhasorStutter);
 	p->addModel(modelPhasorSubstepShape);
 	p->addModel(modelPhasorSwing);

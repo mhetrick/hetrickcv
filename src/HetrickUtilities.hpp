@@ -262,7 +262,7 @@ struct HCVModuleWidget : ModuleWidget
     }
     void createHCVRedLightForJack(float _x, float _y, int _lightID)
     {
-        addChild(createLight<SmallLight<RedLight>>(Vec(_x-5, _y-2), module, _lightID));
+        createHCVRedLight(_x -5, _y - 2, _lightID);
     }
 
     void createHCVGreenLight(float _x, float _y, int _lightID)
@@ -271,18 +271,27 @@ struct HCVModuleWidget : ModuleWidget
     }
     void createHCVGreenLightForJack(float _x, float _y, int _lightID)
     {
-        addChild(createLight<SmallLight<GreenLight>>(Vec(_x-5, _y-2), module, _lightID));
+        createHCVGreenLight(_x - 5, _y - 2, _lightID);
     }
 
     void createHCVBipolarLight(float _x, float _y, int _lightID)
     {
         addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x, _y), module, _lightID));
     }
-
     void createHCVBipolarLightForJack(float _x, float _y, int _lightID)
     {
-        addChild(createLight<SmallLight<GreenRedLight>>(Vec(_x-5, _y-2), module, _lightID));
+        createHCVBipolarLight(_x - 5, _y - 2, _lightID);
     }
+
+    void createHCVTricolorLight(float _x, float _y, int _lightID)
+    {
+        addChild(createLight<SmallLight<RedGreenBlueLight>>(Vec(_x, _y), module, _lightID));
+    }
+    void createHCVTricolorLightForJack(float _x, float _y, int _lightID)
+    {
+        createHCVTricolorLight(_x - 5, _y - 2, _lightID);
+    }
+
 
     void createInputPort(float _x, float _y, int _paramID)
     {

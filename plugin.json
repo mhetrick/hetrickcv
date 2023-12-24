@@ -497,6 +497,16 @@
       ]
     },
     {
+      "slug": "PhasorSplitter",
+      "name": "Phasor Splitter",
+      "description": "Splits a phasor into 64 sub-phasors.",
+      "tags": [
+        "Clock Modulator",
+        "Sequencer",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorStutter",
       "name": "Phasor Stutter",
       "description": "Processes phasor signals and adds stutters/ratchets/repeats within substeps.",
