@@ -43,7 +43,7 @@ struct PhasorSplitter : HCVModule
 
     HCVPhasorSlopeDetector slopeDetectors[16];
     HCVPhasorStepDetector stepDetectors[16];
-    HCVTriggeredGate triggers[16];
+    HCVPhasorResetDetector resetDetectors[16];
 
 	PhasorSplitter()
 	{
@@ -105,19 +105,37 @@ void PhasorSplitter::process(const ProcessArgs &args)
         }
 
         const float phasorIn = active ? inputs[PHASOR_INPUT].getPolyVoltage(chan) : 0.0f;
-        float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
+        const float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
-        stepDetectors[chan].setNumberSteps(numSteps);
-        bool triggered = stepDetectors[chan](normalizedPhasor);
-        currentStep[chan] = stepDetectors[chan].getCurrentStep();
-        float fractionalIndex = stepDetectors[chan].getFractionalStep();
+        int currentMode = 0;
 
+        float outputValue = 0.0f;
+
+        if(currentMode == 0)
+        {
+            stepDetectors[chan].setNumberSteps(numSteps);
+            const bool triggered = stepDetectors[chan](normalizedPhasor);
+
+            currentStep[chan] = stepDetectors[chan].getCurrentStep();
+            outputValue = stepDetectors[chan].getFractionalStep();
+        }
+        else if (currentMode == 1)
+        {
+            const bool resetDetected = resetDetectors[chan](normalizedPhasor);
+            if(resetDetected) 
+                currentStep[chan] = (currentStep[chan] + 1) % int(numSteps);
+
+            outputValue = normalizedPhasor;
+        }
+
+        //clear outputs
         for (int i = 0; i < NUM_STEPS; i++)
         {
             outputs[PHASOR_OUTPUTS + i].setVoltage(0.0f, chan);
         }
         
-        outputs[PHASOR_OUTPUTS + currentStep[chan]].setVoltage(fractionalIndex * HCV_PHZ_UPSCALE, chan);
+        //set output only for current step
+        outputs[PHASOR_OUTPUTS + currentStep[chan]].setVoltage(outputValue * HCV_PHZ_UPSCALE, chan);
     }
 
     bool active = true;
