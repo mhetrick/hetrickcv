@@ -1,6 +1,7 @@
 #include "HetrickCV.hpp"
 #include "DSP/Phasors/HCVPhasorAnalyzers.h"
 #include "DSP/HCVTiming.h"
+#include "DSP/Phasors/HCVPhasorEffects.h"
 
 struct PhasorSplitter : HCVModule
 {
@@ -13,7 +14,6 @@ struct PhasorSplitter : HCVModule
         STEPSCV_PARAM,
         MODE_PARAM,
         MODECV_PARAM,
-        DETECTION_PARAM,
 
 		NUM_PARAMS
 	};
@@ -34,6 +34,7 @@ struct PhasorSplitter : HCVModule
     enum LightIds
     {
         ENUMS(STEP_LIGHTS, NUM_STEPS*2),
+        ENUMS(MODE_LIGHTS, 5),
         RUN_LIGHT,
         NUM_LIGHTS
 	};
@@ -44,6 +45,7 @@ struct PhasorSplitter : HCVModule
     HCVPhasorSlopeDetector slopeDetectors[16];
     HCVPhasorStepDetector stepDetectors[16];
     HCVPhasorResetDetector resetDetectors[16];
+    HCVPhasorDivMult divMults[16];
 
 	PhasorSplitter()
 	{
@@ -54,10 +56,9 @@ struct PhasorSplitter : HCVModule
 
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
 
-        configParam(MODE_PARAM, -5.0, 5.0, 0.0, "Gate Width");
+        configSwitch(MODE_PARAM, 0.0, 4.0, 1.0, "Split Mode", 
+        {"Scan", "Divide + Scan", "Step Forwards", "Step Backwards", "Step Random"});
         configParam(MODECV_PARAM, -1.0, 1.0, 1.0, "Gate Width CV Depth");
-
-        configSwitch(DETECTION_PARAM, 0.0, 1.0, 1.0, "Detection Mode", {"Raw", "Smart (Detect Playback and Reverse)"});
 
         configInput(STEPSCV_INPUT, "Steps CV");
         configInput(MODECV_INPUT, "Gate Width CV");
@@ -91,8 +92,6 @@ void PhasorSplitter::process(const ProcessArgs &args)
     int numChannels = setupPolyphonyForAllOutputs();
     int lightIndex = 0;
 
-    smartDetection = params[DETECTION_PARAM].getValue() > 0.0f;
-
     for (int chan = 0; chan < numChannels; chan++)
     {
         float numSteps = stepsKnob + (stepsDepth * inputs[STEPSCV_INPUT].getPolyVoltage(chan));
@@ -107,23 +106,50 @@ void PhasorSplitter::process(const ProcessArgs &args)
         const float phasorIn = active ? inputs[PHASOR_INPUT].getPolyVoltage(chan) : 0.0f;
         const float normalizedPhasor = scaleAndWrapPhasor(phasorIn);
 
-        int currentMode = 0;
+        float modeMod = modeKnob + (modeDepth * inputs[MODECV_INPUT].getPolyVoltage(chan));
+        int currentMode = (int)clamp(modeMod, 0.0f, 4.0f);
 
         float outputValue = 0.0f;
 
-        if(currentMode == 0)
+        if(currentMode < 2)
         {
+            float division = currentMode == 0 ? 1 : numSteps;
+            divMults[chan].setDivider(division);
+            float dividedPhasor = divMults[chan].modulatedSync(normalizedPhasor);
+
             stepDetectors[chan].setNumberSteps(numSteps);
-            const bool triggered = stepDetectors[chan](normalizedPhasor);
+            const bool triggered = stepDetectors[chan](dividedPhasor);
 
             currentStep[chan] = stepDetectors[chan].getCurrentStep();
             outputValue = stepDetectors[chan].getFractionalStep();
         }
-        else if (currentMode == 1)
+        else
         {
             const bool resetDetected = resetDetectors[chan](normalizedPhasor);
             if(resetDetected) 
-                currentStep[chan] = (currentStep[chan] + 1) % int(numSteps);
+            {
+                currentStep[chan] = currentStep[chan] % int(numSteps);
+
+                switch (currentMode)
+                {
+                case 2:
+                    currentStep[chan] = (currentStep[chan] + 1) % int(numSteps);
+                    break;
+
+                case 3:
+                    currentStep[chan] = (currentStep[chan] - 1);
+                    if(currentStep[chan] < 0)
+                        currentStep[chan] = numSteps - 1;
+                    break;
+
+                case 4:
+                    currentStep[chan] = (random::u32() % int(numSteps));
+                    break;
+                
+                default:
+                    break;
+                }
+            }
 
             outputValue = normalizedPhasor;
         }
@@ -152,6 +178,14 @@ void PhasorSplitter::process(const ProcessArgs &args)
         lights[STEP_LIGHTS + 2 * i + 1].setBrightness(i >= stepsKnob); //red
     }
 
+    // Mode Lights
+    float modeMod = modeKnob + (modeDepth * inputs[MODECV_INPUT].getVoltage());
+    int lightMode = (int)clamp(modeMod, 0.0f, 4.0f);
+    for (int i = MODE_LIGHTS; i <= MODE_LIGHTS_LAST; i++)
+    {
+        lights[i].setBrightness(lightMode == (i - MODE_LIGHTS) ? 5.0f : 0.0f);
+    }
+
     const float currentOutputValue = getOutput(PHASOR_OUTPUTS + currentStep[0]).getVoltage() * HCV_PHZ_DOWNSCALE;
     lights[STEP_LIGHTS + 2 * currentStep[0]].setBrightness(currentOutputValue);
 
@@ -169,8 +203,6 @@ PhasorSplitterWidget::PhasorSplitterWidget(PhasorSplitter *module)
     int knobY = 60;
     createParamComboVertical(15, knobY, PhasorSplitter::MODE_PARAM, PhasorSplitter::MODECV_PARAM, PhasorSplitter::MODECV_INPUT);
     createParamComboVertical(70, knobY, PhasorSplitter::STEPS_PARAM, PhasorSplitter::STEPSCV_PARAM, PhasorSplitter::STEPSCV_INPUT);
-    
-    createHCVSwitchVert(53, 208, PhasorSplitter::DETECTION_PARAM);
 
     //////INPUTS//////
     int jackX = 20;
@@ -190,6 +222,13 @@ PhasorSplitterWidget::PhasorSplitterWidget(PhasorSplitter *module)
         createOutputPort(outJackX, outJackY, PhasorSplitter::PHASOR_OUTPUTS + i);
         createHCVBipolarLightForJack(outJackX, outJackY, PhasorSplitter::STEP_LIGHTS + 2*i);
     }
+
+    for (int i = PhasorSplitter::MODE_LIGHTS; i <= PhasorSplitter::MODE_LIGHTS_LAST; i++)
+    {
+        float lightX = 22.0f;
+        float lightY = 232.0f + (i - PhasorSplitter::MODE_LIGHTS)*9.75f;
+        createHCVRedLight(lightX, lightY, i);
+    }   
 
     createHCVGreenLightForJack(jackX2, inputY, PhasorSplitter::RUN_LIGHT);
 }
