@@ -430,6 +430,15 @@
       ]
     },
     {
+      "slug": "PhasorProbability",
+      "name": "Phasor Probability",
+      "description": "Sends one phasor to two places randomly.",
+      "tags": [
+        "Random",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorQuadrature",
       "name": "Phasor Quadrature",
       "description": "Shapes a phasor into a sine, and outputs both phasors and sines at 90 degree intervals.",

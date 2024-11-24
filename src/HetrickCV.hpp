@@ -73,6 +73,7 @@ extern Model *modelPhasorGeometry;
 extern Model *modelPhasorHumanizer;
 extern Model *modelPhasorMixer;
 extern Model *modelPhasorOctature;
+extern Model *modelPhasorProbability;
 extern Model *modelPhasorQuadrature;
 extern Model *modelPhasorRandom;
 extern Model *modelPhasorRanger;

@@ -4,6 +4,7 @@
 - Add Waveset (in progress).
 
 ## 2.5.0
+- Add Phasor Probability.
 - Add Phasor Splitter.
 - Add Trigonometric Shaper.
 - Cleanup SVG and class names again to match module slugs.

@@ -52,6 +52,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorHumanizer);
 	p->addModel(modelPhasorMixer);
 	p->addModel(modelPhasorOctature);
+	p->addModel(modelPhasorProbability);
 	p->addModel(modelPhasorQuadrature);
 	p->addModel(modelPhasorRandom);
 	p->addModel(modelPhasorRanger);
