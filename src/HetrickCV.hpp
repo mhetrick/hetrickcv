@@ -93,6 +93,7 @@ extern Model *modelRandomGates;
 extern Model *modelRotator;
 extern Model *modelRungler;
 extern Model *modelScanner;
+extern Model *modelTrigShaper;
 extern Model *modelVectorMix;
 extern Model *modelWaveshape;
 extern Model *modelXYToPolar;

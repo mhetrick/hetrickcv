@@ -621,6 +621,17 @@
       ]
     },
     {
+      "slug": "TrigShaper",
+      "name": "Trigonometric Shaper",
+      "description": "Modulatable trigonometric waveshaper",
+      "tags": [
+        "Distortion",
+        "Effect",
+        "Waveshaper",
+		    "Polyphonic"
+      ]
+    },
+    {
       "slug": "2To4",
       "name": "2 To 4 Mix Matrix",
       "description": "Takes two signals and generates four variations.",

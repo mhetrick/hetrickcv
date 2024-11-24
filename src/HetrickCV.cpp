@@ -72,6 +72,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelRotator);
 	p->addModel(modelRungler);
 	p->addModel(modelScanner);
+	p->addModel(modelTrigShaper);
 	p->addModel(modelVectorMix);
 	p->addModel(modelWaveshape);
 	p->addModel(modelXYToPolar);
