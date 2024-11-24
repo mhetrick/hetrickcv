@@ -62,6 +62,21 @@ protected:
     bool waitingToSync = false;
 };
 
+class HCVPhasorFreezer
+{
+public:
+
+    float operator()(float _normalizedPhasorIn, bool _frozen);
+    
+    void reset(float _resetPhase = 0.0f)
+    {
+        lastPhase = _resetPhase;
+    }
+
+protected:
+    HCVPhasorSlopeDetector slope;
+    double lastPhase = 0.0;
+};
 
 class HCVPhasorToEuclidean
 {

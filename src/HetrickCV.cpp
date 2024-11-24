@@ -44,6 +44,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorBurstGen);
 	p->addModel(modelPhasorDivMult);
 	p->addModel(modelPhasorEuclidean);
+	p->addModel(modelPhasorFreezer);
 	p->addModel(modelPhasorGates);
 	p->addModel(modelPhasorGates32);
 	p->addModel(modelPhasorGates64);

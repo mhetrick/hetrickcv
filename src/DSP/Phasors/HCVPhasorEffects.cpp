@@ -57,6 +57,18 @@ float HCVPhasorDivMult::hardSynced(float _normalizedPhasorIn)
     return basicSync(_normalizedPhasorIn);
 }
 
+////////FREEZER
+float HCVPhasorFreezer::operator()(float _normalizedPhasorIn, bool _frozen)
+{
+    const float inSlope = slope(_normalizedPhasorIn);
+
+    if(_frozen) return lastPhase;
+
+    const double output = gam::scl::wrap(lastPhase + inSlope);
+    lastPhase = output;
+    return output;
+}
+
 ////////EUCLIDEAN
 
 void HCVPhasorToEuclidean::processPhasor(float _normalizedPhasor)

@@ -348,6 +348,15 @@
       ]
     },
     {
+      "slug": "PhasorFreezer",
+      "name": "Phasor Freezer",
+      "description": "Duplicates an incoming phasor, but allows you to reset it or freeze it independently of the input.",
+      "tags": [
+        "Utility",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorGates",
       "name": "Phasor to Gates",
       "description": "An 8-step gate sequencer driven by a phasor.",

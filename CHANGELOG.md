@@ -4,9 +4,11 @@
 - Add Waveset (in progress).
 
 ## 2.5.0
+- Add Phasor Freezer.
 - Add Phasor Probability.
 - Add Phasor Splitter.
 - Add Trigonometric Shaper.
+- Add missing port label to Phasor Reset.
 - Cleanup SVG and class names again to match module slugs.
 
 ## 2.4.1

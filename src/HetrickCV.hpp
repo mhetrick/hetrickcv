@@ -65,6 +65,7 @@ extern Model *modelPhasorAnalyzer;
 extern Model *modelPhasorBurstGen;
 extern Model *modelPhasorDivMult;
 extern Model *modelPhasorEuclidean;
+extern Model *modelPhasorFreezer;
 extern Model *modelPhasorGates;
 extern Model *modelPhasorGates32;
 extern Model *modelPhasorGates64;
