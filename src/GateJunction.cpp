@@ -209,13 +209,6 @@ void GateJunction::process(const ProcessArgs &args)
     }
 }
 
-template <typename BASE>
-struct MuteLight : BASE {
-	MuteLight() {
-		this->box.size = mm2px(Vec(6.0, 6.0));
-	}
-};
-
 struct GateJunctionWidget : HCVModuleWidget { GateJunctionWidget(GateJunction *module); };
 
 GateJunctionWidget::GateJunctionWidget(GateJunction *module)
