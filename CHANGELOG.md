@@ -1,7 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.5.1
-- Add Binary Counter (in progress).
+- Add Binary Counter.
 - Add Waveset (in progress).
 
 ## 2.5.0
