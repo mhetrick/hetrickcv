@@ -10,6 +10,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelTwoToFour);
 	p->addModel(modelAnalogToDigital);
 	p->addModel(modelASR);
+	p->addModel(modelBinaryCounter);
 	p->addModel(modelBinaryGate);
 	p->addModel(modelBinaryNoise);
 	p->addModel(modelBitshift);
