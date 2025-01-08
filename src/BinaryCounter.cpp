@@ -7,6 +7,16 @@ struct BinaryCounter : HCVModule
         ADD_PARAM,
         SUBTRACT_PARAM,
         RESET_PARAM,
+
+        INV1_PARAM,
+        INV2_PARAM,
+        INV3_PARAM,
+        INV4_PARAM,
+        INV5_PARAM,
+        INV6_PARAM,
+        INV7_PARAM,
+        INV8_PARAM,
+
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -62,6 +72,15 @@ struct BinaryCounter : HCVModule
         OUT7_LIGHT,
         OUT8_LIGHT,
 
+        INV1_LIGHT,
+        INV2_LIGHT,
+        INV3_LIGHT,
+        INV4_LIGHT,
+        INV5_LIGHT,
+        INV6_LIGHT,
+        INV7_LIGHT,
+        INV8_LIGHT,
+
         ADD_LIGHT,
         SUBTRACT_LIGHT,
         RESET_LIGHT,
@@ -70,9 +89,11 @@ struct BinaryCounter : HCVModule
     };
 
     dsp::SchmittTrigger addTrigger, subtractTrigger, resetTrigger;
+    dsp::SchmittTrigger invTrigger[8];
 
     bool ins[8] = {};
     float outs[8] = {};
+    bool invState[8] = {};
 
     uint8_t counter = 0, step = 1;
 
@@ -82,11 +103,10 @@ struct BinaryCounter : HCVModule
 
         for (int i = 0; i < 8; i++)
         {
-            configInput(IN1_INPUT + i, "Bit " + std::to_string(i + 1));
-        }
-        for (int i = 0; i < 8; i++)
-        {
-            configOutput(OUT1_OUTPUT + i, "Bit " + std::to_string(i + 1));
+            const auto channelString = std::to_string(i + 1);
+            configInput(IN1_INPUT + i, "Bit " + channelString);
+            configOutput(OUT1_OUTPUT + i, "Bit " + channelString);
+            configButton(INV1_PARAM + i, "Invert " + channelString);
         }
 
         configButton(ADD_PARAM, "Add");
@@ -99,6 +119,8 @@ struct BinaryCounter : HCVModule
 
         configInput(POLY_INPUT, "Poly");
         configOutput(POLY_OUTPUT, "Poly");
+
+        invState[0] = true;
 	}
 
     void process(const ProcessArgs &args) override;
@@ -107,21 +129,47 @@ struct BinaryCounter : HCVModule
 
     void onReset() override
     {
+        for (int i = 1; i < 8; i++)
+        {
+            invState[i] = false;
+		}
 
+        invState[0] = true;
 	}
     void onRandomize() override
     {
-
+        for (int i = 0; i < 8; i++)
+        {
+            invState[i] = (random::uniform() < 0.5);
+		}
     }
 
     json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
+		// states
+        json_t *invStatesJ = json_array();
+        for (int i = 0; i < 8; i++)
+        {
+            json_t *invStateJ = json_boolean(invState[i]);
+			json_array_append_new(invStatesJ, invStateJ);
+		}
+        json_object_set_new(rootJ, "invStates", invStatesJ);
 		return rootJ;
 	}
     void dataFromJson(json_t *rootJ) override
     {
-
+        // states
+        json_t *invStatesJ = json_object_get(rootJ, "invStates");
+        if (invStatesJ)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+				json_t *stateJ = json_array_get(invStatesJ, i);
+				if (stateJ)
+					invState[i] = json_boolean_value(stateJ);
+			}
+		}
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
@@ -160,7 +208,11 @@ void BinaryCounter::process(const ProcessArgs &args)
     {
         ins[i] = inputs[POLY_INPUT].getVoltage(i) >= 1.0f;
         if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() >= 1.0f;
-        lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
+
+        bool invertGate = params[INV1_PARAM + i].getValue() >= 1.0f;
+        if (invTrigger[i].process(invertGate ? HCV_GATE_MAG : 0.0f)) invState[i] ^= true;
+
+        if(invState[i]) ins[i] = !ins[i];
     }
 
     calculateStep();
@@ -197,7 +249,10 @@ void BinaryCounter::process(const ProcessArgs &args)
     {
         outputs[OUT1_OUTPUT + i].setVoltage(outs[i]);
         outputs[POLY_OUTPUT].setVoltage(outs[i], i);
+
+        lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
         lights[OUT1_LIGHT + i].value = outs[i];
+        lights[INV1_LIGHT + i].setBrightness(invState[i] ? 0.9 : 0.0);
     }
 
     lights[ADD_LIGHT].value = addTrigger.isHigh() ? 1.0f : 0.0f;
@@ -224,33 +279,30 @@ BinaryCounterWidget::BinaryCounterWidget(BinaryCounter *module)
 
     const int inXPos = 10;
     const int inLightX = 50;
+    const int outXPos = 175;
+    const int outLightX = 150;
+    const int invParamX = 64;
     for(int i = 0; i < 8; i++)
     {
         const int yPos = 50 + (40 * i);
         const int lightY = 59 + (40 * i);
 
-        //////OUTPUTS//////
+        //////INPUTS//////
         addInput(createInput<PJ301MPort>(Vec(inXPos, yPos), module, BinaryCounter::IN1_INPUT + i));
-
-        //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(inLightX, lightY), module, BinaryCounter::IN1_LIGHT + i));
-    }
-
-    const int outXPos = 145;
-    const int outLightX = 120;
-    for(int i = 0; i < 8; i++)
-    {
-        const int yPos = 50 + (40 * i);
-        const int lightY = 59 + (40 * i);
 
         //////OUTPUTS//////
         addOutput(createOutput<PJ301MPort>(Vec(outXPos, yPos), module, BinaryCounter::OUT1_OUTPUT + i));
 
         //////BLINKENLIGHTS//////
-        addChild(createLight<SmallLight<RedLight>>(Vec(outLightX, lightY), module, BinaryCounter::OUT1_LIGHT + i));
+        createHCVRedLight(inLightX, lightY, BinaryCounter::IN1_LIGHT + i);
+        createHCVRedLight(outLightX, lightY, BinaryCounter::OUT1_LIGHT + i);
+
+        //////PARAMS//////
+        addParam(createParam<LEDBezel>(Vec(invParamX, 1 + yPos), module, BinaryCounter::INV1_PARAM + i));
+        addChild(createLight<MuteLight<BlueLight>>(Vec(invParamX + 2.2, 3 + yPos), module, BinaryCounter::INV1_LIGHT + i));
     }
 
-    int centerX = 83;
+    int centerX = 113;
 
     int addY = 70;
     addInput(createInput<PJ301MPort>(Vec(centerX, addY), module, BinaryCounter::ADD_INPUT));

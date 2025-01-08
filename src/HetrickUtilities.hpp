@@ -186,6 +186,13 @@ struct HCVThemedRogan : rack::Rogan
 
 };
 
+template <typename BASE>
+struct MuteLight : BASE {
+	MuteLight() {
+		this->box.size = mm2px(Vec(6.0, 6.0));
+	}
+};
+
 struct HCVModuleWidget : ModuleWidget
 {
 	std::string skinPath = "";
@@ -334,7 +341,6 @@ struct HCVModuleWidget : ModuleWidget
     }
 
 };
-
 
 struct HysteresisGate
 {
