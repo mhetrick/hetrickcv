@@ -1,8 +1,10 @@
 # HetrickCV Changelog
 
+## 2.5.2
+- Add Waveset (in progress).
+
 ## 2.5.1
 - Add Binary Counter.
-- Add Waveset (in progress).
 
 ## 2.5.0
 - Add Phasor Freezer.
