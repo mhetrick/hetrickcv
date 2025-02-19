@@ -53,7 +53,7 @@ struct PhasorSwing : HCVModule
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
         configBypass(PHASOR_INPUT, SWING_OUTPUT);
 
-        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 1.0, "Steps");
+        configParam(STEPS_PARAM, 1.0, MAX_STEPS, 4.0, "Steps");
 		configParam(STEPS_SCALE_PARAM, -1.0, 1.0, 1.0, "Steps CV Depth");
         paramQuantities[STEPS_PARAM]->snapEnabled = true;
 
