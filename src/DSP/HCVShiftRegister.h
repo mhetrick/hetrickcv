@@ -21,7 +21,7 @@ public:
 
     virtual void advanceRegister(T _input)
     {
-        for (int i = dataRegister.size() - 1; i > 0; i--)
+        for (auto i = dataRegister.size() - 1; i > 0; i--)
         {
             dataRegister[i] = dataRegister[i-1];
         }
@@ -33,7 +33,7 @@ public:
     {
         T temp = dataRegister[dataRegister.size() - 1];
 
-        for (int i = dataRegister.size() - 1; i > 0; i--)
+        for (auto i = dataRegister.size() - 1; i > 0; i--)
         {
             dataRegister[i] = dataRegister[i-1];
         }
@@ -42,7 +42,7 @@ public:
 
     void emptyRegister()
     {
-        for (int i = 0; i < dataRegister.size(); i++)
+        for (size_t i = 0; i < dataRegister.size(); i++)
         {
            dataRegister[i] = T(0);
         }

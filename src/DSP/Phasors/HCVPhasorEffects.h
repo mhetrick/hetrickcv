@@ -299,7 +299,6 @@ private:
 
     static float probit(float x)
     {
-        static float sqr2 = sqrtf(2.0f);
         x = clamp(x, 0.001f, 0.999f);
         const float unscaled = myErfInv2(2 * x - 1.0f);
         return (unscaled + 3.0f) * (1.0f/6.0f);
