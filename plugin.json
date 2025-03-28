@@ -594,6 +594,15 @@
       ]
     },
     {
+      "slug": "PhasorToRandom",
+      "name": "Phasor to Random",
+      "description": "Generates random values for each step of a phasor input.",
+      "tags": [
+        "Random",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhasorToWaveforms",
       "name": "Phasor to Waveforms",
       "description": "Shapes incoming phasor signals to useful, static LFO waveshapes. These waveforms are not anti-aliased, hence the LFO designation.",

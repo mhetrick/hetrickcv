@@ -90,6 +90,7 @@ extern Model *modelPhasorSwing;
 extern Model *modelPhasorTimetable;
 extern Model *modelPhasorToClock;
 extern Model *modelPhasorToLFO;
+extern Model *modelPhasorToRandom;
 extern Model *modelPhasorToWaveforms;
 extern Model *modelProbability;
 extern Model *modelRandomGates;

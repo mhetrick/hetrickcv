@@ -69,6 +69,7 @@ void init(rack::Plugin *p) {
 	p->addModel(modelPhasorTimetable);
 	p->addModel(modelPhasorToClock);
 	p->addModel(modelPhasorToLFO);
+	p->addModel(modelPhasorToRandom);
 	p->addModel(modelPhasorToWaveforms);
 	p->addModel(modelProbability);
 	p->addModel(modelRandomGates);
