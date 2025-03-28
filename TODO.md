@@ -9,5 +9,3 @@ This is a list of ongoing ideas and plans for existing modules. If you would lik
 - More tutorials!
 
 ## Modules
-- Phasor Splitter (1 input, up to 8 outputs. Switch mode changes output on reset. Phase mode creates a fractional phasor on each output.)
-- Phasor Step Pattern
