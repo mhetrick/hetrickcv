@@ -128,6 +128,17 @@
       ]
     },
     {
+      "slug": "ClockToPhasor",
+      "name": "Clock to Phasor",
+      "description": "Generates a phasor from a series of gates.",
+      "tags": [
+        "Oscillator",
+        "Clock Modulator",
+        "Low-frequency Oscillator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Comparator",
       "name": "Comparator",
       "description": "Determine whether a signal is above or below a threshold.",
