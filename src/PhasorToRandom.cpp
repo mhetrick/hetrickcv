@@ -81,19 +81,49 @@ struct PhasorToRandom : HCVModule
     }
 
 
-    // //TODO: Save random voltage array to JSON.
-    // json_t *dataToJson() override
-    // {
-	// 	json_t *rootJ = json_object();
-    //     // json_object_set_new(rootJ, "voltages", json_array(randomVoltageArray));
-	// 	return rootJ;
-	// }
-    // void dataFromJson(json_t *rootJ) override
-    // {
-	// 	// json_t *modeJ = json_object_get(rootJ, "mode");
-	// 	// if (modeJ)
-    //     //     mode = json_integer_value(modeJ);
-	// }
+    //TODO: Save random voltage array to JSON.
+    json_t *dataToJson() override
+    {
+		json_t *rootJ = json_object();
+        json_t *randomDataJSONArray = json_array();
+
+        // Save the random voltage array to JSON
+        for(int i = 0; i < 16; i++)
+        {
+            json_t *channelArray = json_array();
+            for (int j = 0; j < MAX_STEPS; j++)
+            {
+                json_array_append_new(channelArray, json_real(randomVoltageArray[i][j]));
+            }
+            json_array_append_new(randomDataJSONArray, channelArray);
+        }
+
+        json_object_set_new(rootJ, "randomVoltages", randomDataJSONArray);
+		return rootJ;
+	}
+    void dataFromJson(json_t *rootJ) override
+    {
+		json_t *voltageData = json_object_get(rootJ, "randomVoltages");
+
+        if(voltageData)
+        {
+            for(int i = 0; i < 16; i++)
+            {
+                json_t *channelArray = json_array_get(voltageData, i);
+                if (channelArray)
+                {
+                    for (int j = 0; j < MAX_STEPS; j++)
+                    {
+                        json_t *value = json_array_get(channelArray, j);
+                        if (value)
+                        {
+                            randomVoltageArray[i][j] = json_real_value(value);
+                        }
+                    }
+                }
+            }
+        }
+	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
