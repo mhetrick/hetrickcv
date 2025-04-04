@@ -8,7 +8,7 @@ struct ClockToPhasor : HCVModule
 	enum ParamIds
 	{
         PULSES_PARAM, PULSES_SCALE_PARAM,
-
+        RESET_PARAM,
 		NUM_PARAMS
 	};
 	enum InputIds
@@ -46,6 +46,8 @@ struct ClockToPhasor : HCVModule
         configInput(CLOCK_INPUT, "Clock");
         configInput(RESET_INPUT, "Reset");
 
+        configButton(RESET_PARAM, "Reset");
+
         configOutput(PHASOR_OUTPUT, "Phasor");
         configOutput(FINISH_OUTPUT, "Finished Trigger");
 	}
@@ -66,6 +68,8 @@ void ClockToPhasor::process(const ProcessArgs &args)
     const float pulsesKnob = params[PULSES_PARAM].getValue();
     const float pulsesCVDepth = params[PULSES_SCALE_PARAM].getValue();
 
+    const float resetButton = params[RESET_PARAM].getValue();
+
     int numChannels = setupPolyphonyForAllOutputs();
 
     for (int i = 0; i < numChannels; i++)
@@ -82,7 +86,7 @@ void ClockToPhasor::process(const ProcessArgs &args)
 
         phasors[i].setFreqDirect(freq);
 
-        bool resetThisFrame = phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
+        bool resetThisFrame = phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i) + resetButton);
 
         outputs[PHASOR_OUTPUT].setVoltage(phasors[i](), i);
         bool finishHigh = phasors[i].phasorFinishedThisSample();
@@ -116,6 +120,8 @@ ClockToPhasorWidget::ClockToPhasorWidget(ClockToPhasor *module)
 	//////INPUTS//////
     createInputPort(leftX, topJackY, ClockToPhasor::CLOCK_INPUT);
     createInputPort(rightX, topJackY, ClockToPhasor::RESET_INPUT);
+
+    createHCVButtonSmallForJack(rightX, topJackY, ClockToPhasor::RESET_PARAM);
 
 	//////OUTPUTS//////
     createOutputPort(leftX, bottomJackY, ClockToPhasor::PHASOR_OUTPUT);
