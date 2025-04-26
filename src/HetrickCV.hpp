@@ -93,6 +93,7 @@ extern Model *modelPhasorToClock;
 extern Model *modelPhasorToLFO;
 extern Model *modelPhasorToRandom;
 extern Model *modelPhasorToWaveforms;
+extern Model *modelPolymetricPhasors;
 extern Model *modelProbability;
 extern Model *modelRandomGates;
 extern Model *modelRotator;

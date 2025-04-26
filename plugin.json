@@ -624,6 +624,15 @@
       ]
     },
     {
+      "slug": "PolymetricPhasors",
+      "name": "Polymetric Phasors",
+      "description": "Processes a phasor signal with a known number of steps, then produces output phasors at polymetric multiples.",
+      "tags": [
+        "Clock Modulator",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "Probability",
       "name": "Probability",
       "description": "Sends one gate to two places randomly.",

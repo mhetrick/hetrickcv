@@ -3,6 +3,7 @@
 ## 2.5.2 (in progress)
 - Add Clock to Phasor.
 - Add Phasor to Random.
+- Add Polymetric Phasors.
 - Add Waveset (in progress).
 - Phasor Swing's default Steps is now "4" for more intuitive behavior.
 
