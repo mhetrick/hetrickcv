@@ -2,6 +2,7 @@
 
 ## 2.5.2 (in progress)
 - Add Clock to Phasor.
+- Add Normals
 - Add Phasor to Random.
 - Add Polymetric Phasors.
 - Add Waveset (in progress).

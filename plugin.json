@@ -307,6 +307,15 @@
       ]
     },
     {
+      "slug": "Normals",
+      "name": "Normals",
+      "description": "Connects an input to an output, unless a plug is inserted into the middle jack.",
+      "tags": [
+        "Utility",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "PhaseDrivenSequencer",
       "name": "Phase Driven Sequencer",
       "description": "A 16-step gate and voltage sequencer driven by a phasor.",
