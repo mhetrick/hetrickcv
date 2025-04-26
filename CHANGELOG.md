@@ -1,11 +1,10 @@
 # HetrickCV Changelog
 
-## 2.5.2 (in progress)
+## 2.5.2
 - Add Clock to Phasor.
-- Add Normals
+- Add Normals.
 - Add Phasor to Random.
 - Add Polymetric Phasors.
-- Add Waveset (in progress).
 - Phasor Swing's default Steps is now "4" for more intuitive behavior.
 
 ## 2.5.1
