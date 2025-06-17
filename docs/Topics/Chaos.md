@@ -12,7 +12,7 @@ HetrickCV contains a wide number of modules with chaotic or pseudorandom behavio
 - [Gingerbread Chaos](../Modules/Gingerbread.md)
 - [Rungler](../Modules/Rungler.md)
 
-### (Psuedo) Random Modules:
+### (Pseudo) Random Modules:
 - [Binary Noise](../Modules/BinaryNoise.md)
 - [Clocked Noise](../Modules/ClockedNoise.md)
 - [Dust](../Modules/Dust.md)
