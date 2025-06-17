@@ -75,7 +75,7 @@ void PhasorOctature::process(const ProcessArgs &args)
         const float phasor180 = gam::scl::wrap(normalizedPhasor + 0.500f) * HCV_PHZ_UPSCALE;
         const float phasor225 = gam::scl::wrap(normalizedPhasor + 0.625f) * HCV_PHZ_UPSCALE;
         const float phasor270 = gam::scl::wrap(normalizedPhasor + 0.750f) * HCV_PHZ_UPSCALE;
-        const float phasor315 = gam::scl::wrap(normalizedPhasor + 0.825f) * HCV_PHZ_UPSCALE;
+        const float phasor315 = gam::scl::wrap(normalizedPhasor + 0.875f) * HCV_PHZ_UPSCALE;
 
         outputs[PHASOR_0_OUTPUT].setVoltage(normalizedPhasor * HCV_PHZ_UPSCALE, i);
         outputs[PHASOR_90_OUTPUT].setVoltage(phasor90, i);
