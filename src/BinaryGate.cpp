@@ -2,8 +2,8 @@
 
 struct BinaryGate : HCVModule
 {
-	enum ParamIds
-	{
+    enum ParamIds
+    {
         ON_PARAM,
         OFF_PARAM,
         TOGGLE_PARAM,
@@ -45,8 +45,8 @@ struct BinaryGate : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    bool gateState = false;
-    dsp::SchmittTrigger onTrigger, offTrigger, toggleTrigger;
+    bool gateState[16] = {};
+    dsp::SchmittTrigger onTrigger[16], offTrigger[16], toggleTrigger[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -57,24 +57,43 @@ struct BinaryGate : HCVModule
 
 void BinaryGate::process(const ProcessArgs &args)
 {
-    if(onTrigger.process(inputs[ON_INPUT].getVoltage() + params[ON_PARAM].getValue()))
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
+
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        gateState = true;
+        // Get input voltages for this channel (0V if channel doesn't exist)
+        float onVoltage = inputs[ON_INPUT].getPolyVoltage(c);
+        float offVoltage = inputs[OFF_INPUT].getPolyVoltage(c);
+        float toggleVoltage = inputs[TOGGLE_INPUT].getPolyVoltage(c);
+
+        // For buttons, only apply to channel 0 (monophonic control)
+        float onButtonVoltage = (c == 0) ? params[ON_PARAM].getValue() : 0.0f;
+        float offButtonVoltage = (c == 0) ? params[OFF_PARAM].getValue() : 0.0f;
+        float toggleButtonVoltage = (c == 0) ? params[TOGGLE_PARAM].getValue() : 0.0f;
+
+        if(onTrigger[c].process(onVoltage + onButtonVoltage))
+        {
+            gateState[c] = true;
+        }
+
+        if(offTrigger[c].process(offVoltage + offButtonVoltage))
+        {
+            gateState[c] = false;
+        }
+
+        if(toggleTrigger[c].process(toggleVoltage + toggleButtonVoltage))
+        {
+            gateState[c] = !gateState[c];
+        }
+
+        // Set output voltage for this channel
+        outputs[GATE_OUTPUT].setVoltage(gateState[c] ? HCV_GATE_MAG : 0.0f, c);
     }
 
-    if(offTrigger.process(inputs[OFF_INPUT].getVoltage() + params[OFF_PARAM].getValue()))
-    {
-        gateState = false;
-    }
-
-    if(toggleTrigger.process(inputs[TOGGLE_INPUT].getVoltage() + params[TOGGLE_PARAM].getValue()))
-    {
-        gateState = !gateState;
-    }
-
-    outputs[GATE_OUTPUT].setVoltage(gateState ? HCV_GATE_MAG : 0.0);
-
-    lights[GATE_LIGHT].setBrightness(gateState ? 1.0 : 0.0);
+    // Light shows the state of channel 0
+    lights[GATE_LIGHT].setBrightness(gateState[0] ? 1.0f : 0.0f);
 }
 
 struct BinaryGateWidget : HCVModuleWidget { BinaryGateWidget(BinaryGate *module); };

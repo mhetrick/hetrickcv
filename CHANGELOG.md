@@ -1,5 +1,8 @@
 # HetrickCV Changelog
 
+## 2.5.3 (In Progress)
+- Add polyphony to Binary Gate.
+
 ## 2.5.2
 - Add Clock to Phasor.
 - Add Normals.
