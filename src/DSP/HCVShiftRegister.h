@@ -13,7 +13,7 @@ public:
     {
         dataRegister.resize(size);
 
-        for(auto dataReg : dataRegister)
+        for(auto& dataReg : dataRegister)
         {
             dataReg = T(0);
         }
