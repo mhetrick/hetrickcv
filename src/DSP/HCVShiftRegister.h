@@ -13,10 +13,7 @@ public:
     {
         dataRegister.resize(size);
 
-        for(auto dataReg : dataRegister)
-        {
-            dataReg = T(0);
-        }
+        emptyRegister();
     }
 
     virtual void advanceRegister(T _input)
