@@ -183,7 +183,7 @@ void AnalogToDigital::process(const ProcessArgs &args)
 
 void AnalogToDigital::processUni8(float _input)
 {
-    clamp(_input, 0.0f, 1.0f);
+    _input = clamp(_input, 0.0f, 1.0f);
     uint8_t bits = round(_input * 255);
 
     outs[0] = (bits & 0b00000001) > 0.0f ? HCV_GATE_MAG : 0.0f;
@@ -198,7 +198,7 @@ void AnalogToDigital::processUni8(float _input)
 
 void AnalogToDigital::processBiOff(float _input)
 {
-    clamp(_input, -1.0f, 1.0f);
+    _input = clamp(_input, -1.0f, 1.0f);
     _input = (_input + 1.0f) * 0.5f;
     uint8_t bits = round(_input * 255);
 
@@ -216,7 +216,7 @@ void AnalogToDigital::processBiSig(float _input)
 {
     outs[7] = _input < 0.0f ? HCV_GATE_MAG : 0.0f;
 
-    clamp(_input, -1.0f, 1.0f);
+    _input = clamp(_input, -1.0f, 1.0f);
     _input = std::abs(_input);
     uint8_t bits = round(_input * 127);
 
