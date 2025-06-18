@@ -62,7 +62,8 @@
       "name": "Binary Counter",
       "description": "Increment or decrement an 8-Bit counter.",
       "tags": [
-        "Logic", "Clock Modulator"
+        "Logic", 
+        "Clock Modulator"
       ]
     },
     {
@@ -70,7 +71,8 @@
       "name": "Binary Gate",
       "description": "Manually turn a gate on or off, or toggle its current state.",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {
@@ -79,7 +81,8 @@
       "description": "Generates a random gate or square wave signal.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -144,7 +147,8 @@
       "description": "Determine whether a signal is above or below a threshold.",
       "tags": [
         "Logic",
-        "Utility"
+        "Utility",
+        "Polyphonic"
       ]
     },
     {

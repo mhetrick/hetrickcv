@@ -56,11 +56,12 @@ struct BinaryNoise : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    float lastOut = 0.0f;
-    rack::dsp::SchmittTrigger clockTrigger;
+    // Arrays for polyphonic support
+    float lastOut[16] = {};
+    rack::dsp::SchmittTrigger clockTrigger[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slew;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slew[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -71,32 +72,43 @@ struct BinaryNoise : HCVModule
 
 void BinaryNoise::process(const ProcessArgs &args)
 {
-    double sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM);
-    sRate.setSampleRateFactor(sr);
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(isReady)
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM);
-        bool on = random::uniform() < prob;
-        float offset = (1.0f - params[POLARITY_PARAM].getValue()) * -5.0f;
+        double sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM, c);
+        sRate[c].setSampleRateFactor(sr);
 
-        lastOut = (on ? HCV_GATE_MAG + offset : offset);
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) 
+        {
+            isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+        }
 
-        slew.setTargetValue(lastOut);
-    }   
+        if(isReady)
+        {
+            float prob = getNormalizedModulatedValue(PROB_PARAM, PROB_INPUT, PROB_SCALE_PARAM, c);
+            bool on = random::uniform() < prob;
+            float offset = (1.0f - params[POLARITY_PARAM].getValue()) * -5.0f;
 
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slew.setSRFactor(sRate.getSampleRateFactor());
-        lastOut = slew();
+            lastOut[c] = (on ? HCV_GATE_MAG + offset : offset);
+
+            slew[c].setTargetValue(lastOut[c]);
+        }   
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slew[c].setSRFactor(sRate[c].getSampleRateFactor());
+            lastOut[c] = slew[c]();
+        }
+
+        outputs[MAIN_OUTPUT].setVoltage(lastOut[c], c);
     }
 
-    outputs[MAIN_OUTPUT].setVoltage(lastOut);
-
-    setBipolarLightBrightness(MAIN_LIGHT_POS, outputs[MAIN_OUTPUT].getVoltage() * 0.2f);
+    // Light shows the state of channel 0
+    setBipolarLightBrightness(MAIN_LIGHT_POS, outputs[MAIN_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

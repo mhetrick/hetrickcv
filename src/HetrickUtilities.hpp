@@ -65,24 +65,24 @@ struct HCVModule : Module
         return _input ? HCV_GATE_MAG : 0.0f;
     }
 
-    inline float getModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
+    inline float getModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex, int channel = 0)
     {
-        return params[mainParamIndex].getValue() + (inputs[cvInputIndex].getVoltage() * params[cvScaleIndex].getValue());
+        return params[mainParamIndex].getValue() + (inputs[cvInputIndex].getPolyVoltage(channel) * params[cvScaleIndex].getValue());
     }
 
-    inline float getNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
+    inline float getNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex, int channel = 0)
     {
-        return normalizeParameter(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex));
+        return normalizeParameter(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex, channel));
     }
 
-    inline float getBipolarNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex)
+    inline float getBipolarNormalizedModulatedValue(int mainParamIndex, int cvInputIndex, int cvScaleIndex, int channel = 0)
     {
-        return normalizeParameterBipolar(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex));
+        return normalizeParameterBipolar(getModulatedValue(mainParamIndex, cvInputIndex, cvScaleIndex, channel));
     }
 
-    float getSampleRateParameter(int mainSRateIndex, int sRateCVIndex, int cvScaleIndex, int rangeIndex)
+    float getSampleRateParameter(int mainSRateIndex, int sRateCVIndex, int cvScaleIndex, int rangeIndex, int channel = 0)
     {
-        float sr = params[mainSRateIndex].getValue() + (inputs[sRateCVIndex].getVoltage() * params[cvScaleIndex].getValue() * 0.2f);
+        float sr = params[mainSRateIndex].getValue() + (inputs[sRateCVIndex].getPolyVoltage(channel) * params[cvScaleIndex].getValue() * 0.2f);
         sr = clamp(sr, 0.01f, 1.0f);
 
         float finalSr = sr*sr*sr;
