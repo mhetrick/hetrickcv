@@ -1,7 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.5.3 (In Progress)
-- Add polyphony to Binary Gate.
+- Add polyphony to Binary Gate, Comparator.
 
 ## 2.5.2
 - Add Clock to Phasor.

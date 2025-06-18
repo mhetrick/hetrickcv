@@ -48,7 +48,8 @@ struct Comparator : HCVModule
 		configOutput(ZEROX_OUTPUT, "Crossing Trigger");
 	}
 
-	HCVTriggeredGate ltTrig, gtTrig;
+    // Arrays for polyphonic support
+    HCVTriggeredGate ltTrig[16], gtTrig[16];
 
 	void process(const ProcessArgs &args) override;
 
@@ -58,30 +59,43 @@ struct Comparator : HCVModule
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
-
 void Comparator::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
+	
+	const float amountKnob = params[AMOUNT_PARAM].getValue();
+	const float amountScale = params[SCALE_PARAM].getValue();
 
-	float compare = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	compare = clamp(compare, -5.0f, 5.0f);
+    // Process each channel
+    for (int c = 0; c < channels; c++)
+    {
+        float input = inputs[MAIN_INPUT].getPolyVoltage(c);
 
-	const bool greaterThan = (input > compare);
-	const bool lessThan = (input < compare);
+        float compare = amountKnob + (inputs[AMOUNT_INPUT].getPolyVoltage(c) * amountScale);
+        compare = clamp(compare, -5.0f, 5.0f);
 
-	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(greaterThan) ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(lessThan) ? HCV_GATE_MAG : 0.0f);
-	outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f);
+        const bool greaterThan = (input > compare);
+        const bool lessThan = (input < compare);
 
-	float allTrigs = outputs[GT_TRIG_OUTPUT].getVoltage() + outputs[LT_TRIG_OUTPUT].getVoltage();
-	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
+        float gtTrigVoltage = gtTrig[c].process(greaterThan) ? HCV_GATE_MAG : 0.0f;
+        float ltTrigVoltage = ltTrig[c].process(lessThan) ? HCV_GATE_MAG : 0.0f;
 
-	outputs[ZEROX_OUTPUT].setVoltage(allTrigs);
+        outputs[GT_TRIG_OUTPUT].setVoltage(gtTrigVoltage, c);
+        outputs[LT_TRIG_OUTPUT].setVoltage(ltTrigVoltage, c);
+        outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f, c);
+        outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f, c);
 
-	setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
-	setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
-	lights[ZEROX_LIGHT].setSmoothBrightness(allTrigs, 10);
+        float allTrigs = gtTrigVoltage + ltTrigVoltage;
+        allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
+
+        outputs[ZEROX_OUTPUT].setVoltage(allTrigs, c);
+    }
+
+    // Lights show the state of channel 0
+    setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
+    setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
+    lights[ZEROX_LIGHT].setSmoothBrightness(outputs[ZEROX_OUTPUT].getVoltage(0), 10);
 }
 
 
