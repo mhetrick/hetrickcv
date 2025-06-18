@@ -45,7 +45,8 @@
       "name": "ASR",
       "description": "Analog shift register. Multi-stage sample and hold",
       "tags": [
-        "Sequencer"
+        "Sequencer",
+        "Polyphonic"
       ]
     },
     {

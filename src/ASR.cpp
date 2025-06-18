@@ -44,8 +44,9 @@ struct ASR : HCVModule
         NUM_LIGHTS
 	};
 
-    dsp::SchmittTrigger clockTrigger;
-    float stages[4] = {};
+    // Arrays for polyphonic support
+    dsp::SchmittTrigger clockTrigger[16];
+    float stages[16][4] = {};
 
 	ASR()
 	{
@@ -69,30 +70,38 @@ struct ASR : HCVModule
 
 void ASR::process(const ProcessArgs &args)
 {
-    if (clockTrigger.process(inputs[CLK_INPUT].getVoltage()))
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
+
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        stages[3] = stages[2];
-        stages[2] = stages[1];
-        stages[1] = stages[0];
-        stages[0] = inputs[MAIN_INPUT].getVoltage();
+        if (clockTrigger[c].process(inputs[CLK_INPUT].getPolyVoltage(c)))
+        {
+            stages[c][3] = stages[c][2];
+            stages[c][2] = stages[c][1];
+            stages[c][1] = stages[c][0];
+            stages[c][0] = inputs[MAIN_INPUT].getPolyVoltage(c);
+        }
+
+        outputs[STAGE1_OUTPUT].setVoltage(stages[c][0], c);
+        outputs[STAGE2_OUTPUT].setVoltage(stages[c][1], c);
+        outputs[STAGE3_OUTPUT].setVoltage(stages[c][2], c);
+        outputs[STAGE4_OUTPUT].setVoltage(stages[c][3], c);
     }
 
-    outputs[STAGE1_OUTPUT].setVoltage(stages[0]);
-    outputs[STAGE2_OUTPUT].setVoltage(stages[1]);
-    outputs[STAGE3_OUTPUT].setVoltage(stages[2]);
-    outputs[STAGE4_OUTPUT].setVoltage(stages[3]);
+    // Lights show the state of channel 0
+    lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0][0] / 5.0), 10);
+    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0][0] / 5.0), 10);
 
-    lights[OUT1_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0] / 5.0), 10);
-    lights[OUT1_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0] / 5.0), 10);
+    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0][1] / 5.0), 10);
+    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0][1] / 5.0), 10);
 
-    lights[OUT2_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[1] / 5.0), 10);
-    lights[OUT2_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[1] / 5.0), 10);
+    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0][2] / 5.0), 10);
+    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0][2] / 5.0), 10);
 
-    lights[OUT3_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[2] / 5.0), 10);
-    lights[OUT3_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[2] / 5.0), 10);
-
-    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[3] / 5.0), 10);
-    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[3] / 5.0), 10);
+    lights[OUT4_POS_LIGHT].setSmoothBrightness(fmaxf(0.0, stages[0][3] / 5.0), 10);
+    lights[OUT4_NEG_LIGHT].setSmoothBrightness(fmaxf(0.0, -stages[0][3] / 5.0), 10);
 }
 
 struct ASRWidget : HCVModuleWidget { ASRWidget(ASR *module); };
