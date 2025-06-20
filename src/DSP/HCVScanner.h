@@ -76,7 +76,7 @@ protected:
     float ins[8] = {};
     float outs[8] = {};
     float inMults[8] = {};
-    static constexpr float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+    const float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
     inline float triShape(float _in)
     {
