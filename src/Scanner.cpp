@@ -159,10 +159,10 @@ void Scanner::process(const ProcessArgs &args)
     for(int i = 0; i < 8; i ++)
     {
         const float channelOut = scanners[0].getOutput(i);
-        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, scanners[0].getMult(i)), 10);
+        lights[IN1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, scanners[0].getMult(i)), args.sampleTime);
 
-        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * 0.2f), 10);
-        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * -0.2f), 10);
+        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * 0.2f), args.sampleTime);
+        lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0f, channelOut * -0.2f), args.sampleTime);
     }
 }
 

@@ -5,6 +5,7 @@
 - Add missing polyphony tag to Scanner.
 - General code cleanup. Replace lots of repeated code with re-usable functions and classes.
 - Update some missing port and param labels.
+- Optimizations to Scanner.
 
 ## 2.5.2
 - Add Clock to Phasor.

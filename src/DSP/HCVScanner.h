@@ -35,29 +35,25 @@ public:
 
     void process()
     {
-        float scanFactor1 = LERP(width, halfStages, invStages);
-        float scanFactor2 = LERP(width, halfStages + remainInvStages, 1.0f);
-        float scanFinal = LERP(scan, scanFactor2, scanFactor1);
-
-        float invWidth = 1.0f/(LERP(width, float(numStages), invStages+invStages));
+        const float scanFactor1 = LERP(width, halfStages, invStages);
+        const float scanFactor2 = LERP(width, halfStages + remainInvStages, 1.0f);
+        const float scanFinal = LERP(scan, scanFactor2, scanFactor1);
+        const float invWidth = 1.0f/(LERP(width, float(numStages), invStages+invStages));
 
         float subStage = 0.0f;
         for(int i = 0; i < 8; i++)
         {
-            inMults[i] = (scanFinal + subStage) * invWidth;
-            subStage = subStage - invStages;
-        }
+            float mult = (scanFinal + subStage) * invWidth;
+            mult = clamp(mult, 0.0f, 1.0f);
+            mult = triShape(mult);
+            mult = clamp(mult, 0.0f, 1.0f);
 
-        for(int i = 0; i < 8; i++)
-        {
-            inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
-            inMults[i] = triShape(inMults[i]);
-            inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
-
-            const float shaped = (2.0f - inMults[i]) * inMults[i];
-            inMults[i] = LERP(slope, shaped, inMults[i]);
+            const float shaped = mult * (2.0f - mult);
+            inMults[i] = LERP(slope, shaped, mult);
 
             outs[i] = ins[i] * inMults[i];
+            
+            subStage -= invStages;
         }
     }
 
@@ -80,11 +76,11 @@ protected:
     float ins[8] = {};
     float outs[8] = {};
     float inMults[8] = {};
-    float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+    static constexpr float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
-    float triShape(float _in)
+    inline float triShape(float _in)
     {
-        _in = _in - round(_in);
+        _in = _in - std::round(_in);
         return std::abs(_in + _in);
     }
 
