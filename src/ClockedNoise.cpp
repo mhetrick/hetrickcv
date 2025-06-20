@@ -33,7 +33,8 @@ struct ClockedNoise : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {   ENUMS(MODE_LIGHTS, 6),
+    {   
+        ENUMS(MODE_LIGHTS, 6),
         ENUMS(OUT_LIGHT, 2),
         NUM_LIGHTS
 	};
@@ -60,121 +61,127 @@ struct ClockedNoise : HCVModule
         configInput(CLOCK_INPUT, "Clock");
         configInput(SRATE_INPUT, "Sample Rate CV");
         configInput(FLUX_INPUT, "Flux CV");
+        configInput(MODE_INPUT, "Mode CV");
 
         configOutput(MAIN_OUTPUT, "Noise");
 
         random::init();
-	}
+    }
 
 	void process(const ProcessArgs &args) override;
 
-    float outVal = 0.0f;
-    int mode = 0;
+    // Arrays for polyphonic support
+    float outVal[16] = {};
+    int mode[16] = {};
+    float fluxNoise[16] = {};
 
-    float chaosAmount = 0.0f;
+    rack::dsp::SchmittTrigger clockTrigger[16];
 
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slew[16];
+    HCVDCFilterT<float> dcFilter[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slew;
-    HCVDCFilterT<float> dcFilter;
+    // Per-channel noise generators
+    HCVRandom randGen[16];
+    gam::NoiseWhite<> whiteNoise[16];
+    gam::NoisePink<> pinkNoise[16];
+    gam::NoiseBrown<> brownNoise[16];
+    HCVLFSRNoise lfsrNoise[16];
+    HCVGrayNoise grayNoise[16];
 
-    float fluxNoise = 0.0f;
+    void renderNoise(int channel);
 
-    HCVRandom randGen;
-    gam::NoiseWhite<> whiteNoise;
-    gam::NoisePink<> pinkNoise;
-    gam::NoiseBrown<> brownNoise;
-    HCVLFSRNoise lfsrNoise;
-    HCVGrayNoise grayNoise;
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
-
-    void renderNoise()
-    {
-        switch(mode)
-        {
-            case 0: //white
-                outVal = whiteNoise();
-                break;
-            
-            case 1: //lfsr
-                outVal = lfsrNoise();
-                break;
-                
-            case 2: //gray
-                outVal = grayNoise();
-                break;
-                
-            case 3: //pink
-                outVal = pinkNoise() * 2.0;
-                break;
-                
-            case 4: //brown
-                outVal = brownNoise();
-                break;
-                
-            case 5: //gaussian
-                outVal = randGen.nextGaussian();
-                break;
-                
-            default:
-            
-                break;
-        }
-
-    }
-
+    // For more advanced Module features, read Rack's engine.hpp header file
+    // - dataToJson, dataFromJson: serialization of internal data
+    // - onSampleRateChange: event triggered by a change of sample rate
+    // - reset, randomize: implements special behavior when user clicks these from the context menu
 };
+
+void ClockedNoise::renderNoise(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //white
+            outVal[channel] = whiteNoise[channel]();
+            break;
+        
+        case 1: //lfsr
+            outVal[channel] = lfsrNoise[channel]();
+            break;
+            
+        case 2: //gray
+            outVal[channel] = grayNoise[channel]();
+            break;
+            
+        case 3: //pink
+            outVal[channel] = pinkNoise[channel]() * 2.0;
+            break;
+            
+        case 4: //brown
+            outVal[channel] = brownNoise[channel]();
+            break;
+            
+        case 5: //gaussian
+            outVal[channel] = randGen[channel].nextGaussian();
+            break;
+            
+        default:
+            outVal[channel] = 0.0f;
+            break;
+    }
+}
 
 void ClockedNoise::process(const ProcessArgs &args)
 {
-    auto fluxAmount = getNormalizedModulatedValue(FLUX_PARAM, FLUX_INPUT, FLUX_SCALE_PARAM);
-    auto flux = fluxAmount * fluxNoise;
-
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr + flux, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
-
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
-    modeValue = clamp(modeValue, 0.0, 5.0);
-    mode = (int) std::round(modeValue);
-
-    if(isReady)
-    {   
-        fluxNoise = randGen.whiteNoise();
-
-        renderNoise();
-        slew.setTargetValue(outVal);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
+    
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        slew.setSRFactor(sRate.getSampleRateFactor());
-        outVal = slew();
+        auto fluxAmount = getNormalizedModulatedValue(FLUX_PARAM, FLUX_INPUT, FLUX_SCALE_PARAM, c);
+        auto flux = fluxAmount * fluxNoise[c];
+
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr + flux, 0.01f, 1.0f);
+        float finalSr = sr*sr*sr;
+        
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+        
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getPolyVoltage(c));
+        modeValue = clamp(modeValue, 0.0, 5.0);
+        mode[c] = (int) std::round(modeValue);
+
+        if(isReady)
+        {   
+            fluxNoise[c] = randGen[c].whiteNoise();
+            renderNoise(c);
+            slew[c].setTargetValue(outVal[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slew[c].setSRFactor(sRate[c].getSampleRateFactor());
+            outVal[c] = slew[c]();
+        }
+
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        auto filteredOut = dcFilter[c].process(outVal[c]);
+
+        outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f, c);
     }
 
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    auto filteredOut = dcFilter.process(outVal);
-
-    outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f);
-
+    // Lights show the state of channel 0
     for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode[0] == i ? 1.0f : 0.0f);
     }
     
-    setBipolarLightBrightness(OUT_LIGHT, filteredOut);
+    setBipolarLightBrightness(OUT_LIGHT, outputs[MAIN_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

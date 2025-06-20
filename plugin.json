@@ -132,7 +132,8 @@
       "description": "Multimode audio and modulation noise generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -171,7 +172,8 @@
       "name": "Crackle",
       "description": "Vinyl-like noise generator ported from SuperCollider.",
       "tags": [
-        "Noise"
+        "Noise",
+        "Polyphonic"
       ]
     },
     {
