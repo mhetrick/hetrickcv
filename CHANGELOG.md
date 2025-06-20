@@ -1,6 +1,6 @@
 # HetrickCV Changelog
 
-## 2.5.3 (In Progress)
+## 2.5.3
 - Add polyphony to 1-Op Chaos, 2-Op Chaos, 3-Op Chaos, ASR, Binary Gate, Binary Noise, Boolean Logic, Chaotic Attractors, Clocked Noise, Comparator, Crackle, Delta, Dust, Feedback Sine Chaos, Flip-Flop, Gingerbread Chaos, Random Gates, Rotator, and Rungler.
 - Add missing polyphony tag to Scanner.
 - General code cleanup. Replace lots of repeated code with re-usable functions and classes.
