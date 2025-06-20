@@ -1,7 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.5.3 (In Progress)
-- Add polyphony to ASR, Binary Gate, Binary Noise, Comparator.
+- Add polyphony to ASR, Binary Gate, Binary Noise, Comparator, Delta, Dust.
 
 ## 2.5.2
 - Add Clock to Phasor.

@@ -186,7 +186,8 @@
       "description": "Determine which direction a signal is heading.",
       "tags": [
         "Logic",
-        "Utility"
+        "Utility",
+        "Polyphonic"
       ]
     },
     {
@@ -204,7 +205,8 @@
       "description": "Random impulse and noise generator ported from SuperCollider",
       "tags": [
         "Noise",
-        "Granular"
+        "Granular",
+        "Polyphonic"
       ]
     },
     {

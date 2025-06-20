@@ -19,9 +19,10 @@ struct Dust : HCVModule
 		NUM_OUTPUTS
 	};
 
-	float lastDensity = 0.0;
-	float densityScaled = 0.0;
-	float threshold = 0.0;
+    // Arrays for polyphonic support
+    float lastDensity[16] = {};
+    float densityScaled[16] = {};
+    float threshold[16] = {};
 
 	Dust()
 	{
@@ -44,37 +45,44 @@ struct Dust : HCVModule
 
 void Dust::process(const ProcessArgs &args)
 {
-	float densityInput = params[RATE_PARAM].getValue() + inputs[RATE_INPUT].getVoltage();
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
+	
+	const bool bipolar = (params[BIPOLAR_PARAM].getValue() == 0.0);
 
-	if(lastDensity != densityInput)
-	{
-		densityScaled = clamp(densityInput, 0.0f, 4.0f) / 4.0f;
-		densityScaled = args.sampleRate * powf(densityScaled, 3.0f);
-		lastDensity = densityInput;
-		threshold = (1.0/args.sampleRate) * densityScaled;
-	}
+    // Process each channel
+    for (int c = 0; c < channels; c++)
+    {
+        float densityInput = params[RATE_PARAM].getValue() + inputs[RATE_INPUT].getPolyVoltage(c);
 
-	const float noiseValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        if(lastDensity[c] != densityInput)
+        {
+            densityScaled[c] = clamp(densityInput, 0.0f, 4.0f) / 4.0f;
+            densityScaled[c] = args.sampleRate * powf(densityScaled[c], 3.0f);
+            lastDensity[c] = densityInput;
+            threshold[c] = (1.0/args.sampleRate) * densityScaled[c];
+        }
 
-	if (noiseValue < threshold)
-	{
-		const bool bipolar = (params[BIPOLAR_PARAM].getValue() == 0.0);
+        const float noiseValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
-		if(bipolar)
-		{
-			const float scale = (threshold > 0.0f) ? 2.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].setVoltage(clamp((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f));
-		}
-		else
-		{
-			const float scale = (threshold > 0.0f) ? 1.0f/threshold : 0.0f;
-			outputs[DUST_OUTPUT].setVoltage(clamp(noiseValue * scale * HCV_GATE_MAG, 0.0f, HCV_GATE_MAG));
-		}
-	}
-	else
-	{
-		outputs[DUST_OUTPUT].setVoltage(0.0);
-	}
+        if (noiseValue < threshold[c])
+        {
+            if(bipolar)
+            {
+                const float scale = (threshold[c] > 0.0f) ? 2.0f/threshold[c] : 0.0f;
+                outputs[DUST_OUTPUT].setVoltage(clamp((noiseValue * scale - 1.0f) * 5.0f, -5.0f, 5.0f), c);
+            }
+            else
+            {
+                const float scale = (threshold[c] > 0.0f) ? 1.0f/threshold[c] : 0.0f;
+                outputs[DUST_OUTPUT].setVoltage(clamp(noiseValue * scale * HCV_GATE_MAG, 0.0f, HCV_GATE_MAG), c);
+            }
+        }
+        else
+        {
+            outputs[DUST_OUTPUT].setVoltage(0.0f, c);
+        }
+    }
 }
 
 struct DustWidget : HCVModuleWidget { DustWidget(Dust *module); };

@@ -64,10 +64,11 @@ struct Delta : HCVModule
 		configOutput(DELTA_OUTPUT, "Delta");
 	}
 
-	HCVTriggeredGate ltTrig, gtTrig;
-    float lastInput = 0.0f;
-    bool rising = false;
-    bool falling = false;
+    // Arrays for polyphonic support
+    HCVTriggeredGate ltTrig[16], gtTrig[16];
+    float lastInput[16] = {};
+    bool rising[16] = {};
+    bool falling[16] = {};
 
 	void process(const ProcessArgs &args) override;
 
@@ -77,36 +78,46 @@ struct Delta : HCVModule
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
-
 void Delta::process(const ProcessArgs &args)
 {
-	float input = inputs[MAIN_INPUT].getVoltage();
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    float delta = input - lastInput;
-    lastInput = input;
+    // Process each channel
+    for (int c = 0; c < channels; c++)
+    {
+        float input = inputs[MAIN_INPUT].getPolyVoltage(c);
 
-    rising = (delta > 0.0f);
-    falling = (delta < 0.0f);
+        float delta = input - lastInput[c];
+        lastInput[c] = input;
 
-	float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getVoltage() * params[SCALE_PARAM].getValue());
-	boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
+        rising[c] = (delta > 0.0f);
+        falling[c] = (delta < 0.0f);
 
-	outputs[GT_TRIG_OUTPUT].setVoltage(gtTrig.process(rising) ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_TRIG_OUTPUT].setVoltage(ltTrig.process(falling) ? HCV_GATE_MAG : 0.0f);
-	outputs[GT_GATE_OUTPUT].setVoltage(rising  ? HCV_GATE_MAG : 0.0f);
-	outputs[LT_GATE_OUTPUT].setVoltage(falling ? HCV_GATE_MAG : 0.0f);
+        float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getPolyVoltage(c) * params[SCALE_PARAM].getValue());
+        boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
 
-	float allTrigs = outputs[GT_TRIG_OUTPUT].getVoltage() + outputs[LT_TRIG_OUTPUT].getVoltage();
-	allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
+        float gtTrigVoltage = gtTrig[c].process(rising[c]) ? HCV_GATE_MAG : 0.0f;
+        float ltTrigVoltage = ltTrig[c].process(falling[c]) ? HCV_GATE_MAG : 0.0f;
 
-    const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);
+        outputs[GT_TRIG_OUTPUT].setVoltage(gtTrigVoltage, c);
+        outputs[LT_TRIG_OUTPUT].setVoltage(ltTrigVoltage, c);
+        outputs[GT_GATE_OUTPUT].setVoltage(rising[c] ? HCV_GATE_MAG : 0.0f, c);
+        outputs[LT_GATE_OUTPUT].setVoltage(falling[c] ? HCV_GATE_MAG : 0.0f, c);
 
-	outputs[CHANGE_OUTPUT].setVoltage(allTrigs);
-    outputs[DELTA_OUTPUT].setVoltage(deltaOutput);
+        float allTrigs = gtTrigVoltage + ltTrigVoltage;
+        allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);
 
-	setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
-	setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
-	lights[CHANGE_LIGHT].setSmoothBrightness(allTrigs, 10);
+        const float deltaOutput = clamp(delta * boost, -5.0f, 5.0f);
+
+        outputs[CHANGE_OUTPUT].setVoltage(allTrigs, c);
+        outputs[DELTA_OUTPUT].setVoltage(deltaOutput, c);
+    }
+
+    // Lights show the state of channel 0
+    setLightSmoothFromOutput(GT_LIGHT, GT_GATE_OUTPUT);
+    setLightSmoothFromOutput(LT_LIGHT, LT_GATE_OUTPUT);
+    lights[CHANGE_LIGHT].setSmoothBrightness(outputs[CHANGE_OUTPUT].getVoltage(0), 10);
 }
 
 
