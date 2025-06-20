@@ -113,7 +113,8 @@
       "name": "Boolean Logic",
       "description": "Six way boolean logic processor",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {

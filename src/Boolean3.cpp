@@ -38,11 +38,12 @@ struct Boolean3 : HCVModule
         NUM_LIGHTS
 	};
 
-    HysteresisGate ins[3];
-    bool inA = false;
-    bool inB = false;
-    bool inC = false;
-    float outs[6] = {};
+    // Arrays for polyphonic support
+    HysteresisGate ins[16][3];
+    bool inA[16] = {};
+    bool inB[16] = {};
+    bool inC[16] = {};
+    float outs[16][6] = {};
 
 	Boolean3()
 	{
@@ -71,47 +72,56 @@ struct Boolean3 : HCVModule
 
 void Boolean3::process(const ProcessArgs &args)
 {
-    inA = ins[0].process(inputs[INA_INPUT].getVoltage());
-    inB = ins[1].process(inputs[INB_INPUT].getVoltage());
-    inC = ins[2].process(inputs[INC_INPUT].getVoltage());
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    lights[INA_LIGHT].value = inA ? HCV_GATE_MAG : 0.0f;
-    lights[INB_LIGHT].value = inB ? HCV_GATE_MAG : 0.0f;
-    lights[INC_LIGHT].value = inC ? HCV_GATE_MAG : 0.0f;
-
-    if(inputs[INC_INPUT].isConnected())
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        outs[0] = ((inA || inB) || inC) ? HCV_GATE_MAG : 0.0f;
-        outs[1] = ((inA && inB) && inC) ? HCV_GATE_MAG : 0.0f;
-        outs[2] = (!inA && (inB ^ inC)) || (inA && !(inB || inC)) ? HCV_GATE_MAG : 0.0f;
-        outs[3] = HCV_GATE_MAG - outs[0];
-        outs[4] = HCV_GATE_MAG - outs[1];
-        outs[5] = HCV_GATE_MAG - outs[2];
+        inA[c] = ins[c][0].process(inputs[INA_INPUT].getPolyVoltage(c));
+        inB[c] = ins[c][1].process(inputs[INB_INPUT].getPolyVoltage(c));
+        inC[c] = ins[c][2].process(inputs[INC_INPUT].getPolyVoltage(c));
+
+        if(inputs[INC_INPUT].isConnected())
+        {
+            // 3-input logic operations
+            outs[c][0] = ((inA[c] || inB[c]) || inC[c]) ? HCV_GATE_MAG : 0.0f;  // OR
+            outs[c][1] = ((inA[c] && inB[c]) && inC[c]) ? HCV_GATE_MAG : 0.0f;  // AND
+            outs[c][2] = (!inA[c] && (inB[c] ^ inC[c])) || (inA[c] && !(inB[c] || inC[c])) ? HCV_GATE_MAG : 0.0f;  // XOR
+            outs[c][3] = HCV_GATE_MAG - outs[c][0];  // NOR
+            outs[c][4] = HCV_GATE_MAG - outs[c][1];  // NAND
+            outs[c][5] = HCV_GATE_MAG - outs[c][2];  // XNOR
+        }
+        else
+        {
+            // 2-input logic operations (when C is not connected)
+            outs[c][0] = (inA[c] || inB[c]) ? HCV_GATE_MAG : 0.0f;  // OR
+            outs[c][1] = (inA[c] && inB[c]) ? HCV_GATE_MAG : 0.0f;  // AND
+            outs[c][2] = (inA[c] != inB[c]) ? HCV_GATE_MAG : 0.0f;  // XOR
+            outs[c][3] = HCV_GATE_MAG - outs[c][0];  // NOR
+            outs[c][4] = HCV_GATE_MAG - outs[c][1];  // NAND
+            outs[c][5] = HCV_GATE_MAG - outs[c][2];  // XNOR
+        }
+
+        outputs[OR_OUTPUT].setVoltage(outs[c][0], c);
+        outputs[AND_OUTPUT].setVoltage(outs[c][1], c);
+        outputs[XOR_OUTPUT].setVoltage(outs[c][2], c);
+        outputs[NOR_OUTPUT].setVoltage(outs[c][3], c);
+        outputs[NAND_OUTPUT].setVoltage(outs[c][4], c);
+        outputs[XNOR_OUTPUT].setVoltage(outs[c][5], c);
     }
-    else
-    {
-        outs[0] = (inA || inB) ? HCV_GATE_MAG : 0.0f;
-        outs[1] = (inA && inB) ? HCV_GATE_MAG : 0.0f;
-        outs[2] = (inA != inB) ? HCV_GATE_MAG : 0.0f;
-        outs[3] = HCV_GATE_MAG - outs[0];
-        outs[4] = HCV_GATE_MAG - outs[1];
-        outs[5] = HCV_GATE_MAG - outs[2];
-    }
 
+    // Lights show the state of channel 0
+    lights[INA_LIGHT].value = inA[0] ? HCV_GATE_MAG : 0.0f;
+    lights[INB_LIGHT].value = inB[0] ? HCV_GATE_MAG : 0.0f;
+    lights[INC_LIGHT].value = inC[0] ? HCV_GATE_MAG : 0.0f;
 
-    outputs[OR_OUTPUT].setVoltage(outs[0]);
-    outputs[AND_OUTPUT].setVoltage(outs[1]);
-    outputs[XOR_OUTPUT].setVoltage(outs[2]);
-    outputs[NOR_OUTPUT].setVoltage(outs[3]);
-    outputs[NAND_OUTPUT].setVoltage(outs[4]);
-    outputs[XNOR_OUTPUT].setVoltage(outs[5]);
-
-    lights[OR_LIGHT].value = outs[0];
-    lights[AND_LIGHT].value = outs[1];
-    lights[XOR_LIGHT].value = outs[2];
-    lights[NOR_LIGHT].value = outs[3];
-    lights[NAND_LIGHT].value = outs[4];
-    lights[XNOR_LIGHT].value = outs[5];
+    lights[OR_LIGHT].value = outs[0][0];
+    lights[AND_LIGHT].value = outs[0][1];
+    lights[XOR_LIGHT].value = outs[0][2];
+    lights[NOR_LIGHT].value = outs[0][3];
+    lights[NAND_LIGHT].value = outs[0][4];
+    lights[XNOR_LIGHT].value = outs[0][5];
 }
 
 struct Boolean3Widget : HCVModuleWidget { Boolean3Widget(Boolean3 *module); };
