@@ -1,5 +1,4 @@
 #include "HetrickCV.hpp"
-
 #include "DSP/HCVShiftRegister.h"
 
 struct Rungler : HCVModule
@@ -61,17 +60,32 @@ struct Rungler : HCVModule
         
         configSwitch(WRITE_PARAM, 0.0, 1.0, 1.0, "Write Enable", {"Loop", "Write"});
         configSwitch(XOR_PARAM, 0.0, 1.0, 1.0, "Feedback Mode", {"Direct", "XOR"});
-	}
+
+        configInput(CLOCK_INPUT, "Clock");
+        configInput(DATA_INPUT, "Data");
+        configInput(COMPARE_INPUT, "Compare CV");
+        configInput(SCALE_INPUT, "Scale CV");
+
+        configOutput(SEQ_OUTPUT, "Sequence");
+        for (int i = 0; i < 8; i++)
+        {
+            configOutput(OUT1_OUTPUT + i, "Stage " + std::to_string(i + 1));
+        }
+    }
 
     void process(const ProcessArgs &args) override;
 
-    HCVRungler rungler;
-    dsp::SchmittTrigger clockTrigger;
-    float runglerOut = 0.0f;
+    // Arrays for polyphonic support
+    HCVRungler rungler[16];
+    dsp::SchmittTrigger clockTrigger[16];
+    float runglerOut[16] = {};
 
     void onReset() override
     {
-        rungler.emptyRegister();
+        for (int c = 0; c < 16; c++)
+        {
+            rungler[c].emptyRegister();
+        }
     }
 
     void onRandomize() override
@@ -85,38 +99,53 @@ struct Rungler : HCVModule
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
-
 void Rungler::process(const ProcessArgs &args)
 {
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if (clockTrigger.process(inputs[CLOCK_INPUT].getVoltage()))
+    // Global mode settings (front-panel switches)
+    const bool writeMode = (params[WRITE_PARAM].getValue() > 0.0f);
+    const bool xorMode = (params[XOR_PARAM].getValue() > 0.0f);
+
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        rungler.enableXORFeedback(params[XOR_PARAM].getValue() > 0.0f);
-
-        if(params[WRITE_PARAM].getValue() == 0.0f)
+        if (clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c)))
         {
-            rungler.advanceRegisterFrozen();
+            rungler[c].enableXORFeedback(xorMode);
+
+            if(!writeMode)
+            {
+                rungler[c].advanceRegisterFrozen();
+            }
+            else
+            {
+                double compare = params[COMPARE_PARAM].getValue() + (params[COMPARE_DEPTH_PARAM].getValue() * inputs[COMPARE_INPUT].getPolyVoltage(c));
+                compare = clamp(compare, -5.0f, 5.0f);
+
+                rungler[c].advanceRegister(inputs[DATA_INPUT].getPolyVoltage(c) > compare);
+            }
+
+            runglerOut[c] = rungler[c].getRunglerOut();
         }
-        else
+
+        double scale = params[SCALE_PARAM].getValue() + (params[SCALE_DEPTH_PARAM].getValue() * inputs[SCALE_INPUT].getPolyVoltage(c));
+        scale = clamp(scale, -5.0f, 5.0f);
+
+        outputs[SEQ_OUTPUT].setVoltage(runglerOut[c] * scale, c);
+
+        // Set individual stage outputs for each channel
+        for(int i = 0; i < 8; i++)
         {
-            double compare = params[COMPARE_PARAM].getValue() + (params[COMPARE_DEPTH_PARAM].getValue() * inputs[COMPARE_INPUT].getVoltage());
-            compare = clamp(compare, -5.0f, 5.0f);
-
-            rungler.advanceRegister(inputs[DATA_INPUT].getVoltage() > compare);
+            outputs[OUT1_OUTPUT + i].setVoltage(rungler[c].dataRegister[i] ? 5.0f : 0.0f, c);
         }
-
-        runglerOut = rungler.getRunglerOut();
     }
 
-    double scale = params[SCALE_PARAM].getValue() + (params[SCALE_DEPTH_PARAM].getValue() * inputs[SCALE_INPUT].getVoltage());
-    scale = clamp(scale, -5.0f, 5.0f);
-
-    outputs[SEQ_OUTPUT].setVoltage(runglerOut * scale);
-
+    // Lights show the state of channel 0
     for(int i = 0; i < 8; i++)
     {
-        outputs[OUT1_OUTPUT + i].setVoltage(rungler.dataRegister[i] ? 5.0f : 0.0f);
-        lights[OUT1_LIGHT + i].setSmoothBrightness(outputs[OUT1_OUTPUT + i].getVoltage() * 0.2f, args.sampleTime);
+        lights[OUT1_LIGHT + i].setSmoothBrightness(outputs[OUT1_OUTPUT + i].getVoltage(0) * 0.2f, args.sampleTime);
     }
 }
 

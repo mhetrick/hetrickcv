@@ -232,7 +232,8 @@
         "Noise",
         "Oscillator",
         "Low-frequency Oscillator",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -686,7 +687,8 @@
       "description": "8-Bit Shift Register and Comparator with stepped signal output via bits 6, 7, and 8.",
       "tags": [
         "Sequencer", 
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {

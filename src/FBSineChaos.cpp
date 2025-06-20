@@ -76,85 +76,93 @@ struct FBSineChaos : HCVModule
         configInput(CHAOSA_INPUT, "Index Multiplier CV");
         configInput(CHAOSB_INPUT, "Phase Increment CV");
         configInput(CHAOSC_INPUT, "Phase Multiplier CV");
-        configInput(CHAOSD_INPUT, "Feedback CV CV");
+        configInput(CHAOSD_INPUT, "Feedback CV");
 
         configOutput(X_OUTPUT, "X");
         configOutput(Y_OUTPUT, "Y (Phase)");
 
         random::init();
-	}
+    }
 
-	void process(const ProcessArgs &args) override;
+    void process(const ProcessArgs &args) override;
 
-    float xVal = 0.0f, yVal = 0.0f;
- 
-    float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f, chaosAmountD = 0.0f;
+    // Arrays for polyphonic support
+    float xVal[16] = {}, yVal[16] = {};
+    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {}, chaosAmountD[16] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
+    rack::dsp::SchmittTrigger clockTrigger[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slewX, slewY;
-    HCVDCFilterT<simd::float_4> dcFilter;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slewX[16], slewY[16];
+    HCVDCFilterT<simd::float_4> dcFilter[16];
 
-    HCVFBSineChaos fbSine;
+    // Per-channel chaos generators
+    HCVFBSineChaos fbSine[16];
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+    // For more advanced Module features, read Rack's engine.hpp header file
+    // - dataToJson, dataFromJson: serialization of internal data
+    // - onSampleRateChange: event triggered by a change of sample rate
+    // - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
 void FBSineChaos::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
+    // Global mode setting (front-panel switch)
+    const bool brokenMode = (params[MODE_PARAM].getValue() > 0.0f);
 
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(isReady)
-    {   
-        chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
-        chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
-        chaosAmountC = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM);
-        chaosAmountD = getNormalizedModulatedValue(CHAOSD_PARAM, CHAOSD_INPUT, CHAOSD_SCALE_PARAM);
-
-        fbSine.brokenMode = params[MODE_PARAM].getValue();
-
-        fbSine.setIndexX(chaosAmountA);
-		fbSine.setPhaseInc(chaosAmountB);
-		fbSine.setPhaseX(chaosAmountC);
-		fbSine.setFeedback(chaosAmountD);
-		
-		fbSine.generate();
-		xVal = fbSine.outX;
-		yVal = fbSine.outY;
-
-        slewX.setTargetValue(xVal);
-        slewY.setTargetValue(yVal);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        slewX.setSRFactor(sRate.getSampleRateFactor());
-        slewY.setSRFactor(sRate.getSampleRateFactor());
-        xVal = slewX();
-        yVal = slewY();
+        const float sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM, c);
+        sRate[c].setSampleRateFactor(sr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        if(isReady)
+        {   
+            chaosAmountA[c] = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM, c);
+            chaosAmountB[c] = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM, c);
+            chaosAmountC[c] = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM, c);
+            chaosAmountD[c] = getNormalizedModulatedValue(CHAOSD_PARAM, CHAOSD_INPUT, CHAOSD_SCALE_PARAM, c);
+
+            fbSine[c].brokenMode = brokenMode;
+
+            fbSine[c].setIndexX(chaosAmountA[c]);
+            fbSine[c].setPhaseInc(chaosAmountB[c]);
+            fbSine[c].setPhaseX(chaosAmountC[c]);
+            fbSine[c].setFeedback(chaosAmountD[c]);
+            
+            fbSine[c].generate();
+            xVal[c] = fbSine[c].outX;
+            yVal[c] = fbSine[c].outY;
+
+            slewX[c].setTargetValue(xVal[c]);
+            slewY[c].setTargetValue(yVal[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slewX[c].setSRFactor(sRate[c].getSampleRateFactor());
+            slewY[c].setSRFactor(sRate[c].getSampleRateFactor());
+            xVal[c] = slewX[c]();
+            yVal[c] = slewY[c]();
+        }
+
+        simd::float_4 filteredOut = {xVal[c], yVal[c], 0.0f, 0.0f};
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f, c);
+        outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f, c);
     }
-
-    simd::float_4 filteredOut = {xVal, yVal, 0.0f, 0.0f};
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
-    outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
     
-    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
-    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
+    // Lights show the state of channel 0
+    setBipolarLightBrightness(XOUT_LIGHT, outputs[X_OUTPUT].getVoltage(0) * 0.2f);
+    setBipolarLightBrightness(YOUT_LIGHT, outputs[Y_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 
