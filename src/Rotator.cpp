@@ -58,9 +58,6 @@ struct Rotator : HCVModule
 		NUM_LIGHTS
 	};
 
-    float ins[8] = {};
-    float outs[8] = {};
-
 	Rotator()
 	{
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -98,22 +95,30 @@ struct Rotator : HCVModule
 
 void Rotator::process(const ProcessArgs &args)
 {
-    int rotation = round(params[ROTATE_PARAM].getValue() + inputs[ROTATE_INPUT].getVoltage());
-    int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getVoltage());
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    rotation = clampInt(rotation);
-    stages = clampInt(stages) + 1;
+    // Process each channel
+    for (int c = 0; c < channels; c++)
+    {
+        int rotation = round(params[ROTATE_PARAM].getValue() + inputs[ROTATE_INPUT].getPolyVoltage(c));
+        int stages = round(params[STAGES_PARAM].getValue() + inputs[STAGES_INPUT].getPolyVoltage(c));
 
+        rotation = clampInt(rotation);
+        stages = clampInt(stages) + 1;
+
+        for(int i = 0; i < 8; i++)
+        {
+            const int input = (stages - rotation + i) % stages;
+            outputs[i].setVoltage(inputs[input].getPolyVoltage(c), c);
+        }
+    }
+
+    // Lights show the state of channel 0 for all inputs/outputs
     for(int i = 0; i < 8; i++)
     {
-        const int input = (stages - rotation + i) % stages;
-        outputs[i].setVoltage(inputs[input].getVoltage());
-
-        lights[IN1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / 5.0), 10);
-		lights[IN1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, inputs[i].getVoltage() / -5.0), 10);
-
-        lights[OUT1_POS_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].getVoltage() / 5.0), 10);
-		lights[OUT1_NEG_LIGHT + 2*i].setSmoothBrightness(fmaxf(0.0, outputs[i].getVoltage() / -5.0), 10);
+        setBipolarLightBrightness(IN1_POS_LIGHT + 2*i, inputs[i].getPolyVoltage(0) * 0.2f);
+        setBipolarLightBrightness(OUT1_POS_LIGHT + 2*i, outputs[i].getPolyVoltage(0) * 0.2f);
     }
 }
 

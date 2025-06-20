@@ -81,13 +81,14 @@ struct RandomGates : HCVModule
         return _in;
     }
 
-    dsp::SchmittTrigger clockTrigger;
+    // Arrays for polyphonic support
+    dsp::SchmittTrigger clockTrigger[16];
     dsp::SchmittTrigger modeTrigger;
 
-    HCVTriggeredGate trigger[8];
-    dsp::SchmittTrigger trigOut[8];
+    HCVTriggeredGate trigger[16][8];
+    dsp::SchmittTrigger trigOut[16][8];
 
-    bool active[8] = {};
+    bool active[16][8] = {};
     int mode = 0;
 
     json_t *dataToJson() override
@@ -123,73 +124,79 @@ struct RandomGates : HCVModule
 
 void RandomGates::process(const ProcessArgs &args)
 {
-    int max = round(params[MAX_PARAM].getValue() + inputs[MAXI_INPUT].getVoltage());
-    int min = round(params[MIN_PARAM].getValue() + inputs[MINI_INPUT].getVoltage());
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    max = clampInt(max);
-    min = clampInt(min);
-
-    if (min > max) min = max;
-
-    const bool clockHigh = inputs[CLOCK_INPUT].getVoltage() > 1.0f;
-
+    // Global mode button
     if (modeTrigger.process(params[MODE_PARAM].getValue()))
     {
-		mode = (mode + 1) % 3;
+        mode = (mode + 1) % 3;
     }
 
-    if (clockTrigger.process(clockHigh))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        uint32_t range = max-min;
-        uint32_t randNum;
-        if (range == 0) randNum = max;
-        else randNum = (random::u32() % (range + 1)) + min;
+        int max = round(params[MAX_PARAM].getValue() + inputs[MAXI_INPUT].getPolyVoltage(c));
+        int min = round(params[MIN_PARAM].getValue() + inputs[MINI_INPUT].getPolyVoltage(c));
 
-        for(uint32_t i = 0; i < 8; i++)
+        max = clampInt(max);
+        min = clampInt(min);
+
+        if (min > max) min = max;
+
+        const bool clockHigh = inputs[CLOCK_INPUT].getPolyVoltage(c) > 1.0f;
+
+        if (clockTrigger[c].process(clockHigh))
         {
-            active[i] = randNum == i;
+            uint32_t range = max-min;
+            uint32_t randNum;
+            if (range == 0) randNum = max;
+            else randNum = (random::u32() % (range + 1)) + min;
+
+            for(uint32_t i = 0; i < 8; i++)
+            {
+                active[c][i] = randNum == i;
+            }
+        }
+
+        switch(mode)
+        {
+            case 0: //trigger mode
+            for(int i = 0; i < 8; i++)
+            {
+                if(trigOut[c][i].process(active[c][i]))
+                {
+                    trigger[c][i].trigger();
+                    active[c][i] = false;
+                }
+                outputs[i].setVoltage((trigger[c][i].process() ? HCV_GATE_MAG : 0.0f), c);
+            }
+            break;
+
+            case 1: //hold mode
+            for(int i = 0; i < 8; i++)
+            {
+                outputs[i].setVoltage((active[c][i] ? HCV_GATE_MAG : 0.0f), c);
+            }
+            break;
+
+            case 2: //gate mode
+            for(int i = 0; i < 8; i++)
+            {
+                outputs[i].setVoltage(((active[c][i] && clockHigh) ? HCV_GATE_MAG : 0.0f), c);
+            }
+            break;
         }
     }
 
+    // Lights show the state of channel 0
     lights[MODE_TRIG_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
     lights[MODE_HOLD_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
     lights[MODE_GATE_LIGHT].setBrightness(mode == 2 ? 1.0f : 0.0f);
 
-    switch(mode)
-    {
-        case 0: //trigger mode
-        for(int i = 0; i < 8; i++)
-        {
-            if(trigOut[i].process(active[i]))
-            {
-                trigger[i].trigger();
-                active[i] = false;
-            }
-            outputs[i].setVoltage((trigger[i].process() ? HCV_GATE_MAG : 0.0f));
-        }
-        break;
-
-        case 1: //hold mode
-        for(int i = 0; i < 8; i++)
-        {
-            outputs[i].setVoltage((active[i] ? HCV_GATE_MAG : 0.0f));
-        }
-        break;
-
-        case 2: //gate mode
-        for(int i = 0; i < 8; i++)
-        {
-            outputs[i].setVoltage(((active[i] && clockHigh) ? HCV_GATE_MAG : 0.0f));
-        }
-        break;
-
-        default:
-        break;
-    }
-
     for(int i = 0; i < 8; i++)
     {
-        lights[OUT1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, outputs[i].getVoltage()), args.sampleTime * 4.0f);
+        lights[OUT1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, outputs[i].getVoltage(0)), args.sampleTime * 4.0f);
     }
 }
 

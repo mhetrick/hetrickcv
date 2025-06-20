@@ -672,7 +672,8 @@
       "name": "Random Gates",
       "description": "Generates up to eight random gates.",
       "tags": [
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -680,7 +681,8 @@
       "name": "Rotator",
       "description": "Eight-way channel rotation.",
       "tags": [
-        "Switch"
+        "Switch",
+        "Polyphonic"
       ]
     },
     {
