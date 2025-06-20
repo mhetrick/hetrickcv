@@ -1,9 +1,10 @@
 # HetrickCV Changelog
 
 ## 2.5.3 (In Progress)
-- Add polyphony to 1-Op Chaos, 2-Op Chaos, 3-Op Chaos, ASR, Binary Gate, Binary Noise, Chaotic Attractors, Clocked Noise, Comparator, Crackle, Delta, Dust, Feedback Sine Chaos, Gingerbread Chaos, Rungler.
+- Add polyphony to 1-Op Chaos, 2-Op Chaos, 3-Op Chaos, ASR, Binary Gate, Binary Noise, Chaotic Attractors, Clocked Noise, Comparator, Crackle, Delta, Dust, Feedback Sine Chaos, Flip-Flop, Gingerbread Chaos, Rungler.
 - Add missing polyphony tag to Scanner.
 - General code cleanup. Replace lots of repeated code with re-usable functions and classes.
+- Update some missing port and param labels.
 
 ## 2.5.2
 - Add Clock to Phasor.

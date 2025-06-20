@@ -30,63 +30,85 @@ struct FlipFlop : HCVModule
 		TOGGLE_LIGHT,
         DATA_LIGHT,
         NUM_LIGHTS
-	};
+    };
 
-    dsp::SchmittTrigger clockTrigger;
-    float outs[4] = {};
-    bool toggle = false;
-    bool dataIn = false;
+    // Arrays for polyphonic support
+    dsp::SchmittTrigger clockTrigger[16];
+    float outs[16][4] = {};
+    bool toggle[16] = {};
+    bool dataIn[16] = {};
 
-	FlipFlop()
-	{
+    FlipFlop()
+    {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		onReset();
-	}
+        
+        configInput(INT_INPUT, "Clock");
+        configInput(IND_INPUT, "Data");
+        
+        configOutput(FFT_OUTPUT, "Toggle");
+        configOutput(FFD_OUTPUT, "Data");
+        configOutput(FFTNOT_OUTPUT, "Toggle Inverted");
+        configOutput(FFDNOT_OUTPUT, "Data Inverted");
+        
+        onReset();
+    }
 
-	void process(const ProcessArgs &args) override;
+    void process(const ProcessArgs &args) override;
 
     void onReset() override
     {
-        lights[DATA_LIGHT].value = 0.0f;
-        outs[0] = 0.0f;
-        outs[1] = lights[DATA_LIGHT].value;
-        outs[2] = HCV_GATE_MAG;
-        outs[3] = HCV_GATE_MAG;
+        for (int c = 0; c < 16; c++)
+        {
+            toggle[c] = false;
+            dataIn[c] = false;
+            outs[c][0] = 0.0f;
+            outs[c][1] = 0.0f;
+            outs[c][2] = HCV_GATE_MAG;
+            outs[c][3] = HCV_GATE_MAG;
+        }
     }
 
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
+    // For more advanced Module features, read Rack's engine.hpp header file
+    // - dataToJson, dataFromJson: serialization of internal data
+    // - onSampleRateChange: event triggered by a change of sample rate
+    // - reset, randomize: implements special behavior when user clicks these from the context menu
 };
-
 
 void FlipFlop::process(const ProcessArgs &args)
 {
-    dataIn = (inputs[IND_INPUT].getVoltage() >= 1.0f);
-    lights[DATA_LIGHT].value = dataIn ? HCV_GATE_MAG : 0.0f;
-    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if (clockTrigger.process(inputs[INT_INPUT].getVoltage()))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        toggle = !toggle;
+        dataIn[c] = (inputs[IND_INPUT].getPolyVoltage(c) >= 1.0f);
 
-        outs[0] = toggle ? HCV_GATE_MAG : 0.0f;
-        outs[1] = lights[DATA_LIGHT].value;
+        if (clockTrigger[c].process(inputs[INT_INPUT].getPolyVoltage(c)))
+        {
+            toggle[c] = !toggle[c];
 
-        outs[2] = HCV_GATE_MAG - outs[0];
-        outs[3] = HCV_GATE_MAG - outs[1];
+            outs[c][0] = toggle[c] ? HCV_GATE_MAG : 0.0f;
+            outs[c][1] = dataIn[c] ? HCV_GATE_MAG : 0.0f;
+
+            outs[c][2] = HCV_GATE_MAG - outs[c][0];
+            outs[c][3] = HCV_GATE_MAG - outs[c][1];
+        }
+
+        outputs[FFT_OUTPUT].setVoltage(outs[c][0], c);
+        outputs[FFD_OUTPUT].setVoltage(outs[c][1], c);
+        outputs[FFTNOT_OUTPUT].setVoltage(outs[c][2], c);
+        outputs[FFDNOT_OUTPUT].setVoltage(outs[c][3], c);
     }
 
-    outputs[FFT_OUTPUT].setVoltage(outs[0]);
-    outputs[FFD_OUTPUT].setVoltage(outs[1]);
-    outputs[FFTNOT_OUTPUT].setVoltage(outs[2]);
-    outputs[FFDNOT_OUTPUT].setVoltage(outs[3]);
+    // Lights show the state of channel 0
+    lights[DATA_LIGHT].value = dataIn[0] ? HCV_GATE_MAG : 0.0f;
+    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
 
-    lights[FFT_LIGHT].value = outs[0];
-    lights[FFD_LIGHT].value = outs[1];
-    lights[FFTNOT_LIGHT].value = outs[2];
-    lights[FFDNOT_LIGHT].value = outs[3];
+    lights[FFT_LIGHT].value = outs[0][0];
+    lights[FFD_LIGHT].value = outs[0][1];
+    lights[FFTNOT_LIGHT].value = outs[0][2];
+    lights[FFDNOT_LIGHT].value = outs[0][3];
 }
 
 struct FlipFlopWidget : HCVModuleWidget { FlipFlopWidget(FlipFlop *module); };

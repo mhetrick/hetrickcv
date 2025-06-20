@@ -241,7 +241,8 @@
       "name": "Flip-Flop",
       "description": "A flexible toggle switch",
       "tags": [
-        "Logic"
+        "Logic",
+        "Polyphonic"
       ]
     },
     {
