@@ -695,7 +695,8 @@
       "description": "8-channel signal crossfader, mixer, scanner, and router.",
       "tags": [
         "Mixer",
-        "Switch"
+        "Switch",
+        "Polyphonic"
       ]
     },
     {
