@@ -146,12 +146,8 @@ void Chaos3Op::process(const ProcessArgs &args)
     // Process each channel
     for (int c = 0; c < channels; c++)
     {
-        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-        sr = clamp(sr, 0.01f, 1.0f);
-        float finalSr = sr*sr*sr;
-
-        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-        sRate[c].setSampleRateFactor(finalSr);
+        const float sr = getSampleRateParameter(SRATE_PARAM, SRATE_INPUT, SRATE_SCALE_PARAM, RANGE_PARAM, c);
+        sRate[c].setSampleRateFactor(sr);
 
         bool isReady = sRate[c].readyForNextSample();
         if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
