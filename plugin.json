@@ -19,7 +19,8 @@
       "description": "Multimode audio and modulation chaos generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -28,7 +29,8 @@
       "description": "Multimode audio and modulation chaos generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -37,7 +39,8 @@
       "description": "Multimode audio and modulation chaos generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -119,7 +122,8 @@
       "description": "Multimode audio and modulation chaos generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {
@@ -283,7 +287,8 @@
       "description": "Self-modulating audio and modulation chaos generator.",
       "tags": [
         "Noise",
-        "Random"
+        "Random",
+        "Polyphonic"
       ]
     },
     {

@@ -34,7 +34,8 @@ struct Chaos1Op : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {   ENUMS(MODE_LIGHTS, 7),
+    {   
+        ENUMS(MODE_LIGHTS, 7),
         ENUMS(XOUT_LIGHT, 2),
         ENUMS(YOUT_LIGHT, 2),
         NUM_LIGHTS
@@ -63,197 +64,196 @@ struct Chaos1Op : HCVModule
         configInput(CLOCK_INPUT, "Clock");
         configInput(RESEED_INPUT, "Reseed");
         configInput(SRATE_INPUT, "Sample Rate CV");
-
         configInput(CHAOS_INPUT, "Chaos CV");
+        configInput(MODE_INPUT, "Mode CV");
 
         configOutput(X_OUTPUT, "X");
         configOutput(Y_OUTPUT, "Y");
 
         random::init();
-	}
-
-	void process(const ProcessArgs &args) override;
-
-    float xVal = 0.0f, yVal = 0.0f;
-    int mode = 3;
-
-    float chaosAmount = 0.0f;
-
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
-
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slewX, slewY;
-    HCVDCFilterT<simd::float_4> dcFilter;
-
-    HCVCrackle crackle;
-    HCVLogisticMap logistic;
-    HCVIkedaMap ikeda;
-    HCVStandardMap standard;
-    HCVTentMap tent;
-    HCVThomasMap thomas;
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
-
-    void renderChaos()
-    {
-        switch(mode)
-        {
-            case 0: //crackle
-                crackle.setDensity(chaosAmount);
-                crackle.setBrokenMode(false);
-                crackle.generateStereo();
-                xVal = crackle.outL;
-                yVal = crackle.outR;
-                break;
-            
-            case 1: //broken crackle
-                crackle.setDensity(chaosAmount);
-                crackle.setBrokenMode(true);
-                crackle.generateStereo();
-                xVal = crackle.outL;
-                yVal = crackle.outR;
-                break;
-                
-            case 2: //ikeda
-                ikeda.setChaosAmount(chaosAmount);
-                ikeda.generate();
-                xVal = ikeda.out1;
-                yVal = ikeda.out2;
-                break;
-                
-            case 3: //logistic
-                logistic.setChaosAmount(chaosAmount);
-                logistic.generate();
-                xVal = logistic.out1;
-                yVal = logistic.out2;
-                break;
-                
-            case 4: //standard
-                standard.setChaosAmount(chaosAmount);
-                standard.generate();
-                xVal = standard.out1;
-                yVal = standard.out2;
-                break;
-                
-            case 5: //tent
-                tent.setChaosAmount(chaosAmount);
-                tent.generate();
-                xVal = tent.out1;
-                yVal = tent.out2;
-                break;
-
-            case 6: //thomas
-                thomas.setChaosAmount(chaosAmount);
-                thomas.generate();
-                xVal = thomas.out1;
-                yVal = thomas.out2;
-                break;
-
-
-            default:            
-                break;
-        }
-
     }
 
-    void resetChaos()
-    {
-        switch(mode)
-        {
-            case 0: //crackle
-                crackle.reset();
-                break;
-            
-            case 1: //broken crackle
-                crackle.reset();
-                break;
-                
-            case 2: //ikeda
-                ikeda.reset();
-                break;
-                
-            case 3: //logistic
-                logistic.reset();
-                break;
-                
-            case 4: //standard
-                standard.reset();
-                break;
-                
-            case 5: //tent
-                tent.reset();
-                break;
+    void process(const ProcessArgs &args) override;
 
-            case 6: //thomas
-                thomas.reset();
-                break;
-                
-            default:
-            
-                break;
-        }
-        
-        sRate.reset();
-    }
+    // Arrays for polyphonic support
+    float xVal[16] = {}, yVal[16] = {};
+    int mode[16] = {};
+    float chaosAmount[16] = {};
+
+    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slewX[16], slewY[16];
+    HCVDCFilterT<simd::float_4> dcFilter[16];
+
+    // Per-channel chaos generators
+    HCVCrackle crackle[16];
+    HCVLogisticMap logistic[16];
+    HCVIkedaMap ikeda[16];
+    HCVStandardMap standard[16];
+    HCVTentMap tent[16];
+    HCVThomasMap thomas[16];
+
+    void renderChaos(int channel);
+    void resetChaos(int channel);
 };
+
+void Chaos1Op::renderChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //crackle
+            crackle[channel].setDensity(chaosAmount[channel]);
+            crackle[channel].setBrokenMode(false);
+            crackle[channel].generateStereo();
+            xVal[channel] = crackle[channel].outL;
+            yVal[channel] = crackle[channel].outR;
+            break;
+        
+        case 1: //broken crackle
+            crackle[channel].setDensity(chaosAmount[channel]);
+            crackle[channel].setBrokenMode(true);
+            crackle[channel].generateStereo();
+            xVal[channel] = crackle[channel].outL;
+            yVal[channel] = crackle[channel].outR;
+            break;
+            
+        case 2: //ikeda
+            ikeda[channel].setChaosAmount(chaosAmount[channel]);
+            ikeda[channel].generate();
+            xVal[channel] = ikeda[channel].out1;
+            yVal[channel] = ikeda[channel].out2;
+            break;
+            
+        case 3: //logistic
+            logistic[channel].setChaosAmount(chaosAmount[channel]);
+            logistic[channel].generate();
+            xVal[channel] = logistic[channel].out1;
+            yVal[channel] = logistic[channel].out2;
+            break;
+            
+        case 4: //standard
+            standard[channel].setChaosAmount(chaosAmount[channel]);
+            standard[channel].generate();
+            xVal[channel] = standard[channel].out1;
+            yVal[channel] = standard[channel].out2;
+            break;
+            
+        case 5: //tent
+            tent[channel].setChaosAmount(chaosAmount[channel]);
+            tent[channel].generate();
+            xVal[channel] = tent[channel].out1;
+            yVal[channel] = tent[channel].out2;
+            break;
+
+        case 6: //thomas
+            thomas[channel].setChaosAmount(chaosAmount[channel]);
+            thomas[channel].generate();
+            xVal[channel] = thomas[channel].out1;
+            yVal[channel] = thomas[channel].out2;
+            break;
+
+        default:            
+            break;
+    }
+}
+
+void Chaos1Op::resetChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //crackle
+        case 1: //broken crackle
+            crackle[channel].reset();
+            break;
+            
+        case 2: //ikeda
+            ikeda[channel].reset();
+            break;
+            
+        case 3: //logistic
+            logistic[channel].reset();
+            break;
+            
+        case 4: //standard
+            standard[channel].reset();
+            break;
+            
+        case 5: //tent
+            tent[channel].reset();
+            break;
+
+        case 6: //thomas
+            thomas[channel].reset();
+            break;
+            
+        default:
+            break;
+    }
+    
+    sRate[channel].reset();
+}
 
 void Chaos1Op::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage());
-    modeValue = clamp(modeValue, 0.0, 6.0);
-    mode = (int) std::round(modeValue);
-
-    if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        resetChaos();
-        sRate.reset();
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+        float finalSr = sr*sr*sr;
+
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getPolyVoltage(c));
+        modeValue = clamp(modeValue, 0.0, 6.0);
+        mode[c] = (int) std::round(modeValue);
+
+        if(reseedTrigger[c].process(inputs[RESEED_INPUT].getPolyVoltage(c) + (c == 0 ? params[RESEED_PARAM].getValue() : 0.0f)))
+        {
+            resetChaos(c);
+        }
+
+        if(isReady)
+        {   
+            chaosAmount[c] = getNormalizedModulatedValue(CHAOS_PARAM, CHAOS_INPUT, CHAOS_SCALE_PARAM, c);
+
+            renderChaos(c);
+            slewX[c].setTargetValue(xVal[c]);
+            slewY[c].setTargetValue(yVal[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slewX[c].setSRFactor(sRate[c].getSampleRateFactor());
+            slewY[c].setSRFactor(sRate[c].getSampleRateFactor());
+            xVal[c] = slewX[c]();
+            yVal[c] = slewY[c]();
+        }
+
+        simd::float_4 filteredOut = {xVal[c], yVal[c], 0.0f, 0.0f};
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f, c);
+        outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f, c);
     }
 
-    if(isReady)
-    {   
-        chaosAmount = getNormalizedModulatedValue(CHAOS_PARAM, CHAOS_INPUT, CHAOS_SCALE_PARAM);
-
-        renderChaos();
-        slewX.setTargetValue(xVal);
-        slewY.setTargetValue(yVal);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slewX.setSRFactor(sRate.getSampleRateFactor());
-        slewY.setSRFactor(sRate.getSampleRateFactor());
-        xVal = slewX();
-        yVal = slewY();
-    }
-
-    simd::float_4 filteredOut = {xVal, yVal, 0.0f, 0.0f};
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
-    outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
-
+    // Lights show the state of channel 0
     for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[MODE_LIGHTS + i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode[0] == i ? 1.0f : 0.0f);
     }
-
-    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
-    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
+    
+    setBipolarLightBrightness(XOUT_LIGHT, outputs[X_OUTPUT].getVoltage(0) * 0.2f);
+    setBipolarLightBrightness(YOUT_LIGHT, outputs[Y_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

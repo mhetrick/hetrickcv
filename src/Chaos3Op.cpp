@@ -81,100 +81,111 @@ struct Chaos3Op : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    float lastOut = 0.0f;
+    // Arrays for polyphonic support
+    float lastOut[16] = {};
+    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {};
 
-    float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f;
-
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
-
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slew;
-    HCVDCFilterT<float> dcFilter;
-
-    HCVLCCMap lcc;
-    HCVQuadraticMap quadratic;
-
+    // Single boolean for all channels (front-panel switch)
     bool quadraticMode = false;
+
+    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slew[16];
+    HCVDCFilterT<float> dcFilter[16];
+
+    // Per-channel chaos generators
+    HCVLCCMap lcc[16];
+    HCVQuadraticMap quadratic[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 
-    void renderChaos()
+    void renderChaos(int channel)
     {
         if (quadraticMode)
         {
-            quadratic.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC);
-            quadratic.generate();
-            lastOut = quadratic.out;
+            quadratic[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel]);
+            quadratic[channel].generate();
+            lastOut[channel] = quadratic[channel].out;
         }
         else
         {
-            lcc.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC);
-            lcc.generate();
-            lastOut = lcc.out;
+            lcc[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel]);
+            lcc[channel].generate();
+            lastOut[channel] = lcc[channel].out;
         }
 
     }
 
-    void resetChaos()
+    void resetChaos(int channel)
     {
         if (quadraticMode)
         {
-            quadratic.reset();
+            quadratic[channel].reset();
         }
         else
         {
-            lcc.reset();
+            lcc[channel].reset();
         }
+        
+        sRate[channel].reset();
     }
 };
 
 void Chaos3Op::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
-
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
-    {
-        resetChaos();
-        sRate.reset();
-    }
-
-    if(isReady)
-    {   
-        chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
-        chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
-        chaosAmountC = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM);
-
-        quadraticMode = params[MODE_PARAM].getValue();
-
-        renderChaos();
-        slew.setTargetValue(lastOut);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slew.setSRFactor(sRate.getSampleRateFactor());
-        lastOut = slew();
-    }
-
-    float filteredOut = lastOut;
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f);
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
     
-    setBipolarLightBrightness(OUT_LIGHT, filteredOut);
+    // Mode is global for all channels (front-panel switch)
+    quadraticMode = params[MODE_PARAM].getValue();
+
+    // Process each channel
+    for (int c = 0; c < channels; c++)
+    {
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+        float finalSr = sr*sr*sr;
+
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        if(reseedTrigger[c].process(inputs[RESEED_INPUT].getPolyVoltage(c) + (c == 0 ? params[RESEED_PARAM].getValue() : 0.0f)))
+        {
+            resetChaos(c);
+        }
+
+        if(isReady)
+        {   
+            chaosAmountA[c] = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM, c);
+            chaosAmountB[c] = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM, c);
+            chaosAmountC[c] = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM, c);
+
+            renderChaos(c);
+            slew[c].setTargetValue(lastOut[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slew[c].setSRFactor(sRate[c].getSampleRateFactor());
+            lastOut[c] = slew[c]();
+        }
+
+        float filteredOut = lastOut[c];
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[MAIN_OUTPUT].setVoltage(filteredOut * 5.0f, c);
+    }
+    
+    // Light shows the state of channel 0
+    setBipolarLightBrightness(OUT_LIGHT, outputs[MAIN_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

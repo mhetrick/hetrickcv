@@ -45,7 +45,8 @@ struct ChaoticAttractors : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {   ENUMS(MODE_LIGHTS, 8),
+    {   
+        ENUMS(MODE_LIGHTS, 8),
         ENUMS(XOUT_LIGHT, 2),
         ENUMS(YOUT_LIGHT, 2),
         ENUMS(ZOUT_LIGHT, 2),
@@ -90,6 +91,8 @@ struct ChaoticAttractors : HCVModule
         configInput(CHAOSC_INPUT, "Chaos C CV");
         configInput(CHAOSD_INPUT, "Chaos D CV");
 
+        configInput(MODE_INPUT, "Mode CV");
+
         configOutput(X_OUTPUT, "X");
         configOutput(Y_OUTPUT, "Y");
         configOutput(Z_OUTPUT, "Z");
@@ -99,215 +102,215 @@ struct ChaoticAttractors : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    float xVal = 0.0f, yVal = 0.0f, zVal = 0.0f;
-    int mode = 3;
+    // Arrays for polyphonic support
+    float xVal[16] = {}, yVal[16] = {}, zVal[16] = {};
+    int mode[16] = {};
+    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {}, chaosAmountD[16] = {};
 
-    float chaosAmountA = 0.0f, chaosAmountB = 0.0f, chaosAmountC = 0.0f, chaosAmountD = 0.0f;
+    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
 
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slewX[16], slewY[16], slewZ[16];
+    HCVDCFilterT<simd::float_4> dcFilter[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slewX, slewY, slewZ;
-    HCVDCFilterT<simd::float_4> dcFilter;
+    // Per-channel chaos generators
+    HCVDeJongMap dejong[16];
+    HCVLatoocarfianMap latoocarfian[16];
+    HCVCliffordMap clifford[16];
+    HCVTinkerbellMap tinkerbell[16];
+    HCVLorenzMap lorenz[16];
+    HCVRosslerMap rossler[16];
+    HCVPickoverMap pickover[16];
+    HCVFitzhughNagumoMap fitzhugh[16];
 
-    HCVDeJongMap dejong;
-    HCVLatoocarfianMap latoocarfian;
-    HCVCliffordMap clifford;
-    HCVTinkerbellMap tinkerbell;
-    HCVLorenzMap lorenz;
-    HCVRosslerMap rossler;
-    HCVPickoverMap pickover;
-    HCVFitzhughNagumoMap fitzhugh;
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
-
-    void renderChaos()
-    {
-        switch(mode)
-        {
-            case 0: //dejong
-                dejong.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                dejong.generate();
-                xVal = dejong.outX;
-                yVal = dejong.outY;
-                zVal = dejong.outZ;
-                break;
-            
-            case 1: //latoocarfian
-                latoocarfian.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                latoocarfian.generate();
-                xVal = latoocarfian.outX;
-                yVal = latoocarfian.outY;
-                zVal = latoocarfian.outZ;
-                break;
-                
-            case 2: //clifford
-                clifford.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                clifford.generate();
-                xVal = clifford.outX;
-                yVal = clifford.outY;
-                zVal = clifford.outZ;
-                break;
-                
-            case 3: //tinkerbell
-                tinkerbell.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                tinkerbell.generate();
-                xVal = tinkerbell.outX;
-                yVal = tinkerbell.outY;
-                zVal = tinkerbell.outZ;
-                break;
-                
-            case 4: //lorenz
-                lorenz.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                lorenz.generate();
-                xVal = lorenz.outX;
-                yVal = lorenz.outY;
-                zVal = lorenz.outZ;
-                break;
-                
-            case 5: //rossler
-                rossler.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                rossler.generate();
-                xVal = rossler.outX;
-                yVal = rossler.outY;
-                zVal = rossler.outZ;
-                break;
-            
-            case 6: //pickover
-                pickover.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                pickover.generate();
-                xVal = pickover.outX;
-                yVal = pickover.outY;
-                zVal = pickover.outZ;
-                break;
-                
-            case 7: //fitzhugh-nagumo
-                fitzhugh.setChaosAmount(chaosAmountA, chaosAmountB, chaosAmountC, chaosAmountD);
-                fitzhugh.generate();
-                xVal = fitzhugh.outX;
-                yVal = fitzhugh.outY;
-                zVal = fitzhugh.outZ;
-                break;
-            
-                
-            default:
-            
-                break;
-        }
-
-    }
-
-    void resetChaos()
-    {
-        switch(mode)
-        {
-            case 0: //dejong
-                dejong.reset();
-                break;
-            
-            case 1: //latoocarfian
-                latoocarfian.reset();
-                break;
-                
-            case 2: //clifford
-                clifford.reset();
-                break;
-                
-            case 3: //tinkerbell
-                tinkerbell.reset();
-                break;
-                
-            case 4: //lorenz
-                lorenz.reset();
-                break;
-                
-            case 5: //rossler
-                rossler.reset();
-                break;
-            
-            case 6: //pickover
-                pickover.reset();
-                break;
-                
-            case 7: //fitzhugh-nagumo
-                fitzhugh.reset();
-                break;
-            
-                
-            default:
-            
-                break;
-        }
-        
-        sRate.reset();
-    }
+    void renderChaos(int channel);
+    void resetChaos(int channel);
 };
+
+void ChaoticAttractors::renderChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //dejong
+            dejong[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            dejong[channel].generate();
+            xVal[channel] = dejong[channel].outX;
+            yVal[channel] = dejong[channel].outY;
+            zVal[channel] = dejong[channel].outZ;
+            break;
+        
+        case 1: //latoocarfian
+            latoocarfian[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            latoocarfian[channel].generate();
+            xVal[channel] = latoocarfian[channel].outX;
+            yVal[channel] = latoocarfian[channel].outY;
+            zVal[channel] = latoocarfian[channel].outZ;
+            break;
+            
+        case 2: //clifford
+            clifford[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            clifford[channel].generate();
+            xVal[channel] = clifford[channel].outX;
+            yVal[channel] = clifford[channel].outY;
+            zVal[channel] = clifford[channel].outZ;
+            break;
+            
+        case 3: //tinkerbell
+            tinkerbell[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            tinkerbell[channel].generate();
+            xVal[channel] = tinkerbell[channel].outX;
+            yVal[channel] = tinkerbell[channel].outY;
+            zVal[channel] = tinkerbell[channel].outZ;
+            break;
+            
+        case 4: //lorenz
+            lorenz[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            lorenz[channel].generate();
+            xVal[channel] = lorenz[channel].outX;
+            yVal[channel] = lorenz[channel].outY;
+            zVal[channel] = lorenz[channel].outZ;
+            break;
+            
+        case 5: //rossler
+            rossler[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            rossler[channel].generate();
+            xVal[channel] = rossler[channel].outX;
+            yVal[channel] = rossler[channel].outY;
+            zVal[channel] = rossler[channel].outZ;
+            break;
+        
+        case 6: //pickover
+            pickover[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            pickover[channel].generate();
+            xVal[channel] = pickover[channel].outX;
+            yVal[channel] = pickover[channel].outY;
+            zVal[channel] = pickover[channel].outZ;
+            break;
+            
+        case 7: //fitzhugh-nagumo
+            fitzhugh[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel], chaosAmountC[channel], chaosAmountD[channel]);
+            fitzhugh[channel].generate();
+            xVal[channel] = fitzhugh[channel].outX;
+            yVal[channel] = fitzhugh[channel].outY;
+            zVal[channel] = fitzhugh[channel].outZ;
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void ChaoticAttractors::resetChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //dejong
+            dejong[channel].reset();
+            break;
+        
+        case 1: //latoocarfian
+            latoocarfian[channel].reset();
+            break;
+            
+        case 2: //clifford
+            clifford[channel].reset();
+            break;
+            
+        case 3: //tinkerbell
+            tinkerbell[channel].reset();
+            break;
+            
+        case 4: //lorenz
+            lorenz[channel].reset();
+            break;
+            
+        case 5: //rossler
+            rossler[channel].reset();
+            break;
+        
+        case 6: //pickover
+            pickover[channel].reset();
+            break;
+            
+        case 7: //fitzhugh-nagumo
+            fitzhugh[channel].reset();
+            break;
+            
+        default:
+            break;
+    }
+    
+    sRate[channel].reset();
+}
 
 void ChaoticAttractors::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        resetChaos();
-        sRate.reset();
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+        float finalSr = sr*sr*sr;
+
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        if(reseedTrigger[c].process(inputs[RESEED_INPUT].getPolyVoltage(c) + (c == 0 ? params[RESEED_PARAM].getValue() : 0.0f)))
+        {
+            resetChaos(c);
+        }
+
+        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getPolyVoltage(c) * 0.8f);
+        modeValue = clamp(modeValue, 0.0, 7.0);
+        mode[c] = (int) std::round(modeValue);
+
+        if(isReady)
+        {   
+            chaosAmountA[c] = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM, c);
+            chaosAmountB[c] = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM, c);
+            chaosAmountC[c] = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM, c);
+            chaosAmountD[c] = getNormalizedModulatedValue(CHAOSD_PARAM, CHAOSD_INPUT, CHAOSD_SCALE_PARAM, c);
+
+            renderChaos(c);
+            slewX[c].setTargetValue(xVal[c]);
+            slewY[c].setTargetValue(yVal[c]);
+            slewZ[c].setTargetValue(zVal[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slewX[c].setSRFactor(sRate[c].getSampleRateFactor());
+            slewY[c].setSRFactor(sRate[c].getSampleRateFactor());
+            slewZ[c].setSRFactor(sRate[c].getSampleRateFactor());
+            xVal[c] = slewX[c]();
+            yVal[c] = slewY[c]();
+            zVal[c] = slewZ[c]();
+        }
+
+        simd::float_4 filteredOut = {xVal[c], yVal[c], zVal[c], 0.0f};
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f, c);
+        outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f, c);
+        outputs[Z_OUTPUT].setVoltage(filteredOut[2] * 5.0f, c);
     }
 
-    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
-    modeValue = clamp(modeValue, 0.0, 7.0);
-    mode = (int) std::round(modeValue);
-
-    if(isReady)
-    {   
-        chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
-        chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
-        chaosAmountC = getNormalizedModulatedValue(CHAOSC_PARAM, CHAOSC_INPUT, CHAOSC_SCALE_PARAM);
-        chaosAmountD = getNormalizedModulatedValue(CHAOSD_PARAM, CHAOSD_INPUT, CHAOSD_SCALE_PARAM);
-
-        renderChaos();
-        slewX.setTargetValue(xVal);
-        slewY.setTargetValue(yVal);
-        slewZ.setTargetValue(zVal);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slewX.setSRFactor(sRate.getSampleRateFactor());
-        slewY.setSRFactor(sRate.getSampleRateFactor());
-        slewZ.setSRFactor(sRate.getSampleRateFactor());
-        xVal = slewX();
-        yVal = slewY();
-        zVal = slewZ();
-    }
-
-    simd::float_4 filteredOut = {xVal, yVal, zVal, 0.0f};
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
-    outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
-    outputs[Z_OUTPUT].setVoltage(filteredOut[2] * 5.0f);
-
+    // Lights show the state of channel 0
     for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode[0] == i ? 1.0f : 0.0f);
     }
     
-    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
-    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
-    setBipolarLightBrightness(ZOUT_LIGHT, filteredOut[2]);
+    setBipolarLightBrightness(XOUT_LIGHT, outputs[X_OUTPUT].getVoltage(0) * 0.2f);
+    setBipolarLightBrightness(YOUT_LIGHT, outputs[Y_OUTPUT].getVoltage(0) * 0.2f);
+    setBipolarLightBrightness(ZOUT_LIGHT, outputs[Z_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

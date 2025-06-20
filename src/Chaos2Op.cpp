@@ -38,11 +38,12 @@ struct Chaos2Op : HCVModule
 		NUM_OUTPUTS
 	};
     enum LightIds
-    {   ENUMS(MODE_LIGHTS, 5),
+    {   
+        ENUMS(MODE_LIGHTS, 5),
         ENUMS(XOUT_LIGHT, 2),
         ENUMS(YOUT_LIGHT, 2),
         NUM_LIGHTS
-	};
+    };
 
 	Chaos2Op()
 	{
@@ -72,6 +73,7 @@ struct Chaos2Op : HCVModule
 
         configInput(CHAOSA_INPUT, "Chaos A CV");
         configInput(CHAOSB_INPUT, "Chaos B CV");
+        configInput(MODE_INPUT, "Mode CV");
 
         configOutput(X_OUTPUT, "X");
         configOutput(Y_OUTPUT, "Y");
@@ -81,163 +83,164 @@ struct Chaos2Op : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    float xVal = 0.0f, yVal = 0.0f;
-    int mode = 3;
+    // Arrays for polyphonic support
+    float xVal[16] = {}, yVal[16] = {};
+    int mode[16] = {};
+    float chaosAmountA[16] = {}, chaosAmountB[16] = {};
 
-    float chaosAmountA = 0.0f, chaosAmountB = 0.0f;
+    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
 
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slewX[16], slewY[16];
+    HCVDCFilterT<simd::float_4> dcFilter[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slewX, slewY;
-    HCVDCFilterT<simd::float_4> dcFilter;
+    // Per-channel chaos generators
+    HCVCuspMap cusp[16];
+    HCVGaussMap gauss[16];
+    HCVHenonMap henon[16];
+    HCVHetrickMap hetrick[16];
+    HCVMouseMap mouse[16];
 
-    HCVCuspMap cusp;
-    HCVGaussMap gauss;
-    HCVHenonMap henon;
-    HCVHetrickMap hetrick;
-    HCVMouseMap mouse;
-
-	// For more advanced Module features, read Rack's engine.hpp header file
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - reset, randomize: implements special behavior when user clicks these from the context menu
-
-    void renderChaos()
-    {
-        switch(mode)
-        {
-            case 0: //cusp
-                cusp.setChaosAmount(chaosAmountA, chaosAmountB);
-                cusp.generate();
-                xVal = cusp.out1;
-                yVal = cusp.out2;
-                break;
-            
-            case 1: //gauss
-                gauss.setChaosAmount(chaosAmountA, chaosAmountB);
-                gauss.generate();
-                xVal = gauss.out1;
-                yVal = gauss.out2;
-                break;
-                
-            case 2: //henon
-                henon.setChaosAmount(chaosAmountA, chaosAmountB);
-                henon.generate();
-                xVal = henon.out1;
-                yVal = henon.out2;
-                break;
-                
-            case 3: //hetrick
-                hetrick.setChaosAmount(chaosAmountA, chaosAmountB);
-                hetrick.generate();
-                xVal = hetrick.out1;
-                yVal = hetrick.out2;
-                break;
-                
-            case 4: //mouse
-                mouse.setChaosAmount(chaosAmountA, chaosAmountB);
-                mouse.generate();
-                xVal = mouse.out1;
-                yVal = mouse.out2;
-                break;
-                
-            default:
-            
-                break;
-        }
-
-    }
-
-    void resetChaos()
-    {
-        switch(mode)
-        {
-            case 0: //cusp
-                cusp.reset();
-                break;
-            
-            case 1: //gauss
-                gauss.reset();
-                break;
-                
-            case 2: //henon
-                henon.reset();
-                break;
-                
-            case 3: //hetrick
-                hetrick.reset();
-                break;
-                
-            case 4: //mouse
-                mouse.reset();
-                break;
-                
-            default:
-            
-                break;
-        }
-        
-        sRate.reset();
-    }
+    void renderChaos(int channel);
+    void resetChaos(int channel);
 };
+
+void Chaos2Op::renderChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //cusp
+            cusp[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel]);
+            cusp[channel].generate();
+            xVal[channel] = cusp[channel].out1;
+            yVal[channel] = cusp[channel].out2;
+            break;
+        
+        case 1: //gauss
+            gauss[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel]);
+            gauss[channel].generate();
+            xVal[channel] = gauss[channel].out1;
+            yVal[channel] = gauss[channel].out2;
+            break;
+            
+        case 2: //henon
+            henon[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel]);
+            henon[channel].generate();
+            xVal[channel] = henon[channel].out1;
+            yVal[channel] = henon[channel].out2;
+            break;
+            
+        case 3: //hetrick
+            hetrick[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel]);
+            hetrick[channel].generate();
+            xVal[channel] = hetrick[channel].out1;
+            yVal[channel] = hetrick[channel].out2;
+            break;
+            
+        case 4: //mouse
+            mouse[channel].setChaosAmount(chaosAmountA[channel], chaosAmountB[channel]);
+            mouse[channel].generate();
+            xVal[channel] = mouse[channel].out1;
+            yVal[channel] = mouse[channel].out2;
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void Chaos2Op::resetChaos(int channel)
+{
+    switch(mode[channel])
+    {
+        case 0: //cusp
+            cusp[channel].reset();
+            break;
+        
+        case 1: //gauss
+            gauss[channel].reset();
+            break;
+            
+        case 2: //henon
+            henon[channel].reset();
+            break;
+            
+        case 3: //hetrick
+            hetrick[channel].reset();
+            break;
+            
+        case 4: //mouse
+            mouse[channel].reset();
+            break;
+            
+        default:
+            break;
+    }
+    
+    sRate[channel].reset();
+}
 
 void Chaos2Op::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
-    float finalSr = sr*sr*sr;
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        resetChaos();
-        sRate.reset();
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+        float finalSr = sr*sr*sr;
+
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        if(reseedTrigger[c].process(inputs[RESEED_INPUT].getPolyVoltage(c) + (c == 0 ? params[RESEED_PARAM].getValue() : 0.0f)))
+        {
+            resetChaos(c);
+        }
+
+        float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getPolyVoltage(c) * 0.8f);
+        modeValue = clamp(modeValue, 0.0, 4.0);
+        mode[c] = (int) std::round(modeValue);
+
+        if(isReady)
+        {   
+            chaosAmountA[c] = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM, c);
+            chaosAmountB[c] = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM, c);
+
+            renderChaos(c);
+            slewX[c].setTargetValue(xVal[c]);
+            slewY[c].setTargetValue(yVal[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slewX[c].setSRFactor(sRate[c].getSampleRateFactor());
+            slewY[c].setSRFactor(sRate[c].getSampleRateFactor());
+            xVal[c] = slewX[c]();
+            yVal[c] = slewY[c]();
+        }
+
+        simd::float_4 filteredOut = {xVal[c], yVal[c], 0.0f, 0.0f};
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f, c);
+        outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f, c);
     }
 
-    float modeValue = params[MODE_PARAM].getValue() + (params[MODE_SCALE_PARAM].getValue() * inputs[MODE_INPUT].getVoltage() * 0.8f);
-    modeValue = clamp(modeValue, 0.0, 4.0);
-    mode = (int) std::round(modeValue);
-
-    if(isReady)
-    {   
-        chaosAmountA = getNormalizedModulatedValue(CHAOSA_PARAM, CHAOSA_INPUT, CHAOSA_SCALE_PARAM);
-        chaosAmountB = getNormalizedModulatedValue(CHAOSB_PARAM, CHAOSB_INPUT, CHAOSB_SCALE_PARAM);
-
-        renderChaos();
-        slewX.setTargetValue(xVal);
-        slewY.setTargetValue(yVal);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slewX.setSRFactor(sRate.getSampleRateFactor());
-        slewY.setSRFactor(sRate.getSampleRateFactor());
-        xVal = slewX();
-        yVal = slewY();
-    }
-
-    simd::float_4 filteredOut = {xVal, yVal, 0.0f, 0.0f};
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[X_OUTPUT].setVoltage(filteredOut[0] * 5.0f);
-    outputs[Y_OUTPUT].setVoltage(filteredOut[1] * 5.0f);
-
+    // Lights show the state of channel 0
     for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
     {
-        lights[MODE_LIGHTS + i].setBrightness(mode == i ? 1.0f : 0.0f);
+        lights[MODE_LIGHTS + i].setBrightness(mode[0] == i ? 1.0f : 0.0f);
     }
 
-    setBipolarLightBrightness(XOUT_LIGHT, filteredOut[0]);
-    setBipolarLightBrightness(YOUT_LIGHT, filteredOut[1]);
-    
+    setBipolarLightBrightness(XOUT_LIGHT, outputs[X_OUTPUT].getVoltage(0) * 0.2f);
+    setBipolarLightBrightness(YOUT_LIGHT, outputs[Y_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

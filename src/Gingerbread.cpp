@@ -63,14 +63,14 @@ struct Gingerbread : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    float lastOut = 0.0f;
-    bool bipolar = true;
-    rack::dsp::SchmittTrigger clockTrigger, reseedTrigger;
+    // Arrays for polyphonic support
+    float lastOut[16] = {};
+    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
 
-    HCVSampleRate sRate;
-    HCVSRateInterpolator slew;
-    HCVGingerbreadMap gingerbread;
-    HCVDCFilter dcFilter;
+    HCVSampleRate sRate[16];
+    HCVSRateInterpolator slew[16];
+    HCVGingerbreadMap gingerbread[16];
+    HCVDCFilter dcFilter[16];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
@@ -78,49 +78,57 @@ struct Gingerbread : HCVModule
 	// - reset, randomize: implements special behavior when user clicks these from the context menu
 };
 
-
 void Gingerbread::process(const ProcessArgs &args)
 {
-    float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getVoltage() * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
-    sr = clamp(sr, 0.01f, 1.0f);
+    // Determine the number of channels based on connected inputs
+    int channels = setupPolyphonyForAllOutputs();
 
-    double feedbackCV = getNormalizedModulatedValue(FB_PARAM, FB_INPUT, FB_SCALE_PARAM);
-    double feedback = feedbackCV * lastOut * 0.1f;
-    sr = clamp(sr + feedback, 0.01f, 1.0f);
-
-    float finalSr = sr*sr*sr;
-    finalSr = clamp(finalSr, 0.0f, 1.0f);
-
-    if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
-    sRate.setSampleRateFactor(finalSr);
-
-    bool isReady = sRate.readyForNextSample();
-    if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger.process(inputs[CLOCK_INPUT].getVoltage());
-
-    if(reseedTrigger.process(inputs[RESEED_INPUT].getVoltage() + params[RESEED_PARAM].getValue()))
+    // Process each channel
+    for (int c = 0; c < channels; c++)
     {
-        gingerbread.reset();
-        sRate.reset();
+        float sr = params[SRATE_PARAM].getValue() + (inputs[SRATE_INPUT].getPolyVoltage(c) * params[SRATE_SCALE_PARAM].getValue() * 0.2f);
+        sr = clamp(sr, 0.01f, 1.0f);
+
+        double feedbackCV = getNormalizedModulatedValue(FB_PARAM, FB_INPUT, FB_SCALE_PARAM, c);
+        double feedback = feedbackCV * lastOut[c] * 0.1f;
+        sr = clamp(sr + feedback, 0.01f, 1.0f);
+
+        float finalSr = sr*sr*sr;
+        finalSr = clamp(finalSr, 0.0f, 1.0f);
+
+        if(params[RANGE_PARAM].getValue() < 0.1f) finalSr = finalSr * 0.01f;
+        sRate[c].setSampleRateFactor(finalSr);
+
+        bool isReady = sRate[c].readyForNextSample();
+        if(inputs[CLOCK_INPUT].isConnected()) isReady = clockTrigger[c].process(inputs[CLOCK_INPUT].getPolyVoltage(c));
+
+        if(reseedTrigger[c].process(inputs[RESEED_INPUT].getPolyVoltage(c) + (c == 0 ? params[RESEED_PARAM].getValue() : 0.0f)))
+        {
+            gingerbread[c].reset();
+            sRate[c].reset();
+        }
+
+        if(isReady)
+        {
+            lastOut[c] = gingerbread[c].generate();
+            slew[c].setTargetValue(lastOut[c]);
+        }
+
+        if(params[SLEW_PARAM].getValue() == 1.0f)
+        {
+            slew[c].setSRFactor(sRate[c].getSampleRateFactor());
+            lastOut[c] = slew[c]();
+        }
+
+        float filteredOut = lastOut[c];
+        dcFilter[c].setFader(params[DC_PARAM].getValue());
+        filteredOut = dcFilter[c].process(filteredOut);
+
+        outputs[MAIN_OUTPUT].setVoltage(filteredOut, c);
     }
 
-    if(isReady)
-    {
-        lastOut = gingerbread.generate();
-        slew.setTargetValue(lastOut);
-    }
-
-    if(params[SLEW_PARAM].getValue() == 1.0f)
-    {
-        slew.setSRFactor(sRate.getSampleRateFactor());
-        lastOut = slew();
-    }
-
-    float filteredOut = lastOut;
-    dcFilter.setFader(params[DC_PARAM].getValue());
-    filteredOut = dcFilter.process(filteredOut);
-
-    outputs[MAIN_OUTPUT].setVoltage(filteredOut);
-    setBipolarLightBrightness(OUT_LIGHT, filteredOut * 0.2f);
+    // Light shows the state of channel 0
+    setBipolarLightBrightness(OUT_LIGHT, outputs[MAIN_OUTPUT].getVoltage(0) * 0.2f);
 }
 
 

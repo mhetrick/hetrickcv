@@ -1,7 +1,7 @@
 # HetrickCV Changelog
 
 ## 2.5.3 (In Progress)
-- Add polyphony to ASR, Binary Gate, Binary Noise, Comparator, Delta, Dust.
+- Add polyphony to 1-Op Chaos, 2-Op Chaos, 3-Op Chaos, ASR, Binary Gate, Binary Noise, Chaotic Attractors, Comparator, Delta, Dust, Gingerbread Chaos.
 
 ## 2.5.2
 - Add Clock to Phasor.
