@@ -29,6 +29,7 @@ using namespace rack;
 extern Plugin *pluginInstance;
 
 extern Model *modelTwoToFour;
+extern Model *modelAmplitudeShaper;
 extern Model *modelAnalogToDigital;
 extern Model *modelASR;
 extern Model *modelBinaryCounter;

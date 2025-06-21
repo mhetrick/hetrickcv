@@ -8,6 +8,7 @@ void init(rack::Plugin *p) {
 	pluginInstance = p;
 
 	p->addModel(modelTwoToFour);
+	p->addModel(modelAmplitudeShaper);
 	p->addModel(modelAnalogToDigital);
 	p->addModel(modelASR);
 	p->addModel(modelBinaryCounter);

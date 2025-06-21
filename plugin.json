@@ -44,6 +44,18 @@
       ]
     },
     {
+      "slug": "AmplitudeShaper",
+      "name": "Amplitude Shaper",
+      "description": "Bipolar amplitude shaper.",
+      "tags": [
+        "Waveshaper",
+        "Distortion",
+        "Effect",
+        "Utility",
+        "Polyphonic"
+      ]
+    },
+    {
       "slug": "ASR",
       "name": "ASR",
       "description": "Analog shift register. Multi-stage sample and hold",
