@@ -1,6 +1,6 @@
 # HetrickCV Changelog
 
-## 2.5.4 (in progress)
+## 2.5.4
 - Add Amplitude Shaper.
 
 ## 2.5.3
