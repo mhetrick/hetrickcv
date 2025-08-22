@@ -89,12 +89,6 @@ struct Scanner : HCVModule
         return _in;
     }
 
-    float triShape(float _in)
-    {
-        _in = _in - round(_in);
-        return std::abs(_in + _in);
-    }
-
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data
 	// - onSampleRateChange: event triggered by a change of sample rate
