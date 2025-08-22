@@ -35,8 +35,8 @@ struct PhasorToClock : HCVModule
     static constexpr float MAX_STEPS = 64.0f;
     static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
 
-    HCVPhasorStepDetector stepDetectors[16];
-    HCVPhasorGateDetector gateDetectors[16];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorGateDetector gateDetectors[HCV_MAX_POLYPHONY];
 
 	PhasorToClock()
 	{

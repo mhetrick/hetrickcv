@@ -56,9 +56,9 @@ struct PhaseDrivenSequencer : HCVModule
     bool smartDetection = true;
     dsp::BooleanTrigger gateTriggers[NUM_STEPS];
 
-    HCVPhasorSlopeDetector slopeDetectors[16];
-    HCVPhasorStepDetector stepDetectors[16];
-    HCVTriggeredGate triggers[16];
+    HCVPhasorSlopeDetector slopeDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate triggers[HCV_MAX_POLYPHONY];
 
 	PhaseDrivenSequencer()
 	{

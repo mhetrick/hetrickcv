@@ -32,7 +32,7 @@ struct PhasorHumanizer : HCVModule
     static constexpr float MAX_STEPS = 64.0f;
     static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
 
-    HCVPhasorHumanizer humanizers[16];
+    HCVPhasorHumanizer humanizers[HCV_MAX_POLYPHONY];
 
 	PhasorHumanizer()
 	{

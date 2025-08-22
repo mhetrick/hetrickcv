@@ -41,7 +41,7 @@ struct PhasorStutter : HCVModule
     static constexpr float REPEATS_CV_SCALE = MAX_REPEATS/5.0f;
     static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
 
-    HCVPhasorStepDetector stepDetectors[16];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
 
 	PhasorStutter()
 	{

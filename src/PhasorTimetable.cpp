@@ -37,19 +37,19 @@ struct PhasorTimetable : HCVModule
         NUM_LIGHTS = NUM_OUTPUTS
 	};
 
-    HCVPhasorDivMult mult2[16];
-    HCVPhasorDivMult mult3[16];
-    HCVPhasorDivMult mult4[16];
-    HCVPhasorDivMult mult5[16];
-    HCVPhasorDivMult mult8[16];
+    HCVPhasorDivMult mult2[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult mult3[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult mult4[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult mult5[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult mult8[HCV_MAX_POLYPHONY];
 
-    HCVPhasorDivMult div2[16];
-    HCVPhasorDivMult div3[16];
-    HCVPhasorDivMult div4[16];
-    HCVPhasorDivMult div5[16];
-    HCVPhasorDivMult div8[16];
+    HCVPhasorDivMult div2[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult div3[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult div4[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult div5[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult div8[HCV_MAX_POLYPHONY];
 
-    rack::dsp::SchmittTrigger resetTrigger[16];
+    rack::dsp::SchmittTrigger resetTrigger[HCV_MAX_POLYPHONY];
 
 
 	PhasorTimetable()

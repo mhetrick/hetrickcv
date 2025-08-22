@@ -39,11 +39,11 @@ struct Boolean3 : HCVModule
 	};
 
     // Arrays for polyphonic support
-    HysteresisGate ins[16][3];
-    bool inA[16] = {};
-    bool inB[16] = {};
-    bool inC[16] = {};
-    float outs[16][6] = {};
+    HysteresisGate ins[HCV_MAX_POLYPHONY][3];
+    bool inA[HCV_MAX_POLYPHONY] = {};
+    bool inB[HCV_MAX_POLYPHONY] = {};
+    bool inC[HCV_MAX_POLYPHONY] = {};
+    float outs[HCV_MAX_POLYPHONY][6] = {};
 
 	Boolean3()
 	{

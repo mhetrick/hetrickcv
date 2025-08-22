@@ -77,7 +77,7 @@ struct PhasorRhythmGroup : HCVModule
         configOutput(SUBGROUPPHASOR_OUTPUT, "Subgroup Steps Phasors");
         configOutput(SUBGROUPTRIG_OUTPUT, "Subgroup Steps Triggers");
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < HCV_MAX_POLYPHONY; i++)
         {
             currentGroupSteps[i] = 1.0f;
             currentSubgroupSteps[i] = 1.0f;
@@ -87,16 +87,16 @@ struct PhasorRhythmGroup : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasorStepDetector stepDetectors[16];
-    HCVPhasorResetDetector mainResetDetectors[16];
-    HCVPhasorResetDetector groupResetDetectors[16];
-    HCVPhasorResetDetector subgroupResetDetectors[16];
-    HCVTriggeredGate mainTrigs[16];
-    HCVTriggeredGate groupTrigs[16];
-    HCVTriggeredGate subgroupTrigs[16];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector mainResetDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector groupResetDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector subgroupResetDetectors[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate mainTrigs[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate groupTrigs[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate subgroupTrigs[HCV_MAX_POLYPHONY];
 
-    float currentGroupSteps[16];
-    float currentSubgroupSteps[16];
+    float currentGroupSteps[HCV_MAX_POLYPHONY];
+    float currentSubgroupSteps[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

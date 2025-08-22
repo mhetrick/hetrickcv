@@ -65,10 +65,10 @@ struct Delta : HCVModule
 	}
 
     // Arrays for polyphonic support
-    HCVTriggeredGate ltTrig[16], gtTrig[16];
-    float lastInput[16] = {};
-    bool rising[16] = {};
-    bool falling[16] = {};
+    HCVTriggeredGate ltTrig[HCV_MAX_POLYPHONY], gtTrig[HCV_MAX_POLYPHONY];
+    float lastInput[HCV_MAX_POLYPHONY] = {};
+    bool rising[HCV_MAX_POLYPHONY] = {};
+    bool falling[HCV_MAX_POLYPHONY] = {};
 
 	void process(const ProcessArgs &args) override;
 

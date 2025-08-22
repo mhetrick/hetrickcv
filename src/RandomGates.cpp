@@ -82,13 +82,13 @@ struct RandomGates : HCVModule
     }
 
     // Arrays for polyphonic support
-    dsp::SchmittTrigger clockTrigger[16];
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
     dsp::SchmittTrigger modeTrigger;
 
-    HCVTriggeredGate trigger[16][8];
-    dsp::SchmittTrigger trigOut[16][8];
+    HCVTriggeredGate trigger[HCV_MAX_POLYPHONY][8];
+    dsp::SchmittTrigger trigOut[HCV_MAX_POLYPHONY][8];
 
-    bool active[16][8] = {};
+    bool active[HCV_MAX_POLYPHONY][8] = {};
     int mode = 0;
 
     json_t *dataToJson() override

@@ -20,9 +20,9 @@ struct Dust : HCVModule
 	};
 
     // Arrays for polyphonic support
-    float lastDensity[16] = {};
-    float densityScaled[16] = {};
-    float threshold[16] = {};
+    float lastDensity[HCV_MAX_POLYPHONY] = {};
+    float densityScaled[HCV_MAX_POLYPHONY] = {};
+    float threshold[HCV_MAX_POLYPHONY] = {};
 
 	Dust()
 	{

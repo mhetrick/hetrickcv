@@ -49,7 +49,7 @@ struct Comparator : HCVModule
 	}
 
     // Arrays for polyphonic support
-    HCVTriggeredGate ltTrig[16], gtTrig[16];
+    HCVTriggeredGate ltTrig[HCV_MAX_POLYPHONY], gtTrig[HCV_MAX_POLYPHONY];
 
 	void process(const ProcessArgs &args) override;
 

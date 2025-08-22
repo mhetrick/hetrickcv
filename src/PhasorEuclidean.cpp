@@ -128,7 +128,7 @@ struct PhasorEuclidean : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasorToEuclidean euclidean[16];
+    HCVPhasorToEuclidean euclidean[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

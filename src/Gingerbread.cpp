@@ -64,13 +64,13 @@ struct Gingerbread : HCVModule
 	void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float lastOut[16] = {};
-    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+    float lastOut[HCV_MAX_POLYPHONY] = {};
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY], reseedTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slew[16];
-    HCVGingerbreadMap gingerbread[16];
-    HCVDCFilter dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slew[HCV_MAX_POLYPHONY];
+    HCVGingerbreadMap gingerbread[HCV_MAX_POLYPHONY];
+    HCVDCFilter dcFilter[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

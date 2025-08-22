@@ -42,13 +42,13 @@ struct PhasorSplitter : HCVModule
 	};
 
     bool smartDetection = true;
-    int currentStep[16] = {0};
+    int currentStep[HCV_MAX_POLYPHONY] = {0};
 
-    HCVPhasorSlopeDetector slopeDetectors[16];
-    HCVPhasorStepDetector stepDetectors[16];
-    HCVPhasorResetDetector resetDetectors[16];
-    HCVPhasorDivMult divMults[16];
-    dsp::SchmittTrigger resetTrigger[16];
+    HCVPhasorSlopeDetector slopeDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector resetDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorDivMult divMults[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger resetTrigger[HCV_MAX_POLYPHONY];
 
 	PhasorSplitter()
 	{

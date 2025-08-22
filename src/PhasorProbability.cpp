@@ -42,9 +42,9 @@ struct PhasorProbability : HCVModule
 	};
 
     dsp::SchmittTrigger probButtonTrigger, outButtonTrigger;
-    HCVPhasorResetDetector resetDetectors[16];
-    bool outALogic[16];
-    bool outBLogic[16];
+    HCVPhasorResetDetector resetDetectors[HCV_MAX_POLYPHONY];
+    bool outALogic[HCV_MAX_POLYPHONY];
+    bool outBLogic[HCV_MAX_POLYPHONY];
     int probMode = 0;
 
     HCVRandom randomGen;

@@ -103,25 +103,25 @@ struct ChaoticAttractors : HCVModule
 	void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float xVal[16] = {}, yVal[16] = {}, zVal[16] = {};
-    int mode[16] = {};
-    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {}, chaosAmountD[16] = {};
+    float xVal[HCV_MAX_POLYPHONY] = {}, yVal[HCV_MAX_POLYPHONY] = {}, zVal[HCV_MAX_POLYPHONY] = {};
+    int mode[HCV_MAX_POLYPHONY] = {};
+    float chaosAmountA[HCV_MAX_POLYPHONY] = {}, chaosAmountB[HCV_MAX_POLYPHONY] = {}, chaosAmountC[HCV_MAX_POLYPHONY] = {}, chaosAmountD[HCV_MAX_POLYPHONY] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY], reseedTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slewX[16], slewY[16], slewZ[16];
-    HCVDCFilterT<simd::float_4> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slewX[HCV_MAX_POLYPHONY], slewY[HCV_MAX_POLYPHONY], slewZ[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<simd::float_4> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel chaos generators
-    HCVDeJongMap dejong[16];
-    HCVLatoocarfianMap latoocarfian[16];
-    HCVCliffordMap clifford[16];
-    HCVTinkerbellMap tinkerbell[16];
-    HCVLorenzMap lorenz[16];
-    HCVRosslerMap rossler[16];
-    HCVPickoverMap pickover[16];
-    HCVFitzhughNagumoMap fitzhugh[16];
+    HCVDeJongMap dejong[HCV_MAX_POLYPHONY];
+    HCVLatoocarfianMap latoocarfian[HCV_MAX_POLYPHONY];
+    HCVCliffordMap clifford[HCV_MAX_POLYPHONY];
+    HCVTinkerbellMap tinkerbell[HCV_MAX_POLYPHONY];
+    HCVLorenzMap lorenz[HCV_MAX_POLYPHONY];
+    HCVRosslerMap rossler[HCV_MAX_POLYPHONY];
+    HCVPickoverMap pickover[HCV_MAX_POLYPHONY];
+    HCVFitzhughNagumoMap fitzhugh[HCV_MAX_POLYPHONY];
 
     void renderChaos(int channel);
     void resetChaos(int channel);

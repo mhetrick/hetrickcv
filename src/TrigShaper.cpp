@@ -57,7 +57,7 @@ struct TrigShaper : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-	HCVDCFilter dcFilters[16];
+	HCVDCFilter dcFilters[HCV_MAX_POLYPHONY];
 
 	float upscale = 5.0f;
 	float downscale = 0.2f;

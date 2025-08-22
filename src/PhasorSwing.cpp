@@ -89,7 +89,7 @@ struct PhasorSwing : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasorSwingProcessor swingProcs[16];
+    HCVPhasorSwingProcessor swingProcs[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

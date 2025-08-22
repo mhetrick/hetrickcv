@@ -59,9 +59,9 @@ struct PhasorBurstGen : HCVModule
     const float REPEATS_CV_SCALAR = MAX_REPEATS/5.0f;
 
     dsp::SchmittTrigger cycleTrigger;
-    dsp::SchmittTrigger stopTriggers[16];
-    dsp::SchmittTrigger resetTriggers[16];
-    HCVTriggeredGate passTriggers[16];
+    dsp::SchmittTrigger stopTriggers[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger resetTriggers[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate passTriggers[HCV_MAX_POLYPHONY];
     bool cycling = false;
 
 	PhasorBurstGen()
@@ -143,8 +143,8 @@ struct PhasorBurstGen : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVBurstPhasor phasors[16];
-    HCVClockSync clockSyncs[16];
+    HCVBurstPhasor phasors[HCV_MAX_POLYPHONY];
+    HCVClockSync clockSyncs[HCV_MAX_POLYPHONY];
 
     json_t *dataToJson() override
     {

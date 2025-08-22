@@ -45,8 +45,8 @@ struct ASR : HCVModule
 	};
 
     // Arrays for polyphonic support
-    dsp::SchmittTrigger clockTrigger[16];
-    float stages[16][4] = {};
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
+    float stages[HCV_MAX_POLYPHONY][4] = {};
 
 	ASR()
 	{

@@ -87,17 +87,17 @@ struct FBSineChaos : HCVModule
     void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float xVal[16] = {}, yVal[16] = {};
-    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {}, chaosAmountD[16] = {};
+    float xVal[HCV_MAX_POLYPHONY] = {}, yVal[HCV_MAX_POLYPHONY] = {};
+    float chaosAmountA[HCV_MAX_POLYPHONY] = {}, chaosAmountB[HCV_MAX_POLYPHONY] = {}, chaosAmountC[HCV_MAX_POLYPHONY] = {}, chaosAmountD[HCV_MAX_POLYPHONY] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slewX[16], slewY[16];
-    HCVDCFilterT<simd::float_4> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slewX[HCV_MAX_POLYPHONY], slewY[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<simd::float_4> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel chaos generators
-    HCVFBSineChaos fbSine[16];
+    HCVFBSineChaos fbSine[HCV_MAX_POLYPHONY];
 
     // For more advanced Module features, read Rack's engine.hpp header file
     // - dataToJson, dataFromJson: serialization of internal data

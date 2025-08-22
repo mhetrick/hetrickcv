@@ -38,9 +38,9 @@ struct PhasorDivMult : HCVModule
 	};
 
 
-    HCVPhasorDivMult divMults[16];
-    dsp::SchmittTrigger resetTriggers[16];
-    dsp::SchmittTrigger resyncTriggers[16];
+    HCVPhasorDivMult divMults[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger resetTriggers[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger resyncTriggers[HCV_MAX_POLYPHONY];
     dsp::SchmittTrigger modeTrigger;
     int mode = 0;
 

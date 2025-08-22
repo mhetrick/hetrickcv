@@ -82,21 +82,21 @@ struct Chaos3Op : HCVModule
 	void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float lastOut[16] = {};
-    float chaosAmountA[16] = {}, chaosAmountB[16] = {}, chaosAmountC[16] = {};
+    float lastOut[HCV_MAX_POLYPHONY] = {};
+    float chaosAmountA[HCV_MAX_POLYPHONY] = {}, chaosAmountB[HCV_MAX_POLYPHONY] = {}, chaosAmountC[HCV_MAX_POLYPHONY] = {};
 
     // Single boolean for all channels (front-panel switch)
     bool quadraticMode = false;
 
-    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY], reseedTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slew[16];
-    HCVDCFilterT<float> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slew[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<float> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel chaos generators
-    HCVLCCMap lcc[16];
-    HCVQuadraticMap quadratic[16];
+    HCVLCCMap lcc[HCV_MAX_POLYPHONY];
+    HCVQuadraticMap quadratic[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

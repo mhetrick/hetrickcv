@@ -50,14 +50,14 @@ struct PhasorAnalyzer : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasorResetDetector resetDetectors[16];
-    HCVPhasorResetDetector jumpDetectors[16];
-    HCVPhasorSlopeDetector slopeDetectors[16];
-    HCVPhasorSlopeDetector kinkDetectors[16];
-    HCVTriggeredGate resetTriggers[16];
-    HCVTriggeredGate jumpTriggers[16];
+    HCVPhasorResetDetector resetDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector jumpDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorSlopeDetector slopeDetectors[HCV_MAX_POLYPHONY];
+    HCVPhasorSlopeDetector kinkDetectors[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate resetTriggers[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate jumpTriggers[HCV_MAX_POLYPHONY];
 
-    float lastSlope[16] = {};
+    float lastSlope[HCV_MAX_POLYPHONY] = {};
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

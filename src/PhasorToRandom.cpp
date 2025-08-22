@@ -37,7 +37,7 @@ struct PhasorToRandom : HCVModule
     static constexpr float STEPS_CV_SCALE = MAX_STEPS/5.0f;
 
     HCVRandom randomGenerator;
-    HCVPhasorStepDetector stepDetectors[16];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
     std::vector<std::vector<float>> randomVoltageArray;
 
 	PhasorToRandom()

@@ -84,22 +84,22 @@ struct Chaos2Op : HCVModule
 	void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float xVal[16] = {}, yVal[16] = {};
-    int mode[16] = {};
-    float chaosAmountA[16] = {}, chaosAmountB[16] = {};
+    float xVal[HCV_MAX_POLYPHONY] = {}, yVal[HCV_MAX_POLYPHONY] = {};
+    int mode[HCV_MAX_POLYPHONY] = {};
+    float chaosAmountA[HCV_MAX_POLYPHONY] = {}, chaosAmountB[HCV_MAX_POLYPHONY] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY], reseedTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slewX[16], slewY[16];
-    HCVDCFilterT<simd::float_4> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slewX[HCV_MAX_POLYPHONY], slewY[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<simd::float_4> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel chaos generators
-    HCVCuspMap cusp[16];
-    HCVGaussMap gauss[16];
-    HCVHenonMap henon[16];
-    HCVHetrickMap hetrick[16];
-    HCVMouseMap mouse[16];
+    HCVCuspMap cusp[HCV_MAX_POLYPHONY];
+    HCVGaussMap gauss[HCV_MAX_POLYPHONY];
+    HCVHenonMap henon[HCV_MAX_POLYPHONY];
+    HCVHetrickMap hetrick[HCV_MAX_POLYPHONY];
+    HCVMouseMap mouse[HCV_MAX_POLYPHONY];
 
     void renderChaos(int channel);
     void resetChaos(int channel);

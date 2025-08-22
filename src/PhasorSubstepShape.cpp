@@ -69,7 +69,7 @@ struct PhasorSubstepShape : HCVModule
         random::init();
 	}
 
-    HCVPhasorStepDetector stepDetectors[16];
+    HCVPhasorStepDetector stepDetectors[HCV_MAX_POLYPHONY];
 
 	void process(const ProcessArgs &args) override;
     float phasorShape(float _phasor, float _parameter, int _mode);

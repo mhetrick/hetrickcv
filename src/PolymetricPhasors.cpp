@@ -48,9 +48,9 @@ struct PolymetricPhasors : HCVModule
 	};
 
 
-    HCVPhasorDivMult divMults[3][16];
-    HCVPhasorResetDetector resetDetectors[3][16];
-    dsp::SchmittTrigger resetTriggers[3][16];
+    HCVPhasorDivMult divMults[3][HCV_MAX_POLYPHONY];
+    HCVPhasorResetDetector resetDetectors[3][HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger resetTriggers[3][HCV_MAX_POLYPHONY];
 
     const float MAX_NUM_PULSES = 64.0f;
     const float PULSE_CV_SCALAR = MAX_NUM_PULSES/5.0f;

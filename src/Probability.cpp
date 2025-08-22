@@ -42,10 +42,10 @@ struct Probability : HCVModule
 	};
 
     dsp::SchmittTrigger probButtonTrigger, outButtonTrigger;
-    dsp::SchmittTrigger clockTrigger[16];
-    HCVTriggeredGate triggerA[16], triggerB[16];
-    bool outALogic[16];
-    bool outBLogic[16];
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
+    HCVTriggeredGate triggerA[HCV_MAX_POLYPHONY], triggerB[HCV_MAX_POLYPHONY];
+    bool outALogic[HCV_MAX_POLYPHONY];
+    bool outBLogic[HCV_MAX_POLYPHONY];
     int probMode = 0;
     int outMode = 2;
 

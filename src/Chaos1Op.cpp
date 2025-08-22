@@ -76,23 +76,23 @@ struct Chaos1Op : HCVModule
     void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float xVal[16] = {}, yVal[16] = {};
-    int mode[16] = {};
-    float chaosAmount[16] = {};
+    float xVal[HCV_MAX_POLYPHONY] = {}, yVal[HCV_MAX_POLYPHONY] = {};
+    int mode[HCV_MAX_POLYPHONY] = {};
+    float chaosAmount[HCV_MAX_POLYPHONY] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger[16], reseedTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY], reseedTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slewX[16], slewY[16];
-    HCVDCFilterT<simd::float_4> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slewX[HCV_MAX_POLYPHONY], slewY[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<simd::float_4> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel chaos generators
-    HCVCrackle crackle[16];
-    HCVLogisticMap logistic[16];
-    HCVIkedaMap ikeda[16];
-    HCVStandardMap standard[16];
-    HCVTentMap tent[16];
-    HCVThomasMap thomas[16];
+    HCVCrackle crackle[HCV_MAX_POLYPHONY];
+    HCVLogisticMap logistic[HCV_MAX_POLYPHONY];
+    HCVIkedaMap ikeda[HCV_MAX_POLYPHONY];
+    HCVStandardMap standard[HCV_MAX_POLYPHONY];
+    HCVTentMap tent[HCV_MAX_POLYPHONY];
+    HCVThomasMap thomas[HCV_MAX_POLYPHONY];
 
     void renderChaos(int channel);
     void resetChaos(int channel);

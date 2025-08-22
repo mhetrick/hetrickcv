@@ -71,23 +71,23 @@ struct ClockedNoise : HCVModule
 	void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    float outVal[16] = {};
-    int mode[16] = {};
-    float fluxNoise[16] = {};
+    float outVal[HCV_MAX_POLYPHONY] = {};
+    int mode[HCV_MAX_POLYPHONY] = {};
+    float fluxNoise[HCV_MAX_POLYPHONY] = {};
 
-    rack::dsp::SchmittTrigger clockTrigger[16];
+    rack::dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
 
-    HCVSampleRate sRate[16];
-    HCVSRateInterpolator slew[16];
-    HCVDCFilterT<float> dcFilter[16];
+    HCVSampleRate sRate[HCV_MAX_POLYPHONY];
+    HCVSRateInterpolator slew[HCV_MAX_POLYPHONY];
+    HCVDCFilterT<float> dcFilter[HCV_MAX_POLYPHONY];
 
     // Per-channel noise generators
-    HCVRandom randGen[16];
-    gam::NoiseWhite<> whiteNoise[16];
-    gam::NoisePink<> pinkNoise[16];
-    gam::NoiseBrown<> brownNoise[16];
-    HCVLFSRNoise lfsrNoise[16];
-    HCVGrayNoise grayNoise[16];
+    HCVRandom randGen[HCV_MAX_POLYPHONY];
+    gam::NoiseWhite<> whiteNoise[HCV_MAX_POLYPHONY];
+    gam::NoisePink<> pinkNoise[HCV_MAX_POLYPHONY];
+    gam::NoiseBrown<> brownNoise[HCV_MAX_POLYPHONY];
+    HCVLFSRNoise lfsrNoise[HCV_MAX_POLYPHONY];
+    HCVGrayNoise grayNoise[HCV_MAX_POLYPHONY];
 
     void renderNoise(int channel);
 

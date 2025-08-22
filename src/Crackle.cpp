@@ -57,7 +57,7 @@ struct Crackle : HCVModule
 	
 	void resetCrackles()
 	{
-		for (int c = 0; c < 16; c++)
+		for (int c = 0; c < HCV_MAX_POLYPHONY; c++)
 		{
 			crackle[c].reset();
 		}
@@ -73,8 +73,8 @@ struct Crackle : HCVModule
     }
 
     // Arrays for polyphonic support
-    float lastDensity[16] = {};
-    HCVCrackle crackle[16];
+    float lastDensity[HCV_MAX_POLYPHONY] = {};
+    HCVCrackle crackle[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

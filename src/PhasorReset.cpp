@@ -48,8 +48,8 @@ struct PhasorReset : HCVModule
 		configOutput(MAIN_OUTPUT, "Phasor");
 	}
 
-    HCVPhasorDivMult divmults[16];
-    dsp::SchmittTrigger inputTriggers[16];
+    HCVPhasorDivMult divmults[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger inputTriggers[HCV_MAX_POLYPHONY];
 
 	void process(const ProcessArgs &args) override;
 };

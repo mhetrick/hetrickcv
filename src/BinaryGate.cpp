@@ -45,8 +45,8 @@ struct BinaryGate : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    bool gateState[16] = {};
-    dsp::SchmittTrigger onTrigger[16], offTrigger[16], toggleTrigger[16];
+    bool gateState[HCV_MAX_POLYPHONY] = {};
+    dsp::SchmittTrigger onTrigger[HCV_MAX_POLYPHONY], offTrigger[HCV_MAX_POLYPHONY], toggleTrigger[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

@@ -52,8 +52,8 @@ struct PhasorFreezer : HCVModule
 		configOutput(MAIN_OUTPUT, "Phasor");
 	}
 
-    HCVPhasorFreezer freezers[16];
-    dsp::SchmittTrigger inputTriggers[16];
+    HCVPhasorFreezer freezers[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger inputTriggers[HCV_MAX_POLYPHONY];
 
 	void process(const ProcessArgs &args) override;
 };

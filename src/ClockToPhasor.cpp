@@ -54,8 +54,8 @@ struct ClockToPhasor : HCVModule
 
 	void process(const ProcessArgs &args) override;
 
-    HCVPhasor phasors[16];
-    HCVClockSync clockSyncs[16];
+    HCVPhasor phasors[HCV_MAX_POLYPHONY];
+    HCVClockSync clockSyncs[HCV_MAX_POLYPHONY];
 
 	// For more advanced Module features, read Rack's engine.hpp header file
 	// - dataToJson, dataFromJson: serialization of internal data

@@ -33,9 +33,9 @@ struct GateDelay : HCVModule
         NUM_LIGHTS
 	};
 
-    dsp::SchmittTrigger clockTrigger[16];
-    HCVTriggerDelay delayGates[16];
-    float gateOuts[16];
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
+    HCVTriggerDelay delayGates[HCV_MAX_POLYPHONY];
+    float gateOuts[HCV_MAX_POLYPHONY];
     const float maxTime = 5.0f;
 
 	GateDelay()

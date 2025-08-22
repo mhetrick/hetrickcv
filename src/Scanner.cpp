@@ -67,7 +67,7 @@ struct Scanner : HCVModule
 		NUM_LIGHTS
 	};
     
-    HCVScanner scanners[16];
+    HCVScanner scanners[HCV_MAX_POLYPHONY];
 
 	Scanner()
 	{

@@ -28,6 +28,8 @@ extern Plugin *pluginInstance;
          V        
 */   
 
+#define HCV_MAX_POLYPHONY 16
+
 struct CKSSRot : SvgSwitch 
 {
 	CKSSRot() {

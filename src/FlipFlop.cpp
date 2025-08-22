@@ -33,10 +33,10 @@ struct FlipFlop : HCVModule
     };
 
     // Arrays for polyphonic support
-    dsp::SchmittTrigger clockTrigger[16];
-    float outs[16][4] = {};
-    bool toggle[16] = {};
-    bool dataIn[16] = {};
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
+    float outs[HCV_MAX_POLYPHONY][4] = {};
+    bool toggle[HCV_MAX_POLYPHONY] = {};
+    bool dataIn[HCV_MAX_POLYPHONY] = {};
 
     FlipFlop()
     {

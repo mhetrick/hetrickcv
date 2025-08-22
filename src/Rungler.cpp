@@ -76,13 +76,13 @@ struct Rungler : HCVModule
     void process(const ProcessArgs &args) override;
 
     // Arrays for polyphonic support
-    HCVRungler rungler[16];
-    dsp::SchmittTrigger clockTrigger[16];
-    float runglerOut[16] = {};
+    HCVRungler rungler[HCV_MAX_POLYPHONY];
+    dsp::SchmittTrigger clockTrigger[HCV_MAX_POLYPHONY];
+    float runglerOut[HCV_MAX_POLYPHONY] = {};
 
     void onReset() override
     {
-        for (int c = 0; c < 16; c++)
+        for (int c = 0; c < HCV_MAX_POLYPHONY; c++)
         {
             rungler[c].emptyRegister();
         }
