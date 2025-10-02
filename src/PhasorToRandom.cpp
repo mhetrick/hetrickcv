@@ -80,8 +80,6 @@ struct PhasorToRandom : HCVModule
 
     }
 
-
-    //TODO: Save random voltage array to JSON.
     json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
