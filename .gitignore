@@ -9,3 +9,4 @@ plugin.dll
 dep/
 cmake-build*
 *.afdesign~lock~
+.vscode/c_cpp_properties.json
