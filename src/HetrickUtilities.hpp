@@ -48,6 +48,58 @@ float frequencyToBipolarParamUnscalar(float _frequency);
 float lfoFrequencyToBipolarParamUnscalar(float _lfoFrequency);
 float clockMultToBipolarParamUnscalar(float _clockMult);
 
+// Voltage-to-normalized scaling helpers
+// Maps -5V to +5V → 0.0 to 1.0
+inline float bipolar5VToNormalized(float v) {
+    return clamp(v, -5.0f, 5.0f) * 0.1f + 0.5f;
+}
+
+// Maps 0V to +5V → 0.0 to 1.0
+inline float unipolar5VToNormalized(float v) {
+    return clamp(v, 0.0f, 5.0f) * 0.2f;
+}
+
+// Maps -5V to +5V → -1.0 to +1.0
+inline float bipolar5VToNormalizedBipolar(float v) {
+    return clamp(v, -5.0f, 5.0f) * 0.2f;
+}
+
+// Gate detection helper (standard VCV Rack threshold is 1.0V)
+inline bool isGateHigh(float voltage) {
+    return voltage >= 1.0f;
+}
+
+// Standard gate voltage magnitude (10V)
+constexpr float HCV_GATE_MAG = 10.0f;
+
+// Convert bool to gate voltage (0V or 10V)
+inline float boolToGate(bool state) {
+    return state ? HCV_GATE_MAG : 0.0f;
+}
+
+// Random bool with 50% probability
+inline bool randomBool() {
+    return random::uniform() < 0.5f;
+}
+
+// JSON serialization helpers for bool arrays
+inline void jsonWriteBoolArray(json_t* rootJ, const char* key, const bool* arr, int size) {
+    json_t* arrayJ = json_array();
+    for (int i = 0; i < size; i++) {
+        json_array_append_new(arrayJ, json_boolean(arr[i]));
+    }
+    json_object_set_new(rootJ, key, arrayJ);
+}
+
+inline void jsonReadBoolArray(json_t* rootJ, const char* key, bool* arr, int size) {
+    json_t* arrayJ = json_object_get(rootJ, key);
+    if (arrayJ) {
+        for (int i = 0; i < size; i++) {
+            json_t* elemJ = json_array_get(arrayJ, i);
+            if (elemJ) arr[i] = json_boolean_value(elemJ);
+        }
+    }
+}
 
 struct HCVModule : Module
 {
@@ -135,7 +187,17 @@ struct HCVModule : Module
         lights[_lightIndex].setBrightnessSmooth(outputs[_outputIndex].getVoltage() * _scale, APP->engine->getSampleTime() * 4.0f);
     }
 
-    static constexpr float HCV_GATE_MAG = 10.0f;
+    void setLightFromBool(int lightIndex, bool state)
+    {
+        lights[lightIndex].setBrightness(state ? 1.0f : 0.0f);
+    }
+
+    void setModeLights(int baseLightIndex, int numModes, int activeMode)
+    {
+        for (int i = 0; i < numModes; i++) {
+            lights[baseLightIndex + i].setBrightness(activeMode == i ? 1.0f : 0.0f);
+        }
+    }
 };
 
 //many thanks to Marc at Impromptu for these excellent classes.
