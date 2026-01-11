@@ -176,10 +176,7 @@ void ClockedNoise::process(const ProcessArgs &args)
     }
 
     // Lights show the state of channel 0
-    for (int i = 0; i <= MODE_LIGHTS_LAST; i++)
-    {
-        lights[MODE_LIGHTS + i].setBrightness(mode[0] == i ? 1.0f : 0.0f);
-    }
+    setModeLights(MODE_LIGHTS, MODE_LIGHTS_LAST + 1, mode[0]);
     
     setBipolarLightBrightness(OUT_LIGHT, outputs[MAIN_OUTPUT].getVoltage(0) * 0.2f);
 }

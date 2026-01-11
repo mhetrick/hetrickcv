@@ -151,8 +151,8 @@ void PhasorRandom::process(const ProcessArgs &args)
     }
     bool forceRandom = inputs[FORCE_INPUT].getVoltage() > 1.0f;
 
-    lights[FORCE_LIGHT].setBrightness(forceRandom ? 1.0f : 0.0f);
-    lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(FORCE_LIGHT, forceRandom);
+    setLightFromBool(ACTIVE_LIGHT, active);
     
 
     setLightFromOutput(OUT_LIGHT, RANDOM_OUTPUT);

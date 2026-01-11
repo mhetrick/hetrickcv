@@ -153,10 +153,7 @@ void PhasorDivMult::process(const ProcessArgs &args)
         outputs[GATES_OUTPUT].setVoltage(gate, i);
     }
 
-    for(int i = 0; i < 3; i++)
-    {
-        lights[MODE_LIGHT + i].setBrightness(mode == i ? 1.0f : 0.0f);
-    }
+    setModeLights(MODE_LIGHT, 3, mode);
 
     setLightFromOutput(GATE_LIGHT, GATES_OUTPUT);
 

@@ -93,7 +93,7 @@ void BinaryGate::process(const ProcessArgs &args)
     }
 
     // Light shows the state of channel 0
-    lights[GATE_LIGHT].setBrightness(gateState[0] ? 1.0f : 0.0f);
+    setLightFromBool(GATE_LIGHT, gateState[0]);
 }
 
 struct BinaryGateWidget : HCVModuleWidget { BinaryGateWidget(BinaryGate *module); };

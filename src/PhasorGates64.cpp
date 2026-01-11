@@ -238,7 +238,7 @@ void PhasorGates64::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
 
-    lights[RUN_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(RUN_LIGHT, active);
     setLightFromOutput(GATE_OUT_LIGHT, GATES_OUTPUT);
     setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
     setLightFromOutput(GATES_NOT_OUT_LIGHT, GATES_NOT_OUTPUT);

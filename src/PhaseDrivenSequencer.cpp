@@ -253,7 +253,7 @@ void PhaseDrivenSequencer::process(const ProcessArgs &args)
         lights[GATE_LIGHTS + 3 * i + 2].setSmoothBrightness(isPlaying && lightIndex == i, args.sampleTime); //blue
     }
 
-    lights[RUN_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(RUN_LIGHT, active);
     setLightFromOutput(STEPS_LIGHT, STEPS_OUTPUT, 0.2f);
     setLightFromOutput(SLEW_LIGHT, SLEW_OUTPUT, 0.2f);
     setLightFromOutput(SH_LIGHT, SH_OUTPUT, 0.2f);

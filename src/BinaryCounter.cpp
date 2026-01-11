@@ -250,14 +250,14 @@ void BinaryCounter::process(const ProcessArgs &args)
         outputs[OUT1_OUTPUT + i].setVoltage(outs[i]);
         outputs[POLY_OUTPUT].setVoltage(outs[i], i);
 
-        lights[IN1_LIGHT + i].value = ins[i] ? 1.0f : 0.0f;
+        setLightFromBool(IN1_LIGHT + i, ins[i]);
         lights[OUT1_LIGHT + i].value = outs[i];
-        lights[INV1_LIGHT + i].setBrightness(invState[i] ? 0.9 : 0.0);
+        setLightFromBool(INV1_LIGHT + i, invState[i]);
     }
 
-    lights[ADD_LIGHT].value = addTrigger.isHigh() ? 1.0f : 0.0f;
-    lights[SUBTRACT_LIGHT].value = subtractTrigger.isHigh() ? 1.0f : 0.0f;
-    lights[RESET_LIGHT].value = resetTrigger.isHigh() ? 1.0f : 0.0f;
+    setLightFromBool(ADD_LIGHT, addTrigger.isHigh());
+    setLightFromBool(SUBTRACT_LIGHT, subtractTrigger.isHigh());
+    setLightFromBool(RESET_LIGHT, resetTrigger.isHigh());
 
     outputs[POLY_OUTPUT].setChannels(8);
 }

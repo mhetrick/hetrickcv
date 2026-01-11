@@ -172,7 +172,7 @@ void PhasorSwing::process(const ProcessArgs &args)
         active = isGateHigh(inputs[ACTIVE_INPUT].getVoltage());
     }
 
-    lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(ACTIVE_LIGHT, active);
     
 
     setLightFromOutput(OUT_LIGHT, SWING_OUTPUT);

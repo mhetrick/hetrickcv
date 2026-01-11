@@ -202,7 +202,7 @@ void PhasorSplitter::process(const ProcessArgs &args)
     const float currentOutputValue = getOutput(PHASOR_OUTPUTS + currentStep[0]).getVoltage() * HCV_PHZ_DOWNSCALE;
     lights[STEP_LIGHTS + 2 * currentStep[0]].setBrightness(currentOutputValue);
 
-    lights[RUN_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(RUN_LIGHT, active);
 }
 
 struct PhasorSplitterWidget : HCVModuleWidget { PhasorSplitterWidget(PhasorSplitter *module); };

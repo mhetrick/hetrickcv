@@ -140,7 +140,7 @@ void PhasorSubstepShape::process(const ProcessArgs &args)
         active = isGateHigh(inputs[ACTIVE_INPUT].getVoltage());
     }
 
-    lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);
+    setLightFromBool(ACTIVE_LIGHT, active);
     setLightFromOutput(SHAPED_LIGHT, SHAPED_OUTPUT);
     setLightFromOutput(PHASORS_LIGHT, PHASORS_OUTPUT);
 }

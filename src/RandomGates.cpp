@@ -190,9 +190,7 @@ void RandomGates::process(const ProcessArgs &args)
     }
 
     // Lights show the state of channel 0
-    lights[MODE_TRIG_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
-    lights[MODE_HOLD_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
-    lights[MODE_GATE_LIGHT].setBrightness(mode == 2 ? 1.0f : 0.0f);
+    setModeLights(MODE_TRIG_LIGHT, 3, mode);
 
     for(int i = 0; i < 8; i++)
     {

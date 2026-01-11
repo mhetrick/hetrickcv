@@ -109,7 +109,7 @@ void PhasorShift::process(const ProcessArgs &args)
         outputs[GATES_OUTPUT].setVoltage(gate ? HCV_PHZ_GATESCALE : 0.0f, i);
     }
 
-    lights[QUANTIZE_LIGHT].setBrightness(quantize ? 1.0f : 0.0f);
+    setLightFromBool(QUANTIZE_LIGHT, quantize);
     setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);
     setLightFromOutput(GATES_LIGHT, GATES_OUTPUT);
 }

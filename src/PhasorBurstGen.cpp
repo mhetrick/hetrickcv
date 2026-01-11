@@ -274,7 +274,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
     setLightFromOutput(FINISH_LIGHT, FINISH_OUTPUT);
 
     const bool cycleMode = isGateHigh(inputs[CYCLE_INPUT].getVoltage()) ? !cycling : cycling;
-    lights[CYCLE_LIGHT].setBrightness(cycleMode ? 1.0f : 0.0f);
+    setLightFromBool(CYCLE_LIGHT, cycleMode);
 }
 
 

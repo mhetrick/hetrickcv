@@ -147,13 +147,8 @@ void AnalogToDigital::process(const ProcessArgs &args)
     if (modeTrigger.process(params[MODE_PARAM].getValue())) mode = (mode + 1) % 3;
     if (rectTrigger.process(params[RECTIFY_PARAM].getValue())) rectMode = (rectMode + 1) % 3;
 
-    lights[MODE_UNI8_LIGHT].setBrightness(mode == 0 ? 1.0f : 0.0f);
-    lights[MODE_BOFF_LIGHT].setBrightness(mode == 1 ? 1.0f : 0.0f);
-    lights[MODE_BSIG_LIGHT].setBrightness(mode == 2 ? 1.0f : 0.0f);
-
-    lights[RECT_NONE_LIGHT].setBrightness(rectMode == 0 ? 1.0f : 0.0f);
-    lights[RECT_HALF_LIGHT].setBrightness(rectMode == 1 ? 1.0f : 0.0f);
-    lights[RECT_FULL_LIGHT].setBrightness(rectMode == 2 ? 1.0f : 0.0f);
+    setModeLights(MODE_UNI8_LIGHT, 3, mode);
+    setModeLights(RECT_NONE_LIGHT, 3, rectMode);
 
     const bool syncModeEnabled = inputs[SYNC_INPUT].isConnected();
     const bool readyForProcess = (!syncModeEnabled || (syncModeEnabled && clockTrigger.process(inputs[SYNC_INPUT].getVoltage())));
