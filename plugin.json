@@ -654,8 +654,9 @@
     {
       "slug": "PhasorToWaveforms",
       "name": "Phasor to Waveforms",
-      "description": "Shapes incoming phasor signals to useful, static LFO waveshapes. These waveforms are not anti-aliased, hence the LFO designation.",
+      "description": "Shapes incoming phasor signals to waveforms. Toggle between LFO mode (no anti-aliasing) and Oscillator mode (band-limited wavetables).",
       "tags": [
+        "Oscillator",
         "Waveshaper",
         "Low-frequency Oscillator",
         "Polyphonic"
