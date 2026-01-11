@@ -169,21 +169,21 @@ void RandomGates::process(const ProcessArgs &args)
                     trigger[c][i].trigger();
                     active[c][i] = false;
                 }
-                outputs[i].setVoltage((trigger[c][i].process() ? HCV_GATE_MAG : 0.0f), c);
+                outputs[i].setVoltage(boolToGate(trigger[c][i].process()), c);
             }
             break;
 
             case 1: //hold mode
             for(int i = 0; i < 8; i++)
             {
-                outputs[i].setVoltage((active[c][i] ? HCV_GATE_MAG : 0.0f), c);
+                outputs[i].setVoltage(boolToGate(active[c][i]), c);
             }
             break;
 
             case 2: //gate mode
             for(int i = 0; i < 8; i++)
             {
-                outputs[i].setVoltage(((active[c][i] && clockHigh) ? HCV_GATE_MAG : 0.0f), c);
+                outputs[i].setVoltage(boolToGate(active[c][i] && clockHigh), c);
             }
             break;
         }

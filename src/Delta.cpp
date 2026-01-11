@@ -97,13 +97,13 @@ void Delta::process(const ProcessArgs &args)
         float boost = params[AMOUNT_PARAM].getValue() + (inputs[AMOUNT_INPUT].getPolyVoltage(c) * params[SCALE_PARAM].getValue());
         boost = clamp(boost, 0.0f, 5.0f) * 8000.0f + 1;
 
-        float gtTrigVoltage = gtTrig[c].process(rising[c]) ? HCV_GATE_MAG : 0.0f;
-        float ltTrigVoltage = ltTrig[c].process(falling[c]) ? HCV_GATE_MAG : 0.0f;
+        float gtTrigVoltage = boolToGate(gtTrig[c].process(rising[c]));
+        float ltTrigVoltage = boolToGate(ltTrig[c].process(falling[c]));
 
         outputs[GT_TRIG_OUTPUT].setVoltage(gtTrigVoltage, c);
         outputs[LT_TRIG_OUTPUT].setVoltage(ltTrigVoltage, c);
-        outputs[GT_GATE_OUTPUT].setVoltage(rising[c] ? HCV_GATE_MAG : 0.0f, c);
-        outputs[LT_GATE_OUTPUT].setVoltage(falling[c] ? HCV_GATE_MAG : 0.0f, c);
+        outputs[GT_GATE_OUTPUT].setVoltage(boolToGate(rising[c]), c);
+        outputs[LT_GATE_OUTPUT].setVoltage(boolToGate(falling[c]), c);
 
         float allTrigs = gtTrigVoltage + ltTrigVoltage;
         allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);

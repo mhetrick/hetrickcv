@@ -265,7 +265,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
         outputs[PULSES_OUTPUT].setVoltage(finished ? 0.0f : phasors[i].getPulse(), i); 
         outputs[PASS_OUTPUT].setVoltage(passTriggers[i].process(triggerPass) ? HCV_PHZ_GATESCALE : 0.0f, i);
 
-        outputs[FINISH_OUTPUT].setVoltage( finished ? HCV_GATE_MAG : 0.0f, i);
+        outputs[FINISH_OUTPUT].setVoltage(boolToGate(finished), i);
     }
 
     setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);

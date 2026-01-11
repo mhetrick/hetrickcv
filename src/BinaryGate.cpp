@@ -89,7 +89,7 @@ void BinaryGate::process(const ProcessArgs &args)
         }
 
         // Set output voltage for this channel
-        outputs[GATE_OUTPUT].setVoltage(gateState[c] ? HCV_GATE_MAG : 0.0f, c);
+        outputs[GATE_OUTPUT].setVoltage(boolToGate(gateState[c]), c);
     }
 
     // Light shows the state of channel 0

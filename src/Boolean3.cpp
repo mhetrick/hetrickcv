@@ -85,9 +85,9 @@ void Boolean3::process(const ProcessArgs &args)
         if(inputs[INC_INPUT].isConnected())
         {
             // 3-input logic operations
-            outs[c][0] = ((inA[c] || inB[c]) || inC[c]) ? HCV_GATE_MAG : 0.0f;  // OR
-            outs[c][1] = ((inA[c] && inB[c]) && inC[c]) ? HCV_GATE_MAG : 0.0f;  // AND
-            outs[c][2] = (!inA[c] && (inB[c] ^ inC[c])) || (inA[c] && !(inB[c] || inC[c])) ? HCV_GATE_MAG : 0.0f;  // XOR
+            outs[c][0] = boolToGate((inA[c] || inB[c]) || inC[c]);  // OR
+            outs[c][1] = boolToGate((inA[c] && inB[c]) && inC[c]);  // AND
+            outs[c][2] = boolToGate((!inA[c] && (inB[c] ^ inC[c])) || (inA[c] && !(inB[c] || inC[c])));  // XOR
             outs[c][3] = HCV_GATE_MAG - outs[c][0];  // NOR
             outs[c][4] = HCV_GATE_MAG - outs[c][1];  // NAND
             outs[c][5] = HCV_GATE_MAG - outs[c][2];  // XNOR
@@ -95,9 +95,9 @@ void Boolean3::process(const ProcessArgs &args)
         else
         {
             // 2-input logic operations (when C is not connected)
-            outs[c][0] = (inA[c] || inB[c]) ? HCV_GATE_MAG : 0.0f;  // OR
-            outs[c][1] = (inA[c] && inB[c]) ? HCV_GATE_MAG : 0.0f;  // AND
-            outs[c][2] = (inA[c] != inB[c]) ? HCV_GATE_MAG : 0.0f;  // XOR
+            outs[c][0] = boolToGate(inA[c] || inB[c]);  // OR
+            outs[c][1] = boolToGate(inA[c] && inB[c]);  // AND
+            outs[c][2] = boolToGate(inA[c] != inB[c]);  // XOR
             outs[c][3] = HCV_GATE_MAG - outs[c][0];  // NOR
             outs[c][4] = HCV_GATE_MAG - outs[c][1];  // NAND
             outs[c][5] = HCV_GATE_MAG - outs[c][2];  // XNOR
@@ -112,9 +112,9 @@ void Boolean3::process(const ProcessArgs &args)
     }
 
     // Lights show the state of channel 0
-    lights[INA_LIGHT].value = inA[0] ? HCV_GATE_MAG : 0.0f;
-    lights[INB_LIGHT].value = inB[0] ? HCV_GATE_MAG : 0.0f;
-    lights[INC_LIGHT].value = inC[0] ? HCV_GATE_MAG : 0.0f;
+    lights[INA_LIGHT].value = boolToGate(inA[0]);
+    lights[INB_LIGHT].value = boolToGate(inB[0]);
+    lights[INC_LIGHT].value = boolToGate(inC[0]);
 
     lights[OR_LIGHT].value = outs[0][0];
     lights[AND_LIGHT].value = outs[0][1];

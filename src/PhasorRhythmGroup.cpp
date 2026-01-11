@@ -138,20 +138,20 @@ void PhasorRhythmGroup::process(const ProcessArgs &args)
         }
 
         const float mainStepPhasor = stepDetectors[i].getFractionalStep();
-        const float mainStepTrig = mainTrigs[i].process(mainStepTriggered) ? HCV_GATE_MAG : 0.0f;
+        const float mainStepTrig = boolToGate(mainTrigs[i].process(mainStepTriggered));
 
         float groupPhasor = normalizedPhasor * steps;
         groupPhasor = gam::scl::wrap(groupPhasor, currentGroupSteps[i], 0.0f);
         const float normalizedGroupPhasor = groupPhasor/currentGroupSteps[i];
 
         bool groupTriggered = groupResetDetectors[i](normalizedGroupPhasor);
-        float groupTrig = groupTrigs[i].process(groupTriggered) && mainStepTrig ? HCV_GATE_MAG : 0.0f;
+        float groupTrig = boolToGate(groupTrigs[i].process(groupTriggered) && mainStepTrig);
 
         const float subgroupPhasor = gam::scl::wrap(groupPhasor, currentSubgroupSteps[i], 0.0f);
         const float normalizedSubgroupPhasor = subgroupPhasor/currentSubgroupSteps[i];
 
         bool subgroupTriggered = subgroupResetDetectors[i](normalizedSubgroupPhasor);
-        float subgroupTrig = subgroupTrigs[i].process(subgroupTriggered) && mainStepTrig ? HCV_GATE_MAG : 0.0f;
+        float subgroupTrig = boolToGate(subgroupTrigs[i].process(subgroupTriggered) && mainStepTrig);
 
         outputs[MAINPHASOR_OUTPUT].setVoltage(mainStepPhasor * HCV_PHZ_UPSCALE, i);
         outputs[MAINTRIG_OUTPUT].setVoltage(mainStepTrig, i);

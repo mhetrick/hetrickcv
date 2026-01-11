@@ -88,8 +88,8 @@ void FlipFlop::process(const ProcessArgs &args)
         {
             toggle[c] = !toggle[c];
 
-            outs[c][0] = toggle[c] ? HCV_GATE_MAG : 0.0f;
-            outs[c][1] = dataIn[c] ? HCV_GATE_MAG : 0.0f;
+            outs[c][0] = boolToGate(toggle[c]);
+            outs[c][1] = boolToGate(dataIn[c]);
 
             outs[c][2] = HCV_GATE_MAG - outs[c][0];
             outs[c][3] = HCV_GATE_MAG - outs[c][1];
@@ -102,7 +102,7 @@ void FlipFlop::process(const ProcessArgs &args)
     }
 
     // Lights show the state of channel 0
-    lights[DATA_LIGHT].value = dataIn[0] ? HCV_GATE_MAG : 0.0f;
+    lights[DATA_LIGHT].value = boolToGate(dataIn[0]);
     lights[TOGGLE_LIGHT].value = boolToGate(isGateHigh(inputs[INT_INPUT].getVoltage()));
 
     lights[FFT_LIGHT].value = outs[0][0];

@@ -90,7 +90,7 @@ void ClockToPhasor::process(const ProcessArgs &args)
 
         outputs[PHASOR_OUTPUT].setVoltage(phasors[i](), i);
         bool finishHigh = phasors[i].phasorFinishedThisSample();
-        outputs[FINISH_OUTPUT].setVoltage( finishHigh ? HCV_GATE_MAG : 0.0f, i);
+        outputs[FINISH_OUTPUT].setVoltage(boolToGate(finishHigh), i);
     }
 
     setLightFromOutput(PHASOR_LIGHT, PHASOR_OUTPUT);

@@ -229,8 +229,8 @@ void GateJunctionExp::process(const ProcessArgs &args)
         invertGate = invertGate || isGateHigh(inputs[INVERT1_INPUT + i].getVoltage());
         invertGate = invertGate || isGateHigh(inputs[POLY_INVERT_INPUT].getVoltage(i));
 
-        if (muteTrigger[i].process(muteGate  ? HCV_GATE_MAG : 0.0f)) muteState[i] ^= true;
-        if (invTrigger[i].process(invertGate ? HCV_GATE_MAG : 0.0f)) invState[i] ^= true;
+        if (muteTrigger[i].process(boolToGate(muteGate))) muteState[i] ^= true;
+        if (invTrigger[i].process(boolToGate(invertGate))) invState[i] ^= true;
 
         if(muteState[i]) ins[i] = 0.0f;
         else if(invState[i]) ins[i] = HCV_GATE_MAG - ins[i];

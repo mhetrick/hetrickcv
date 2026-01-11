@@ -78,13 +78,13 @@ void Comparator::process(const ProcessArgs &args)
         const bool greaterThan = (input > compare);
         const bool lessThan = (input < compare);
 
-        float gtTrigVoltage = gtTrig[c].process(greaterThan) ? HCV_GATE_MAG : 0.0f;
-        float ltTrigVoltage = ltTrig[c].process(lessThan) ? HCV_GATE_MAG : 0.0f;
+        float gtTrigVoltage = boolToGate(gtTrig[c].process(greaterThan));
+        float ltTrigVoltage = boolToGate(ltTrig[c].process(lessThan));
 
         outputs[GT_TRIG_OUTPUT].setVoltage(gtTrigVoltage, c);
         outputs[LT_TRIG_OUTPUT].setVoltage(ltTrigVoltage, c);
-        outputs[GT_GATE_OUTPUT].setVoltage(greaterThan ? HCV_GATE_MAG : 0.0f, c);
-        outputs[LT_GATE_OUTPUT].setVoltage(lessThan ? HCV_GATE_MAG : 0.0f, c);
+        outputs[GT_GATE_OUTPUT].setVoltage(boolToGate(greaterThan), c);
+        outputs[LT_GATE_OUTPUT].setVoltage(boolToGate(lessThan), c);
 
         float allTrigs = gtTrigVoltage + ltTrigVoltage;
         allTrigs = clamp(allTrigs, 0.0f, HCV_GATE_MAG);

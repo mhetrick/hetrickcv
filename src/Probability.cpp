@@ -168,15 +168,15 @@ void Probability::process(const ProcessArgs &args)
             }
         }
 
-        float aOut = outALogic[i] ? HCV_GATE_MAG : 0.0f;
-        float bOut = outBLogic[i] ? HCV_GATE_MAG : 0.0f;
+        float aOut = boolToGate(outALogic[i]);
+        float bOut = boolToGate(outBLogic[i]);
         bool clockHigh = inputs[GATE_INPUT].getPolyVoltage(i) > 0.9f;
 
         switch(outMode)
         {
             case 0: //trigger mode
-            outputs[OUTA_OUTPUT].setVoltage(triggerA[i].process() ? HCV_GATE_MAG : 0.0f, i);
-            outputs[OUTB_OUTPUT].setVoltage(triggerB[i].process() ? HCV_GATE_MAG : 0.0f, i);
+            outputs[OUTA_OUTPUT].setVoltage(boolToGate(triggerA[i].process()), i);
+            outputs[OUTB_OUTPUT].setVoltage(boolToGate(triggerB[i].process()), i);
             break;
 
             case 1: //hold mode

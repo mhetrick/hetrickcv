@@ -210,7 +210,7 @@ void BinaryCounter::process(const ProcessArgs &args)
         if (inputs[IN1_INPUT + i].isConnected()) ins[i] = isGateHigh(inputs[IN1_INPUT + i].getVoltage());
 
         bool invertGate = params[INV1_PARAM + i].getValue() >= 1.0f;
-        if (invTrigger[i].process(invertGate ? HCV_GATE_MAG : 0.0f)) invState[i] ^= true;
+        if (invTrigger[i].process(boolToGate(invertGate))) invState[i] ^= true;
 
         if(invState[i]) ins[i] = !ins[i];
     }
@@ -236,14 +236,14 @@ void BinaryCounter::process(const ProcessArgs &args)
         counter = 0;
     }
 
-    outs[0] = (counter & 0b00000001) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[1] = (counter & 0b00000010) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[2] = (counter & 0b00000100) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[3] = (counter & 0b00001000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[4] = (counter & 0b00010000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[5] = (counter & 0b00100000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[6] = (counter & 0b01000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
-    outs[7] = (counter & 0b10000000) > 0.0f ? HCV_GATE_MAG : 0.0f;
+    outs[0] = boolToGate(counter & 0b00000001);
+    outs[1] = boolToGate(counter & 0b00000010);
+    outs[2] = boolToGate(counter & 0b00000100);
+    outs[3] = boolToGate(counter & 0b00001000);
+    outs[4] = boolToGate(counter & 0b00010000);
+    outs[5] = boolToGate(counter & 0b00100000);
+    outs[6] = boolToGate(counter & 0b01000000);
+    outs[7] = boolToGate(counter & 0b10000000);
 
     for(int i = 0; i < 8; i++)
     {
