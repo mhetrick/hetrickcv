@@ -140,36 +140,19 @@ struct BinaryCounter : HCVModule
     {
         for (int i = 0; i < 8; i++)
         {
-            invState[i] = (random::uniform() < 0.5);
+            invState[i] = randomBool();
 		}
     }
 
     json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
-		// states
-        json_t *invStatesJ = json_array();
-        for (int i = 0; i < 8; i++)
-        {
-            json_t *invStateJ = json_boolean(invState[i]);
-			json_array_append_new(invStatesJ, invStateJ);
-		}
-        json_object_set_new(rootJ, "invStates", invStatesJ);
+        jsonWriteBoolArray(rootJ, "invStates", invState, 8);
 		return rootJ;
 	}
     void dataFromJson(json_t *rootJ) override
     {
-        // states
-        json_t *invStatesJ = json_object_get(rootJ, "invStates");
-        if (invStatesJ)
-        {
-            for (int i = 0; i < 8; i++)
-            {
-				json_t *stateJ = json_array_get(invStatesJ, i);
-				if (stateJ)
-					invState[i] = json_boolean_value(stateJ);
-			}
-		}
+        jsonReadBoolArray(rootJ, "invStates", invState, 8);
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file

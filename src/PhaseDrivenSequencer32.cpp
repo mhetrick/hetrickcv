@@ -112,29 +112,12 @@ struct PhaseDrivenSequencer32 : HCVModule
     json_t *dataToJson() override
     {
 		json_t *rootJ = json_object();
-		// states
-        json_t *gateStatesJ = json_array();
-        for (int i = 0; i < NUM_STEPS; i++)
-        {
-			json_t *gateStateJ = json_boolean(gates[i]);
-            json_array_append_new(gateStatesJ, gateStateJ);
-		}
-        json_object_set_new(rootJ, "gateStates", gateStatesJ);
+        jsonWriteBoolArray(rootJ, "gateStates", gates, NUM_STEPS);
 		return rootJ;
 	}
     void dataFromJson(json_t *rootJ) override
     {
-		// states
-        json_t *gateStatesJ = json_object_get(rootJ, "gateStates");
-        if (gateStatesJ)
-        {
-            for (int i = 0; i < NUM_STEPS; i++)
-            {
-				json_t *stateJ = json_array_get(gateStatesJ, i);
-				if (stateJ)
-					gates[i] = json_boolean_value(stateJ);
-			}
-        }
+        jsonReadBoolArray(rootJ, "gateStates", gates, NUM_STEPS);
 	}
 
 	// For more advanced Module features, read Rack's engine.hpp header file
