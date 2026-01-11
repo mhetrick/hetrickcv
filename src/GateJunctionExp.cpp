@@ -218,16 +218,16 @@ void GateJunctionExp::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        bool gateActive = (inputs[IN1_INPUT + i].getVoltage() >= 1.0f) || (inputs[POLY_INPUT].getVoltage(i) >= 1.0f);
-        ins[i] = gateActive ? HCV_GATE_MAG : 0.0f;
+        bool gateActive = isGateHigh(inputs[IN1_INPUT + i].getVoltage()) || isGateHigh(inputs[POLY_INPUT].getVoltage(i));
+        ins[i] = boolToGate(gateActive);
 
         bool muteGate = params[MUTE1_PARAM + i].getValue() >= 1.0f;
-        muteGate = muteGate || inputs[MUTE1_INPUT + i].getVoltage() >= 1.0f;
-        muteGate = muteGate || inputs[POLY_MUTE_INPUT].getVoltage(i) >= 1.0f;
-        
+        muteGate = muteGate || isGateHigh(inputs[MUTE1_INPUT + i].getVoltage());
+        muteGate = muteGate || isGateHigh(inputs[POLY_MUTE_INPUT].getVoltage(i));
+
         bool invertGate = params[INV1_PARAM + i].getValue() >= 1.0f;
-        invertGate = invertGate || inputs[INVERT1_INPUT + i].getVoltage() >= 1.0f;                   
-        invertGate = invertGate || inputs[POLY_INVERT_INPUT].getVoltage(i) >= 1.0f;
+        invertGate = invertGate || isGateHigh(inputs[INVERT1_INPUT + i].getVoltage());
+        invertGate = invertGate || isGateHigh(inputs[POLY_INVERT_INPUT].getVoltage(i));
 
         if (muteTrigger[i].process(muteGate  ? HCV_GATE_MAG : 0.0f)) muteState[i] ^= true;
         if (invTrigger[i].process(invertGate ? HCV_GATE_MAG : 0.0f)) invState[i] ^= true;

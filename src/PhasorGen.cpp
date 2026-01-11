@@ -210,7 +210,7 @@ void PhasorGen::process(const ProcessArgs &args)
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;;
         phasors[i].setPulseWidth(pulseWidth);
 
-        phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
+        phasors[i].setFrozen(isGateHigh(inputs[FREEZE_INPUT].getPolyVoltage(i)));
         bool resetThisFrame = phasors[i].processGateResetInput(inputs[RESET_INPUT].getPolyVoltage(i));
 
         

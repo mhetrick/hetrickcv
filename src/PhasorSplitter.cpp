@@ -107,7 +107,7 @@ void PhasorSplitter::process(const ProcessArgs &args)
         bool active = true;
         if(inputs[RUN_INPUT].isConnected())
         {
-            active = inputs[RUN_INPUT].getPolyVoltage(chan) >= 1.0f;
+            active = isGateHigh(inputs[RUN_INPUT].getPolyVoltage(chan));
         }
 
         const float phasorIn = active ? inputs[PHASOR_INPUT].getPolyVoltage(chan) : 0.0f;
@@ -180,7 +180,7 @@ void PhasorSplitter::process(const ProcessArgs &args)
     bool active = true;
     if(inputs[RUN_INPUT].isConnected())
     {
-        active = inputs[RUN_INPUT].getPolyVoltage(0) >= 1.0f;
+        active = isGateHigh(inputs[RUN_INPUT].getPolyVoltage(0));
     }
     bool isPlaying = slopeDetectors[0].isPhasorAdvancing() && active;
 

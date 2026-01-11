@@ -206,8 +206,8 @@ void BinaryCounter::process(const ProcessArgs &args)
 
     for(int i = 0; i < 8; i++)
     {
-        ins[i] = inputs[POLY_INPUT].getVoltage(i) >= 1.0f;
-        if (inputs[IN1_INPUT + i].isConnected()) ins[i] = inputs[IN1_INPUT + i].getVoltage() >= 1.0f;
+        ins[i] = isGateHigh(inputs[POLY_INPUT].getVoltage(i));
+        if (inputs[IN1_INPUT + i].isConnected()) ins[i] = isGateHigh(inputs[IN1_INPUT + i].getVoltage());
 
         bool invertGate = params[INV1_PARAM + i].getValue() >= 1.0f;
         if (invTrigger[i].process(invertGate ? HCV_GATE_MAG : 0.0f)) invState[i] ^= true;

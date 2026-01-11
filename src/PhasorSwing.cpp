@@ -138,7 +138,7 @@ void PhasorSwing::process(const ProcessArgs &args)
         bool active = true;
         if(inputs[ACTIVE_INPUT].isConnected())
         {
-            active = inputs[ACTIVE_INPUT].getPolyVoltage(i) >= 1.0f;
+            active = isGateHigh(inputs[ACTIVE_INPUT].getPolyVoltage(i));
         }
 
         swingProcs[i].setNumStepsAndGrouping(steps, grouping);
@@ -169,7 +169,7 @@ void PhasorSwing::process(const ProcessArgs &args)
     bool active = true;
     if(inputs[ACTIVE_INPUT].isConnected())
     {
-        active = inputs[ACTIVE_INPUT].getVoltage() >= 1.0f;
+        active = isGateHigh(inputs[ACTIVE_INPUT].getVoltage());
     }
 
     lights[ACTIVE_LIGHT].setBrightness(active ? 1.0f : 0.0f);

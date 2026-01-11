@@ -218,7 +218,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
         }
 
         //cycle input acts as a momentary toggle for internal cycling state
-        const bool cycleMode = (inputs[CYCLE_INPUT].getPolyVoltage(i) >= 1.0f) ? !cycling : cycling;
+        const bool cycleMode = isGateHigh(inputs[CYCLE_INPUT].getPolyVoltage(i)) ? !cycling : cycling;
 
         float modulatedRepeats = repeatsCVDepth * inputs[REPEATS_INPUT].getPolyVoltage(i) * REPEATS_CV_SCALAR;
         float repeats = clamp(repeatsKnob + modulatedRepeats, 1.0f, MAX_REPEATS);
@@ -228,7 +228,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
         pulseWidth = clamp(pulseWidth, -5.0f, 5.0f) * 0.1f + 0.5f;;
         phasors[i].setPulseWidth(pulseWidth);
 
-        phasors[i].setFrozen(inputs[FREEZE_INPUT].getPolyVoltage(i) >= 1.0f);
+        phasors[i].setFrozen(isGateHigh(inputs[FREEZE_INPUT].getPolyVoltage(i)));
 
         bool phasorJustStopped = false;
         const float stopValue = inputs[STOP_INPUT].getPolyVoltage(i) + stopButton;
@@ -273,7 +273,7 @@ void PhasorBurstGen::process(const ProcessArgs &args)
     setLightSmoothFromOutput(PASS_LIGHT, PASS_OUTPUT);
     setLightFromOutput(FINISH_LIGHT, FINISH_OUTPUT);
 
-    const bool cycleMode = (inputs[CYCLE_INPUT].getVoltage() >= 1.0f) ? !cycling : cycling;
+    const bool cycleMode = isGateHigh(inputs[CYCLE_INPUT].getVoltage()) ? !cycling : cycling;
     lights[CYCLE_LIGHT].setBrightness(cycleMode ? 1.0f : 0.0f);
 }
 

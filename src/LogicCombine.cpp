@@ -85,7 +85,7 @@ void LogicCombine::process(const ProcessArgs &args)
 
     for(int i = 0; i < NUM_INPUTS; i++)
     {
-        ins[i] = (inputs[IN1_INPUT + i].getVoltage() >= 1.0f);
+        ins[i] = isGateHigh(inputs[IN1_INPUT + i].getVoltage());
 
         trigs[i] = inTrigs[i].process(ins[i] ? HCV_GATE_MAG : 0.0f);
 
@@ -96,7 +96,7 @@ void LogicCombine::process(const ProcessArgs &args)
     for(int i = 0; i < inputs[POLY_INPUT].getChannels(); i++)
     {
         int polyIndex = i+8; //offset by 8, since we process the 8 non-poly channels above
-        ins[polyIndex] =  inputs[POLY_INPUT].getVoltage(i) >= 1.0f;
+        ins[polyIndex] = isGateHigh(inputs[POLY_INPUT].getVoltage(i));
         trigs[polyIndex] = inTrigs[polyIndex].process(ins[polyIndex] ? HCV_GATE_MAG : 0.0f);
 
         orState = orState || ins[polyIndex];

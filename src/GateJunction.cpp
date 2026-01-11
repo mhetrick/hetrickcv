@@ -178,14 +178,14 @@ struct GateJunction : HCVModule
 
 void GateJunction::process(const ProcessArgs &args)
 {
-    ins[0] = (inputs[IN1_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
+    ins[0] = boolToGate(isGateHigh(inputs[IN1_INPUT].getVoltage()));
 
     for(int i = 1; i < 8; i++)
     {
         const int thisInput = IN1_INPUT + i;
         if(inputs[thisInput].isConnected())
         {
-            ins[i] = (inputs[thisInput].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
+            ins[i] = boolToGate(isGateHigh(inputs[thisInput].getVoltage()));
         }
         else
         {

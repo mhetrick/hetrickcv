@@ -82,7 +82,7 @@ void FlipFlop::process(const ProcessArgs &args)
     // Process each channel
     for (int c = 0; c < channels; c++)
     {
-        dataIn[c] = (inputs[IND_INPUT].getPolyVoltage(c) >= 1.0f);
+        dataIn[c] = isGateHigh(inputs[IND_INPUT].getPolyVoltage(c));
 
         if (clockTrigger[c].process(inputs[INT_INPUT].getPolyVoltage(c)))
         {
@@ -103,7 +103,7 @@ void FlipFlop::process(const ProcessArgs &args)
 
     // Lights show the state of channel 0
     lights[DATA_LIGHT].value = dataIn[0] ? HCV_GATE_MAG : 0.0f;
-    lights[TOGGLE_LIGHT].value = (inputs[INT_INPUT].getVoltage() >= 1.0f) ? HCV_GATE_MAG : 0.0f;
+    lights[TOGGLE_LIGHT].value = boolToGate(isGateHigh(inputs[INT_INPUT].getVoltage()));
 
     lights[FFT_LIGHT].value = outs[0][0];
     lights[FFD_LIGHT].value = outs[0][1];
